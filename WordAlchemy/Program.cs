@@ -5,6 +5,9 @@ IntPtr window = IntPtr.Zero;
 IntPtr renderer = IntPtr.Zero;
 bool isRunning = true;
 
+int WINDOW_WIDTH = 1040;
+int WINDOW_HEIGHT = 880;
+
 void SetUp()
 {
     if (SDL.SDL_Init(SDL.SDL_INIT_VIDEO) < 0)
@@ -17,8 +20,8 @@ void SetUp()
     window = SDL.SDL_CreateWindow("Word Alchemy", 
         SDL.SDL_WINDOWPOS_UNDEFINED, 
         SDL.SDL_WINDOWPOS_UNDEFINED, 
-        640, 
-        480, 
+        WINDOW_WIDTH, 
+        WINDOW_HEIGHT, 
         SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN);
 
     if (window == IntPtr.Zero )
@@ -60,7 +63,26 @@ void Render()
 
     SDL.SDL_RenderClear(renderer);
 
+    DrawGrid();
+
     SDL.SDL_RenderPresent(renderer);
+}
+
+void DrawGrid()
+{
+    int width = 10;
+
+    SDL.SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+    for (int x = 0; x < WINDOW_WIDTH; x += width)
+    {
+        SDL.SDL_RenderDrawLine(renderer, x, 0, x, WINDOW_HEIGHT);
+    }
+
+    for (int y = 0; y < WINDOW_HEIGHT; y += width)
+    {
+        SDL.SDL_RenderDrawLine(renderer, 0, y, WINDOW_WIDTH, y);
+    }
 }
 
 void CleanUp()
