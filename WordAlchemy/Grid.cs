@@ -36,7 +36,7 @@ namespace WordAlchemy
             OriginOffsetX = 0;
             OriginOffsetY = 0;
 
-            CellWidth = 10;
+            CellWidth = 20;
 
             IsCellSelected = false;
             CellSelectedX = 0;

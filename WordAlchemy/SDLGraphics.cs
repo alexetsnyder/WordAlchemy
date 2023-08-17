@@ -101,7 +101,12 @@ namespace WordAlchemy
             SDL.SDL_Quit();
         }
 
-        public void DrawLine(int x1, int y1, int x2, int y2)
+        public IntPtr CreateTextureFromSurface(IntPtr surface)
+        {
+            return SDL.SDL_CreateTextureFromSurface(Renderer, surface);
+        }
+
+        public void DrawLine(int x1, int y1, int x2, int y2) 
         {
             SDL.SDL_RenderDrawLine(Renderer, x1, y1, x2, y2);
         }
@@ -114,6 +119,19 @@ namespace WordAlchemy
         public void FillRect(ref SDL.SDL_Rect rect)
         {
             SDL.SDL_RenderFillRect(Renderer, ref rect);
+        }
+
+        public void DrawTexture(IntPtr texture, int x, int y)
+        {
+            SDL.SDL_Rect dest = new SDL.SDL_Rect
+            {
+                x = x,
+                y = y,
+            };
+
+            SDL.SDL_QueryTexture(texture, out _, out _, out dest.w, out dest.h);
+
+            SDL.SDL_RenderCopy(Renderer, texture, IntPtr.Zero, ref dest);
         }
     }
 }
