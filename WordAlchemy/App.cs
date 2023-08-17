@@ -45,6 +45,20 @@ namespace WordAlchemy
                     case SDL.SDL_EventType.SDL_QUIT:
                         IsRunning = false;
                         break;
+                    case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
+                        System.Diagnostics.Debug.WriteLine($"{e.button.button}");
+
+                        SDL.SDL_GetMouseState(out int x, out int y);
+                        System.Diagnostics.Debug.WriteLine($"Mouse X: {x}, Mouse Y: {y}");
+
+                        GGrid.ScreenToCell(x, y, out int cellX, out int cellY);
+                        System.Diagnostics.Debug.WriteLine($"Cell X: {cellX}, Cell Y: {cellY}");
+
+                        GGrid.CellToScreen(cellX, cellY, out int screenX, out int screenY);
+                        System.Diagnostics.Debug.WriteLine($"Screen X: {screenX}, Screen Y: {screenY}");
+
+                        GGrid.SelectCell(x, y);
+                        break;
                 }
             }
         }

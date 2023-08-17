@@ -27,7 +27,7 @@ namespace WordAlchemy
         {
             if (SDL.SDL_Init(SDL.SDL_INIT_VIDEO) < 0)
             {
-                Console.WriteLine($"There was an issue initializing SDL. {SDL.SDL_GetError()}");
+                System.Diagnostics.Debug.WriteLine($"There was an issue initializing SDL. {SDL.SDL_GetError()}");
                 return false;
             }
 
@@ -40,7 +40,7 @@ namespace WordAlchemy
 
             if (Window == IntPtr.Zero)
             {
-                Console.WriteLine($"There was an issue creating the window. {SDL.SDL_GetError()}");
+                System.Diagnostics.Debug.WriteLine($"There was an issue creating the window. {SDL.SDL_GetError()}");
                 return false;
             }
 
@@ -52,7 +52,7 @@ namespace WordAlchemy
 
             if (Renderer == IntPtr.Zero)
             {
-                Console.WriteLine($"There was an issue creating the renderer. {SDL.SDL_GetError()}");
+                System.Diagnostics.Debug.WriteLine($"There was an issue creating the renderer. {SDL.SDL_GetError()}");
                 return false;
             }
 
@@ -104,6 +104,16 @@ namespace WordAlchemy
         public void DrawLine(int x1, int y1, int x2, int y2)
         {
             SDL.SDL_RenderDrawLine(Renderer, x1, y1, x2, y2);
+        }
+
+        public void DrawRect(ref SDL.SDL_Rect rect)
+        {
+            SDL.SDL_RenderDrawRect(Renderer, ref rect);
+        }
+
+        public void FillRect(ref SDL.SDL_Rect rect)
+        {
+            SDL.SDL_RenderFillRect(Renderer, ref rect);
         }
     }
 }
