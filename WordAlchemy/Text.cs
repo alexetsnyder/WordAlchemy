@@ -55,11 +55,11 @@ namespace WordAlchemy
             SDL.SDL_FreeSurface(surface);
         }
 
-        public void Draw(SDLGraphics graphics)
+        public void Draw(SDLGraphics graphics, int x, int y)
         {
             if (IsTextureCreated)
             {
-                graphics.DrawTexture(Texture, 520 - Width / 2, 440 - Height / 2);
+                graphics.DrawTexture(Texture, x, y);
             }
             else
             {

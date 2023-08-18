@@ -12,7 +12,7 @@ namespace WordAlchemy
         IntPtr Window { get; set; }
         IntPtr Renderer { get; set; }
 
-        public SDLGraphics(int width = 1040, int height = 880) 
+        public SDLGraphics(int width, int height) 
         {
             WindowWidth = width;
             WindowHeight = height;

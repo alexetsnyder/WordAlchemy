@@ -4,18 +4,22 @@ namespace WordAlchemy
 {
     internal class App
     {
+        public int WindowWidth { get; set; }
+        public int WindowHeight { get; set; }
+
         public bool IsRunning { get; set; }
 
         private SDLGraphics Graphics { get; set; }
 
-        private Grid GGrid { get; set; }
+        private World GameWorld { get; set; }
 
-        private Text GameText { get; set; }
-
-        public App()
+        public App(int windowWidth, int windowHeight)
         {
+            WindowWidth = windowWidth;
+            WindowHeight = windowHeight;
+
             IsRunning = true;
-            Graphics = new SDLGraphics();
+            Graphics = new SDLGraphics(windowWidth, windowHeight);
             
             if (!Graphics.Init())
             {
@@ -27,12 +31,9 @@ namespace WordAlchemy
                 System.Diagnostics.Debug.WriteLine($"Couldn't initialize SDL TTF: {SDL.SDL_GetError()}");
                 IsRunning = false;
             }
-            else
-            {
-                CreateText();
-            }
 
-            GGrid = new Grid(1040, 880);
+            GameWorld = new World(windowWidth, windowHeight, 100, 100);
+            GameWorld.CreateTiles(Graphics);
         }
 
         public void Run()
@@ -63,13 +64,13 @@ namespace WordAlchemy
                         SDL.SDL_GetMouseState(out int x, out int y);
                         System.Diagnostics.Debug.WriteLine($"Mouse X: {x}, Mouse Y: {y}");
 
-                        GGrid.ScreenToCell(x, y, out int cellX, out int cellY);
+                        GameWorld.WorldGrid.ScreenToCell(x, y, out int cellX, out int cellY);
                         System.Diagnostics.Debug.WriteLine($"Cell X: {cellX}, Cell Y: {cellY}");
 
-                        GGrid.CellToScreen(cellX, cellY, out int screenX, out int screenY);
+                        GameWorld.WorldGrid.CellToScreen(cellX, cellY, out int screenX, out int screenY);
                         System.Diagnostics.Debug.WriteLine($"Screen X: {screenX}, Screen Y: {screenY}");
 
-                        GGrid.SelectCell(x, y);
+                        GameWorld.WorldGrid.SelectCell(x, y);
                         break;
                 }
             }
@@ -79,40 +80,9 @@ namespace WordAlchemy
         {
             Graphics.Clear();
 
-            GGrid.Draw(Graphics);
-
-            RenderText();
+            GameWorld.Draw(Graphics);
 
             Graphics.Present();
-        }
-
-        private void CreateText()
-        {
-            SDL.SDL_Color neonPink = new SDL.SDL_Color
-            {
-                r = 255,
-                g = 16,
-                b = 240,
-                a = 255,
-            };
-
-            SDL.SDL_Color roseGold = new SDL.SDL_Color
-            {
-                r = 224,
-                g = 191,
-                b = 184,
-                a = 255,
-            };
-
-            Font font = new Font("Assets/Fonts/Courier Prime.ttf", 48);
-
-            GameText = new Text(font, "Hello World!", neonPink);
-            GameText.CreateTexture(Graphics);
-        }
-
-        private void  RenderText()
-        {
-            GameText.Draw(Graphics);
         }
     }
 }
