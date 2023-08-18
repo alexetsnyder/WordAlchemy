@@ -66,12 +66,22 @@ namespace WordAlchemy
 
             graphics.SetDrawColor(0, 0, 0, 255);
 
-            for (int x = 0; x < WindowWidth; x += CellWidth)
+            for (int x = WindowWidth / 2; x >= 0; x -= CellWidth)
             {
                 graphics.DrawLine(x, 0, x, WindowHeight);
             }
 
-            for (int y = 0; y < WindowHeight; y += CellWidth)
+            for (int x = WindowWidth / 2 + CellWidth; x <= WindowWidth; x += CellWidth)
+            {
+                graphics.DrawLine(x, 0, x, WindowHeight);
+            }
+
+            for (int y = WindowHeight / 2; y >= 0; y -= CellWidth)
+            {
+                graphics.DrawLine(0, y, WindowWidth, y);
+            }
+
+            for (int y = WindowHeight / 2 + CellWidth; y <= WindowHeight; y += CellWidth)
             {
                 graphics.DrawLine(0, y, WindowWidth, y);
             }
@@ -91,6 +101,17 @@ namespace WordAlchemy
                 CellSelectedX = cellX;
                 CellSelectedY = cellY;
             }
+        }
+
+        public bool IsOnScreen(int cellX,  int cellY)
+        {
+            CellToScreen(cellX, cellY, out int screenX, out int screenY);
+            if (screenX >= 0 && screenY <= WindowWidth &&
+                screenY >= 0 && screenY <= WindowHeight)
+            {
+                return true;
+            }
+            return false;
         }
 
         public void ScreenToCell(int screenX, int screenY, out  int cellX, out int cellY)

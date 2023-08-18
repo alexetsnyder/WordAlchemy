@@ -32,6 +32,14 @@ namespace WordAlchemy
                 a = 255,
             };
 
+            SDL.SDL_Color red = new SDL.SDL_Color
+            {
+                r = 250,
+                g =   0,
+                b =   0,
+                a = 255,
+            };
+
             SDL.SDL_Color blue = new SDL.SDL_Color
             {
                 r =   0,
@@ -48,7 +56,11 @@ namespace WordAlchemy
                     int y = j * WorldGrid.CellWidth;
 
                     Text text;
-                    if (j > -2 && j < 2)
+                    if (x == -WorldGrid.WindowWidth / 2 && y == -WorldGrid.WindowHeight / 2)
+                    {
+                        text = new Text(font, ".", red);
+                    }
+                    else if (j > -2 && j < 2)
                     {
                         text = new Text(font, "~", blue);
                     }
@@ -70,7 +82,10 @@ namespace WordAlchemy
             WorldGrid.Draw(graphics);
             foreach (Tile tile in Tiles)
             {
-                tile.Draw(graphics, WorldGrid);
+                if (WorldGrid.IsOnScreen(tile.GridX, tile.GridY))
+                {
+                    tile.Draw(graphics, WorldGrid);
+                }  
             }
         }
     }

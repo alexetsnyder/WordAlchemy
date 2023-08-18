@@ -19,8 +19,8 @@ namespace WordAlchemy
         public void Draw(SDLGraphics graphics, Grid grid)
         {
             grid.CellToScreen(GridX, GridY, out int screenX, out int screenY);
-            int centerX = screenX - grid.CellWidth / 2;
-            int centerY = screenY - grid.CellWidth / 2;
+            int centerX = screenX + grid.CellWidth / 2;
+            int centerY = screenY + grid.CellWidth / 2;
 
             TileText.Draw(graphics, centerX - TileText.Width / 2, centerY - TileText.Height / 2);
         }
