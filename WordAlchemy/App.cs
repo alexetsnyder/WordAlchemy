@@ -1,5 +1,4 @@
-﻿
-using SDL2;
+﻿using SDL2;
 
 namespace WordAlchemy
 {
@@ -11,7 +10,7 @@ namespace WordAlchemy
 
         private Grid GGrid { get; set; }
 
-        private IntPtr TextTexture { get; set; }
+        private Text GameText { get; set; }
 
         public App()
         {
@@ -89,26 +88,31 @@ namespace WordAlchemy
 
         private void CreateText()
         {
-            SDL.SDL_Color color = new SDL.SDL_Color
+            SDL.SDL_Color neonPink = new SDL.SDL_Color
             {
-                r =   0,
-                g =   0,
-                b = 255,
+                r = 255,
+                g = 16,
+                b = 240,
                 a = 255,
             };
-            IntPtr font = SDL_ttf.TTF_OpenFont("Assets/Fonts/Courier Prime.ttf", 48);
 
-            IntPtr surface = SDL_ttf.TTF_RenderUTF8_Blended(font, "Hello World!", color);
+            SDL.SDL_Color roseGold = new SDL.SDL_Color
+            {
+                r = 224,
+                g = 191,
+                b = 184,
+                a = 255,
+            };
 
-            TextTexture = Graphics.CreateTextureFromSurface(surface);
+            Font font = new Font("Assets/Fonts/Courier Prime.ttf", 48);
 
-            SDL.SDL_FreeSurface(surface);
+            GameText = new Text(font, "Hello World!", neonPink);
+            GameText.CreateTexture(Graphics);
         }
 
         private void  RenderText()
         {
-            SDL.SDL_QueryTexture(TextTexture, out _, out _, out int w, out int h);
-            Graphics.DrawTexture(TextTexture, 520 - w / 2, 440 - h / 2);
+            GameText.Draw(Graphics);
         }
     }
 }
