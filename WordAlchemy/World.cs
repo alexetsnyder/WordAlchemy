@@ -56,11 +56,7 @@ namespace WordAlchemy
                     int y = j * WorldGrid.CellWidth;
 
                     Text text;
-                    if (x == -WorldGrid.WindowWidth / 2 && y == -WorldGrid.WindowHeight / 2)
-                    {
-                        text = new Text(font, ".", red);
-                    }
-                    else if (j > -2 && j < 2)
+                    if (j > -5 && j < 5)
                     {
                         text = new Text(font, "~", blue);
                     }
