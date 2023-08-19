@@ -102,19 +102,19 @@ namespace WordAlchemy
             {
                 if (key == SDL.SDL_Keycode.SDLK_w)
                 {
-                    GameWorld.WorldGrid.OriginOffsetY += GameWorld.WorldGrid.CellWidth;
+                    GameWorld.WorldGrid.OriginOffsetY += 1;
                 }
                 if (key == SDL.SDL_Keycode.SDLK_s)
                 {
-                    GameWorld.WorldGrid.OriginOffsetY -= GameWorld.WorldGrid.CellWidth;
+                    GameWorld.WorldGrid.OriginOffsetY -= 1;
                 }
                 if (key == SDL.SDL_Keycode.SDLK_a)
                 {
-                    GameWorld.WorldGrid.OriginOffsetX += GameWorld.WorldGrid.CellWidth;
+                    GameWorld.WorldGrid.OriginOffsetX += 1;
                 }
                 if (key == SDL.SDL_Keycode.SDLK_d)
                 {
-                    GameWorld.WorldGrid.OriginOffsetX -= GameWorld.WorldGrid.CellWidth;
+                    GameWorld.WorldGrid.OriginOffsetX -= 1;
                 }
             }  
         }

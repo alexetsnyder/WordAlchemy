@@ -66,22 +66,28 @@ namespace WordAlchemy
 
             graphics.SetDrawColor(0, 0, 0, 255);
 
-            for (int x = ScreenOriginX; x >= 0; x -= CellWidth)
+            int modOffsetX = OriginOffsetX % CellWidth;
+            int modOffsetY = OriginOffsetY % CellWidth;
+
+            int gridStartX = ScreenOriginX + ((OriginOffsetX < 0) ? modOffsetX + CellWidth : modOffsetX);
+            int gridStartY = ScreenOriginY + ((OriginOffsetY < 0) ? modOffsetY + CellWidth : modOffsetY);
+
+            for (int x = gridStartX; x >= 0; x -= CellWidth)
             {
                 graphics.DrawLine(x, 0, x, WindowHeight);
             }
 
-            for (int x = ScreenOriginX + CellWidth; x <= WindowWidth; x += CellWidth)
+            for (int x = gridStartX + CellWidth; x <= WindowWidth; x += CellWidth)
             {
                 graphics.DrawLine(x, 0, x, WindowHeight);
             }
 
-            for (int y = ScreenOriginY; y >= 0; y -= CellWidth)
+            for (int y = gridStartY; y >= 0; y -= CellWidth)
             {
                 graphics.DrawLine(0, y, WindowWidth, y);
             }
 
-            for (int y = ScreenOriginY + CellWidth; y <= WindowHeight; y += CellWidth)
+            for (int y = gridStartY + CellWidth; y <= WindowHeight; y += CellWidth)
             {
                 graphics.DrawLine(0, y, WindowWidth, y);
             }
@@ -106,8 +112,8 @@ namespace WordAlchemy
         public bool IsOnScreen(int cellX,  int cellY)
         {
             CellToScreen(cellX, cellY, out int screenX, out int screenY);
-            if (screenX >= 0 && screenY <= WindowWidth &&
-                screenY >= 0 && screenY <= WindowHeight)
+            if (screenX > -CellWidth && screenY <= WindowWidth &&
+                screenY > -CellWidth && screenY <= WindowHeight)
             {
                 return true;
             }
