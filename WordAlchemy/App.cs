@@ -98,23 +98,25 @@ namespace WordAlchemy
 
         private void HandleKeys()
         {
+            int speed = 5;
+
             foreach (var key in KeysPressedList)
             {
                 if (key == SDL.SDL_Keycode.SDLK_w)
                 {
-                    GameWorld.WorldGrid.OriginOffsetY += 1;
+                    GameWorld.WorldGrid.OriginOffsetY += speed;
                 }
                 if (key == SDL.SDL_Keycode.SDLK_s)
                 {
-                    GameWorld.WorldGrid.OriginOffsetY -= 1;
+                    GameWorld.WorldGrid.OriginOffsetY -= speed;
                 }
                 if (key == SDL.SDL_Keycode.SDLK_a)
                 {
-                    GameWorld.WorldGrid.OriginOffsetX += 1;
+                    GameWorld.WorldGrid.OriginOffsetX += speed;
                 }
                 if (key == SDL.SDL_Keycode.SDLK_d)
                 {
-                    GameWorld.WorldGrid.OriginOffsetX -= 1;
+                    GameWorld.WorldGrid.OriginOffsetX -= speed;
                 }
             }  
         }
