@@ -42,10 +42,6 @@ namespace WordAlchemy
                     {
                         text = new Text(font, "~", Colors.Blue());
                     }
-                    //else
-                    //{
-                    //    text = new Text(font, ".", Colors.Brown());
-                    //}
 
                     text.CreateTexture(graphics);
                     Tile tile = new Tile(text, x, y);
