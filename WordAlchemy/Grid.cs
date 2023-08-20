@@ -1,4 +1,5 @@
 ﻿using SDL2;
+using System.Diagnostics;
 
 namespace WordAlchemy
 {
@@ -41,6 +42,8 @@ namespace WordAlchemy
             IsCellSelected = false;
             CellSelectedX = 0;
             CellSelectedY = 0;
+
+            EventSystem.Instance.Listen(SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, MouseButtonDownEvent);
         }
 
         public void Draw(SDLGraphics graphics)
@@ -136,6 +139,23 @@ namespace WordAlchemy
         {
             screenX = cellX - (WorldOriginX - ScreenOriginX - OriginOffsetX);
             screenY = cellY - (WorldOriginY - ScreenOriginY - OriginOffsetY);
+        }
+
+        private void MouseButtonDownEvent(SDL.SDL_Event e)
+        {
+            if (e.button.button == SDL.SDL_BUTTON_LEFT)
+            {
+                SDL.SDL_GetMouseState(out int x, out int y);
+                Debug.WriteLine($"Mouse X: {x}, Mouse Y: {y}");
+
+                ScreenToCell(x, y, out int cellX, out int cellY);
+                Debug.WriteLine($"Cell X: {cellX}, Cell Y: {cellY}");
+
+                CellToScreen(cellX, cellY, out int screenX, out int screenY);
+                Debug.WriteLine($"Screen X: {screenX}, Screen Y: {screenY}");
+
+                SelectCell(x, y);
+            }
         }
     }
 }

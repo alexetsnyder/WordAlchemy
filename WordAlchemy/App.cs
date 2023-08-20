@@ -12,9 +12,9 @@ namespace WordAlchemy
 
         private SDLGraphics Graphics { get; set; }
 
-        private World GameWorld { get; set; }
+        private EventSystem Events { get; set; }
 
-        private List<SDL.SDL_Keycode> KeysPressedList { get; set; }
+        private World GameWorld { get; set; }
 
         public App(int windowWidth, int windowHeight)
         {
@@ -35,10 +35,19 @@ namespace WordAlchemy
                 IsRunning = false;
             }
 
+            Events = EventSystem.Instance;
+            WireEvents();
+
             GameWorld = new World(windowWidth, windowHeight, 100, 100);
             GameWorld.CreateTiles(Graphics);
+        }
 
-            KeysPressedList = new List<SDL.SDL_Keycode>();
+        public void WireEvents()
+        {
+            Events.Listen(SDL.SDL_EventType.SDL_QUIT, (e) => this.IsRunning = false);
+            Events.Listen(SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, (e) => Debug.WriteLine($"Mouse Button: {e.button.button}"));
+            Events.Listen(SDL.SDL_EventType.SDL_KEYDOWN, (e) => Debug.WriteLine($"Key Down: {e.key.keysym.sym}"));
+            Events.Listen(SDL.SDL_EventType.SDL_KEYUP, (e) => Debug.WriteLine($"Key Up: {e.key.keysym.sym}"));
         }
 
         public void Run()
@@ -46,7 +55,8 @@ namespace WordAlchemy
             while (IsRunning)
             {
                 PollEvents();
-                HandleKeys();
+
+                GameWorld.Update();
 
                 Render();
             }
@@ -59,66 +69,8 @@ namespace WordAlchemy
         {
             foreach (var e in Graphics.PollEvents())
             {
-                switch (e.type)
-                {
-                    case SDL.SDL_EventType.SDL_QUIT:
-                        IsRunning = false;
-                        break;
-                    case SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN:
-                        Debug.WriteLine($"{e.button.button}");
-                     
-                        if (e.button.button == SDL.SDL_BUTTON_LEFT)
-                        {
-                            SDL.SDL_GetMouseState(out int x, out int y);
-                            Debug.WriteLine($"Mouse X: {x}, Mouse Y: {y}");
-
-                            GameWorld.WorldGrid.ScreenToCell(x, y, out int cellX, out int cellY);
-                            Debug.WriteLine($"Cell X: {cellX}, Cell Y: {cellY}");
-
-                            GameWorld.WorldGrid.CellToScreen(cellX, cellY, out int screenX, out int screenY);
-                            Debug.WriteLine($"Screen X: {screenX}, Screen Y: {screenY}");
-
-                            GameWorld.WorldGrid.SelectCell(x, y);
-                        }
-                        break;
-                    case SDL.SDL_EventType.SDL_KEYDOWN:
-                        Debug.WriteLine(e.key.keysym.sym);
-                        if (!KeysPressedList.Contains(e.key.keysym.sym))
-                        {
-                            KeysPressedList.Add(e.key.keysym.sym);
-                        }
-                        break;
-                    case SDL.SDL_EventType.SDL_KEYUP:
-                        Debug.WriteLine(e.key.keysym.sym);
-                        KeysPressedList.Remove(e.key.keysym.sym);
-                        break;
-                }
+                Events.Invoke(e);
             }
-        }
-
-        private void HandleKeys()
-        {
-            int speed = 5;
-
-            foreach (var key in KeysPressedList)
-            {
-                if (key == SDL.SDL_Keycode.SDLK_w)
-                {
-                    GameWorld.WorldGrid.OriginOffsetY += speed;
-                }
-                if (key == SDL.SDL_Keycode.SDLK_s)
-                {
-                    GameWorld.WorldGrid.OriginOffsetY -= speed;
-                }
-                if (key == SDL.SDL_Keycode.SDLK_a)
-                {
-                    GameWorld.WorldGrid.OriginOffsetX += speed;
-                }
-                if (key == SDL.SDL_Keycode.SDLK_d)
-                {
-                    GameWorld.WorldGrid.OriginOffsetX -= speed;
-                }
-            }  
         }
 
         private void Render()

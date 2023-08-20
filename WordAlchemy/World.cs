@@ -14,6 +14,8 @@ namespace WordAlchemy
         
         public WorldGen MapGen { get; set; }
 
+        private List<SDL.SDL_Keycode> KeysPressedList { get; set; }
+
         public World(int windowWidth, int windowHeight, int rows, int cols)
         {
             WorldGrid = new Grid(windowWidth, windowHeight);
@@ -22,8 +24,20 @@ namespace WordAlchemy
 
             Tiles = new Tile[Rows * Cols];
 
-            MapGen = new WorldGen(Rows, Cols, 13);
+            Random random = new Random();
+            MapGen = new WorldGen(Rows, Cols, random.Next(0, 1000000));
             MapGen.GenerateHeightMap();
+
+            KeysPressedList = new List<SDL.SDL_Keycode>();
+
+            WireEvents();
+        }
+
+        private void WireEvents()
+        {
+            EventSystem eventSystem = EventSystem.Instance;
+            eventSystem.Listen(SDL.SDL_EventType.SDL_KEYDOWN, KeyDownEvent);
+            eventSystem.Listen(SDL.SDL_EventType.SDL_KEYUP, KeyUpEvent);
         }
 
         public void CreateTiles(SDLGraphics graphics)
@@ -51,6 +65,11 @@ namespace WordAlchemy
             }
         }
 
+        public void Update()
+        {
+            HandelKeys();
+        }
+
         public void Draw(SDLGraphics graphics)
         {
             WorldGrid.Draw(graphics);
@@ -61,6 +80,44 @@ namespace WordAlchemy
                     tile.Draw(graphics, WorldGrid);
                 }  
             }
+        }
+
+        private void HandelKeys()
+        {
+            int speed = 5;
+
+            foreach (var key in KeysPressedList)
+            {
+                if (key == SDL.SDL_Keycode.SDLK_w)
+                {
+                    WorldGrid.OriginOffsetY += speed;
+                }
+                if (key == SDL.SDL_Keycode.SDLK_s)
+                {
+                    WorldGrid.OriginOffsetY -= speed;
+                }
+                if (key == SDL.SDL_Keycode.SDLK_a)
+                {
+                    WorldGrid.OriginOffsetX += speed;
+                }
+                if (key == SDL.SDL_Keycode.SDLK_d)
+                {
+                    WorldGrid.OriginOffsetX -= speed;
+                }
+            }
+        }
+
+        public void KeyDownEvent(SDL.SDL_Event e)
+        {
+            if (!KeysPressedList.Contains(e.key.keysym.sym))
+            {
+                KeysPressedList.Add(e.key.keysym.sym);
+            }
+        }
+
+        public void KeyUpEvent(SDL.SDL_Event e)
+        {
+            KeysPressedList.Remove(e.key.keysym.sym);
         }
     }
 }
