@@ -24,29 +24,6 @@ namespace WordAlchemy
         public void CreateTiles(SDLGraphics graphics)
         {
             Font font = new Font("Assets/Fonts/Courier Prime.ttf", 24);
-            SDL.SDL_Color brown = new SDL.SDL_Color
-            {
-                r = 150,
-                g =  75,
-                b =   0,
-                a = 255,
-            };
-
-            SDL.SDL_Color red = new SDL.SDL_Color
-            {
-                r = 250,
-                g =   0,
-                b =   0,
-                a = 255,
-            };
-
-            SDL.SDL_Color blue = new SDL.SDL_Color
-            {
-                r =   0,
-                g =   0,
-                b = 255,
-                a = 255,
-            };
 
             for (int i = -Rows / 2; i < Rows / 2; i++)
             {
@@ -58,11 +35,11 @@ namespace WordAlchemy
                     Text text;
                     if (j > -5 && j < 5)
                     {
-                        text = new Text(font, "~", blue);
+                        text = new Text(font, "~", Colors.Blue());
                     }
                     else
                     {
-                        text = new Text(font, ".", brown);
+                        text = new Text(font, ".", Colors.Brown());
                     }
 
                     text.CreateTexture(graphics);
