@@ -59,6 +59,11 @@ namespace WordAlchemy
             return true;
         }
 
+        public void SetClearColor(SDL.SDL_Color clearColor)
+        {
+            SetClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a);
+        }
+
         public void SetClearColor(byte r, byte g, byte b, byte a)
         {
             ClearColor = new SDL.SDL_Color
@@ -68,6 +73,11 @@ namespace WordAlchemy
                 b = b,
                 a = a
             };
+        }
+
+        public void SetDrawColor(SDL.SDL_Color color)
+        {
+            SetDrawColor(color.r, color.g, color.b, color.a);
         }
 
         public void SetDrawColor(byte r, byte g,byte b,byte a)

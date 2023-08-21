@@ -37,74 +37,66 @@ namespace WordAlchemy
             }
         }
 
-        public string GetTerrainType(int x, int y)
+        public TerrainInfo GetTerrain(int x, int y)
         {
             float heightValue = HeightMap[y * Width + x];
 
-            if (heightValue < 0)
-            {
-                return ".";
-            }
-            else
-            {
-                return "\u028D";
-            }
-        }
-
-        public Terrain GetTerrain(int x, int y)
-        {
-            float heightValue = HeightMap[y * Width + x];
-
-            Terrain terrain;
+            TerrainInfo terrain;
             if (heightValue < -0.25f)
             {
-                terrain = new Terrain(Terrain.Water, Colors.Blue());
+                terrain = Terrain.Water;
             }
             else if (heightValue < 0.0f)
             {
-                terrain = new Terrain(Terrain.Grass, Colors.Green());
+                terrain = Terrain.Grass;
             }
             else if (heightValue < 0.25f)
             {
-                terrain = new Terrain(Terrain.SmallHill, Colors.DarkGreen());
+                terrain = Terrain.SmallHill;
             }
             else //(heightValue < 0.5f)
             {
-                terrain = new Terrain(Terrain.SmallMountain, Colors.Grey());
+                terrain = Terrain.SmallMountain;
             }
 
             return terrain;
         }
     }
 
-    public class Terrain
+    public static class Terrain
+    {
+        public static TerrainInfo Water = new TerrainInfo("~", 3, 8, Colors.Blue());
+
+        public static TerrainInfo Grass = new TerrainInfo(",", 3, -2, Colors.Green());
+
+        public static TerrainInfo Dirt = new TerrainInfo(".", 3, -3, Colors.Brown());
+
+        public static TerrainInfo Hill = new TerrainInfo("\u0361", 0, 3, Colors.DarkGreen());
+
+        public static TerrainInfo SmallHill = new TerrainInfo("\u032F", 2, -2, Colors.DarkGreen());
+
+        public static TerrainInfo PointedHill = new TerrainInfo("\u02C4", 3, 0, Colors.DarkGreen());
+
+        public static TerrainInfo Mountain = new TerrainInfo("\u0245", 3, -8, Colors.Grey());
+
+        public static TerrainInfo SmallMountain = new TerrainInfo("\u028C", 3, -8, Colors.Grey());
+
+        public static TerrainInfo SmallDoubleMountain = new TerrainInfo("\u028D", 3, -8, Colors.Grey());
+    }
+
+    public struct TerrainInfo
     {
         public string Symbol { get; set; }
         public SDL.SDL_Color Color { get; set; }
+        public int CenterX { get; set; }
+        public int CenterY { get; set; }
 
-        public Terrain(string symbol, SDL.SDL_Color color)
+        public TerrainInfo(string symbol, int centerX, int centerY, SDL.SDL_Color color)
         {
             Symbol = symbol;
+            CenterX = centerX;
+            CenterY = centerY;
             Color = color;
         }
-
-        public static string Water = "~";
-
-        public static string Grass = ",";
-
-        public static string Dirt = ".";
-
-        public static string Hill = "\u0361";
-
-        public static string SmallHill = "\u032F";
-
-        public static string PointedHill = "\u02C4";
-
-        public static string Mountain = "\u0245";
-
-        public static string SmallMountain = "\u028C";
-
-        public static string SmallDoubleMountain = "\u028D";
-
     }
 }

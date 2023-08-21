@@ -51,16 +51,12 @@ namespace WordAlchemy
                     int x = i * WorldGrid.CellWidth;
                     int y = j * WorldGrid.CellWidth;
 
-                    Terrain terrain = MapGen.GetTerrain(i + (Cols / 2), j + (Rows / 2));
+                    TerrainInfo terrain = MapGen.GetTerrain(i + (Cols / 2), j + (Rows / 2));
 
                     Text text = new Text(font, terrain.Symbol, terrain.Color);
-                    if (j > -5 && j < 5)
-                    {
-                        text = new Text(font, "~", Colors.Blue());
-                    }
-
                     text.CreateTexture(graphics);
-                    Tile tile = new Tile(text, x, y);
+
+                    Tile tile = new Tile(text, terrain, x, y);
 
                     Tiles[(i + Cols / 2) * Rows + (j + Rows / 2)] = tile;
                 }

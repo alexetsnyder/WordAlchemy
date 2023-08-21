@@ -8,9 +8,12 @@ namespace WordAlchemy
 
         public Text TileText { get; set; }
 
-        public Tile(Text tileText, int gridX, int gridY)
+        public TerrainInfo Info { get; set; }
+
+        public Tile(Text tileText, TerrainInfo terrainInfo, int gridX, int gridY)
         {
             TileText = tileText;
+            Info = terrainInfo;
 
             GridX = gridX;
             GridY = gridY;
@@ -19,10 +22,13 @@ namespace WordAlchemy
         public void Draw(SDLGraphics graphics, Grid grid)
         {
             grid.CellToScreen(GridX, GridY, out int screenX, out int screenY);
-            int centerX = screenX + grid.CellWidth / 2;
-            int centerY = screenY + grid.CellWidth / 2;
+            int centerX = screenX;
+            int centerY = screenY;
 
-            TileText.Draw(graphics, centerX - TileText.Width / 2, centerY - TileText.Height / 2);
+            int centerXMod = (Info.CenterX == 0) ? 0 : TileText.Width / Info.CenterX;
+            int centerYMod = (Info.CenterY == 0) ? 0 : TileText.Height / Info.CenterY;
+
+            TileText.Draw(graphics, centerX + centerXMod, centerY + centerYMod);
         }
     }
 }
