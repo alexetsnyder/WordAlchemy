@@ -5,6 +5,8 @@ namespace WordAlchemy
 {
     internal class Grid
     {
+        public bool IsVisible { get; set; }
+
         public int WindowWidth { get; private set; }
         public int WindowHeight { get; private set; }
 
@@ -25,6 +27,8 @@ namespace WordAlchemy
 
         public Grid(int windowWidth, int windowHeight)
         {
+            IsVisible = false;
+
             WindowWidth = windowWidth;
             WindowHeight = windowHeight;
 
@@ -67,33 +71,45 @@ namespace WordAlchemy
                 graphics.FillRect(ref rect);
             }
 
-            graphics.SetDrawColor(0, 0, 0, 255);
-
-            int modOffsetX = OriginOffsetX % CellWidth;
-            int modOffsetY = OriginOffsetY % CellWidth;
-
-            int gridStartX = ScreenOriginX + ((OriginOffsetX < 0) ? modOffsetX + CellWidth : modOffsetX);
-            int gridStartY = ScreenOriginY + ((OriginOffsetY < 0) ? modOffsetY + CellWidth : modOffsetY);
-
-            for (int x = gridStartX; x >= 0; x -= CellWidth)
+            if (IsVisible)
             {
-                graphics.DrawLine(x, 0, x, WindowHeight);
-            }
+                graphics.SetDrawColor(Colors.SlateGrey());
 
-            for (int x = gridStartX + CellWidth; x <= WindowWidth; x += CellWidth)
-            {
-                graphics.DrawLine(x, 0, x, WindowHeight);
-            }
+                int modOffsetX = OriginOffsetX % CellWidth;
+                int modOffsetY = OriginOffsetY % CellWidth;
 
-            for (int y = gridStartY; y >= 0; y -= CellWidth)
-            {
-                graphics.DrawLine(0, y, WindowWidth, y);
-            }
+                int gridStartX = ScreenOriginX + ((OriginOffsetX < 0) ? modOffsetX + CellWidth : modOffsetX);
+                int gridStartY = ScreenOriginY + ((OriginOffsetY < 0) ? modOffsetY + CellWidth : modOffsetY);
 
-            for (int y = gridStartY + CellWidth; y <= WindowHeight; y += CellWidth)
-            {
-                graphics.DrawLine(0, y, WindowWidth, y);
-            }
+                for (int x = gridStartX; x >= 0; x -= CellWidth)
+                {
+                    graphics.DrawLine(x, 0, x, WindowHeight);
+                }
+
+                for (int x = gridStartX + CellWidth; x <= WindowWidth; x += CellWidth)
+                {
+                    graphics.DrawLine(x, 0, x, WindowHeight);
+                }
+
+                for (int y = gridStartY; y >= 0; y -= CellWidth)
+                {
+                    graphics.DrawLine(0, y, WindowWidth, y);
+                }
+
+                for (int y = gridStartY + CellWidth; y <= WindowHeight; y += CellWidth)
+                {
+                    graphics.DrawLine(0, y, WindowWidth, y);
+                }
+            } 
+        }
+
+        public void SetWindowSize(int width, int height)
+        {
+            WindowWidth = width;
+            WindowHeight = height;
+
+            ScreenOriginX = WindowWidth / 2;
+            ScreenOriginY = WindowHeight / 2;
         }
 
         public void SelectCell(int screenX, int screenY)

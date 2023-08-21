@@ -19,6 +19,7 @@ namespace WordAlchemy
         public World(int windowWidth, int windowHeight, int rows, int cols)
         {
             WorldGrid = new Grid(windowWidth, windowHeight);
+            WorldGrid.CellWidth = 10;
             Rows = rows;
             Cols = cols;
 
@@ -42,7 +43,7 @@ namespace WordAlchemy
 
         public void CreateTiles(SDLGraphics graphics)
         {
-            Font font = new Font("Assets/Fonts/unifont.ttf", 24);
+            Font font = new Font("Assets/Fonts/unifont.ttf", 18);
         
             for (int i = -Cols / 2; i < Cols / 2; i++)
             {

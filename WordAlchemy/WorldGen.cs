@@ -21,6 +21,7 @@ namespace WordAlchemy
             Seed = seed;
             Noise = new FastNoiseLite(seed);
             Noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
+            Noise.SetFractalType(FastNoiseLite.FractalType.FBm);
 
             HeightMap = new float[Width * Height];
         }

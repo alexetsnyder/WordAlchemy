@@ -4,8 +4,8 @@ namespace WordAlchemy
 {
     internal class SDLGraphics
     {
-        public int WindowWidth { get; private set; }
-        public int WindowHeight { get; private set; }
+        public int WindowWidth { get; set; }
+        public int WindowHeight { get; set; }
 
         public SDL.SDL_Color ClearColor { get; set; }
 
@@ -36,7 +36,8 @@ namespace WordAlchemy
                 SDL.SDL_WINDOWPOS_UNDEFINED,
                 WindowWidth,
                 WindowHeight,
-                SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN);
+                SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN |
+                SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
 
             if (Window == IntPtr.Zero)
             {
