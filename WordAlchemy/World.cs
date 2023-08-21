@@ -42,7 +42,7 @@ namespace WordAlchemy
 
         public void CreateTiles(SDLGraphics graphics)
         {
-            Font font = new Font("Assets/Fonts/FreeMono.ttf", 24);
+            Font font = new Font("Assets/Fonts/unifont.ttf", 24);
         
             for (int i = -Cols / 2; i < Cols / 2; i++)
             {
@@ -51,7 +51,9 @@ namespace WordAlchemy
                     int x = i * WorldGrid.CellWidth;
                     int y = j * WorldGrid.CellWidth;
 
-                    Text text = new Text(font, MapGen.GetTerrainType(i + (Cols / 2), j + (Rows / 2)), Colors.Black());
+                    Terrain terrain = MapGen.GetTerrain(i + (Cols / 2), j + (Rows / 2));
+
+                    Text text = new Text(font, terrain.Symbol, terrain.Color);
                     if (j > -5 && j < 5)
                     {
                         text = new Text(font, "~", Colors.Blue());

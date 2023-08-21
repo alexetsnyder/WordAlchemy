@@ -37,6 +37,17 @@ namespace WordAlchemy
             };
         }
 
+        public static SDL.SDL_Color Grey()
+        {
+            return new SDL.SDL_Color
+            {
+                r = 128,
+                g = 128,
+                b = 128,
+                a = 255,
+            };
+        }
+
         public static SDL.SDL_Color Red()
         {
             return new SDL.SDL_Color
@@ -110,6 +121,50 @@ namespace WordAlchemy
                 r = 224,
                 g = 191,
                 b = 184,
+                a = 255,
+            };
+        }
+
+        public static SDL.SDL_Color Silver()
+        {
+            return new SDL.SDL_Color
+            {
+                r = 192,
+                g = 192,
+                b = 192,
+                a = 255,
+            };
+        }
+
+        public static SDL.SDL_Color DarkGrey()
+        {
+            return new SDL.SDL_Color
+            {
+                r = 169,
+                g = 169,
+                b = 169,
+                a = 255,
+            };
+        }
+
+        public static SDL.SDL_Color SlateGrey()
+        {
+            return new SDL.SDL_Color
+            {
+                r = 112,
+                g = 128,
+                b = 144,
+                a = 255,
+            };
+        }
+
+        public static SDL.SDL_Color DarkGreen()
+        {
+            return new SDL.SDL_Color
+            {
+                r =   0,
+                g = 100,
+                b =   0,
                 a = 255,
             };
         }
