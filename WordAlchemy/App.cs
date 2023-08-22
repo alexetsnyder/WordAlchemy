@@ -24,9 +24,9 @@ namespace WordAlchemy
             WindowHeight = windowHeight;
 
             IsRunning = true;
-            Graphics = new SDLGraphics(windowWidth, windowHeight);
+            Graphics = SDLGraphics.Instance;
             
-            if (!Graphics.Init())
+            if (!Graphics.Init(windowWidth, windowHeight))
             {
                 IsRunning = false;
             }
@@ -84,7 +84,7 @@ namespace WordAlchemy
         {
             Graphics.Clear();
 
-            GameWorld.Draw(Graphics);
+            GameWorld.Draw();
             //Viewer.Draw(Graphics);
 
             Graphics.Present();

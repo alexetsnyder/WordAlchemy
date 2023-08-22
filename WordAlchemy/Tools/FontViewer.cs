@@ -47,12 +47,12 @@ namespace WordAlchemy.Tools
 
             graphics.DrawRect(ref rect);
 
-            Symbol.CreateTexture(graphics);
+            Symbol.CreateTexture();
 
             int centerXMod = (CurrentTerrain.CenterX == 0) ? 0 : Symbol.Width / CurrentTerrain.CenterX;
             int centerYMod = (CurrentTerrain.CenterY == 0) ? 0 : Symbol.Height / CurrentTerrain.CenterY;
 
-            Symbol.Draw(graphics, centerX + centerXMod, centerY + centerYMod);
+            Symbol.Draw(centerX + centerXMod, centerY + centerYMod);
         }
 
         public void KeyDownEvent(SDL.SDL_Event e)

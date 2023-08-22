@@ -55,7 +55,6 @@ namespace WordAlchemy
                     TerrainInfo terrain = MapGen.GetTerrain(i + (Cols / 2), j + (Rows / 2));
 
                     Text text = new Text(font, terrain.Symbol, terrain.Color);
-                    text.CreateTexture(graphics);
 
                     Tile tile = new Tile(text, terrain, x, y);
 
@@ -69,14 +68,14 @@ namespace WordAlchemy
             HandelKeys();
         }
 
-        public void Draw(SDLGraphics graphics)
+        public void Draw()
         {
-            WorldGrid.Draw(graphics);
+            WorldGrid.Draw();
             foreach (Tile tile in Tiles)
             {
                 if (WorldGrid.IsOnScreen(tile.GridX, tile.GridY))
                 {
-                    tile.Draw(graphics, WorldGrid);
+                    tile.Draw(WorldGrid);
                 }  
             }
         }

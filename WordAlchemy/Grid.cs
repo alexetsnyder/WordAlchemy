@@ -25,6 +25,8 @@ namespace WordAlchemy
         public int CellSelectedX { get; set; }
         public int CellSelectedY { get; set; }
 
+        private SDLGraphics Graphics { get; set; }
+
         public Grid(int windowWidth, int windowHeight)
         {
             IsVisible = false;
@@ -47,16 +49,22 @@ namespace WordAlchemy
             CellSelectedX = 0;
             CellSelectedY = 0;
 
-            EventSystem.Instance.Listen(SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, MouseButtonDownEvent);
+            Graphics = SDLGraphics.Instance;
+
+            WireEvents();
         }
 
-        public void Draw(SDLGraphics graphics)
+        public void WireEvents()
         {
-            graphics.SetDrawColor(0, 0, 0, 255);
+            EventSystem eventSystem = EventSystem.Instance;
+            eventSystem.Listen(SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, MouseButtonDownEvent);
+        }
 
+        public void Draw()
+        {
             if (IsCellSelected )
             {
-                graphics.SetDrawColor(255, 0, 0, 255);
+                Graphics.SetDrawColor(Colors.Red());
 
                 CellToScreen(CellSelectedX, CellSelectedY, out int screenX, out int  screenY);
 
@@ -68,12 +76,12 @@ namespace WordAlchemy
                     h = CellWidth,
                 };
 
-                graphics.FillRect(ref rect);
+                Graphics.FillRect(ref rect);
             }
 
             if (IsVisible)
             {
-                graphics.SetDrawColor(Colors.SlateGrey());
+                Graphics.SetDrawColor(Colors.SlateGrey());
 
                 int modOffsetX = OriginOffsetX % CellWidth;
                 int modOffsetY = OriginOffsetY % CellWidth;
@@ -83,22 +91,22 @@ namespace WordAlchemy
 
                 for (int x = gridStartX; x >= 0; x -= CellWidth)
                 {
-                    graphics.DrawLine(x, 0, x, WindowHeight);
+                    Graphics.DrawLine(x, 0, x, WindowHeight);
                 }
 
                 for (int x = gridStartX + CellWidth; x <= WindowWidth; x += CellWidth)
                 {
-                    graphics.DrawLine(x, 0, x, WindowHeight);
+                    Graphics.DrawLine(x, 0, x, WindowHeight);
                 }
 
                 for (int y = gridStartY; y >= 0; y -= CellWidth)
                 {
-                    graphics.DrawLine(0, y, WindowWidth, y);
+                    Graphics.DrawLine(0, y, WindowWidth, y);
                 }
 
                 for (int y = gridStartY + CellWidth; y <= WindowHeight; y += CellWidth)
                 {
-                    graphics.DrawLine(0, y, WindowWidth, y);
+                    Graphics.DrawLine(0, y, WindowWidth, y);
                 }
             } 
         }

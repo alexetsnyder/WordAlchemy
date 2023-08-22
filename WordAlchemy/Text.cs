@@ -13,6 +13,8 @@ namespace WordAlchemy
         public int Height { get; private set; }
 
         private bool IsTextureCreated { get; set; }
+
+        private SDLGraphics Graphics { get; set; }
         
         public Text(Font font, string textStr, SDL.SDL_Color color)
         {
@@ -21,6 +23,8 @@ namespace WordAlchemy
             TextColor = color;
             Texture = IntPtr.Zero;
             IsTextureCreated = false;
+            Graphics = SDLGraphics.Instance;
+            CreateTexture();
         }
 
         public void SetFont(Font font)
@@ -41,11 +45,11 @@ namespace WordAlchemy
             IsTextureCreated = false;
         }
 
-        public void CreateTexture(SDLGraphics graphics)
+        public void CreateTexture()
         {
             IntPtr surface = SDL_ttf.TTF_RenderUTF8_Blended(TextFont.TTFFont, TextStr, TextColor);
 
-            Texture = graphics.CreateTextureFromSurface(surface);
+            Texture = Graphics.CreateTextureFromSurface(surface);
 
             SDL.SDL_QueryTexture(Texture, out _, out _, out int w, out int h);
             Width = w;
@@ -55,11 +59,11 @@ namespace WordAlchemy
             SDL.SDL_FreeSurface(surface);
         }
 
-        public void Draw(SDLGraphics graphics, int x, int y)
+        public void Draw(int x, int y)
         {
             if (IsTextureCreated)
             {
-                graphics.DrawTexture(Texture, x, y);
+                Graphics.DrawText(this, x, y);
             }
             else
             {

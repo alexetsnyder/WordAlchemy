@@ -4,27 +4,40 @@ namespace WordAlchemy
 {
     internal class SDLGraphics
     {
+        public static SDLGraphics Instance { get { return Nested.instance; } }
+
         public int WindowWidth { get; set; }
         public int WindowHeight { get; set; }
 
         public SDL.SDL_Color ClearColor { get; set; }
 
-        IntPtr Window { get; set; }
-        IntPtr Renderer { get; set; }
+        private IntPtr Window { get; set; }
+        private IntPtr Renderer { get; set; }
 
-        public SDLGraphics(int width, int height) 
+        private SDLGraphics() 
         {
-            WindowWidth = width;
-            WindowHeight = height;
-
-            SetClearColor(135, 206, 235, 255);
+            WindowWidth = 0;
+            WindowHeight = 0;
 
             Window = IntPtr.Zero;
             Renderer = IntPtr.Zero;
         }
 
-        public bool Init()
+        private class Nested
         {
+            static Nested()
+            {
+
+            }
+
+            internal static readonly SDLGraphics instance = new SDLGraphics();
+        }
+
+        public bool Init(int windowWidth, int windowHeight)
+        {
+            WindowWidth = windowWidth;
+            WindowHeight = windowHeight;
+
             if (SDL.SDL_Init(SDL.SDL_INIT_VIDEO) < 0)
             {
                 System.Diagnostics.Debug.WriteLine($"There was an issue initializing SDL. {SDL.SDL_GetError()}");
@@ -56,6 +69,8 @@ namespace WordAlchemy
                 System.Diagnostics.Debug.WriteLine($"There was an issue creating the renderer. {SDL.SDL_GetError()}");
                 return false;
             }
+
+            SetClearColor(Colors.Black());
 
             return true;
         }
@@ -130,6 +145,19 @@ namespace WordAlchemy
         public void FillRect(ref SDL.SDL_Rect rect)
         {
             SDL.SDL_RenderFillRect(Renderer, ref rect);
+        }
+
+        public void DrawText(Text text, int x, int y)
+        {
+            SDL.SDL_Rect dest = new SDL.SDL_Rect
+            {
+                x = x,
+                y = y,
+                w = text.Width,
+                h = text.Height,
+            };
+
+            SDL.SDL_RenderCopy(Renderer, text.Texture, IntPtr.Zero, ref dest);
         }
 
         public void DrawTexture(IntPtr texture, int x, int y)

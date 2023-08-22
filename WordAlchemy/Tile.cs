@@ -19,7 +19,7 @@ namespace WordAlchemy
             GridY = gridY;
         }
 
-        public void Draw(SDLGraphics graphics, Grid grid)
+        public void Draw(Grid grid)
         {
             grid.CellToScreen(GridX, GridY, out int screenX, out int screenY);
             int centerX = screenX;
@@ -28,7 +28,7 @@ namespace WordAlchemy
             int centerXMod = (Info.CenterX == 0) ? 0 : TileText.Width / Info.CenterX;
             int centerYMod = (Info.CenterY == 0) ? 0 : TileText.Height / Info.CenterY;
 
-            TileText.Draw(graphics, centerX + centerXMod, centerY + centerYMod);
+            TileText.Draw(centerX + centerXMod, centerY + centerYMod);
         }
     }
 }
