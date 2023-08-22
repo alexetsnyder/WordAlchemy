@@ -16,6 +16,8 @@ namespace WordAlchemy
 
         private World GameWorld { get; set; }
 
+        private GlyphAtlas Atlas { get; set; }
+
         private Tools.FontViewer Viewer { get; set; }
 
         public App(int windowWidth, int windowHeight)
@@ -46,6 +48,9 @@ namespace WordAlchemy
             GameWorld.CreateTiles(Graphics);
 
             Viewer = new Tools.FontViewer(Terrain.SmallDoubleMountain, windowWidth, windowHeight);   
+
+            Atlas = new GlyphAtlas();
+            Atlas.AddFont(new Font("unifont", "Assets/Fonts/unifont.ttf", 18));
         }
 
         public void WireEvents()
@@ -86,6 +91,7 @@ namespace WordAlchemy
 
             GameWorld.Draw();
             //Viewer.Draw(Graphics);
+            //Atlas.Draw();
 
             Graphics.Present();
         }

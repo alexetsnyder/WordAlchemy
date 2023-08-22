@@ -1,0 +1,109 @@
+﻿using SDL2;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+
+namespace WordAlchemy
+{
+    internal class GlyphAtlas
+    {
+        public Dictionary<string, Font> Fonts { get; set; }
+
+        public Dictionary<IntPtr, Dictionary<char, SDL.SDL_Rect>> Glyphs { get; set; }
+
+        public Dictionary<IntPtr, IntPtr> FontTextures { get; set; }
+
+        public readonly int TEXTURE_SIZE = 512;
+
+        private SDLGraphics Graphics { get; set; }  
+
+        public GlyphAtlas()
+        {
+            Fonts = new Dictionary<string, Font>();
+            Glyphs = new Dictionary<IntPtr, Dictionary<char, SDL.SDL_Rect>>();
+            FontTextures = new Dictionary<IntPtr, IntPtr>();
+
+            Graphics = SDLGraphics.Instance;
+        }
+
+        public bool AddFont(Font font)
+        {
+            Fonts.Add(font.Name, font);
+            Glyphs.Add(font.TTFFont, new Dictionary<char, SDL.SDL_Rect>());
+
+            IntPtr inBetweenSurface, finalSurface;
+            SDL.SDL_Rect dest = new SDL.SDL_Rect();
+
+            finalSurface = SDL.SDL_CreateRGBSurface(0, TEXTURE_SIZE, TEXTURE_SIZE, 32, 0, 0, 0, 0xff);
+
+            SDL.SDL_Surface surface = new SDL.SDL_Surface();
+            
+            if (finalSurface != IntPtr.Zero)
+            {
+                object? surfaceObj = Marshal.PtrToStructure(finalSurface, typeof(SDL.SDL_Surface));
+                if (surfaceObj != null)
+                {
+                    surface = (SDL.SDL_Surface)surfaceObj;
+                }
+                
+            }
+            
+            SDL.SDL_SetColorKey(finalSurface, 1, SDL.SDL_MapRGBA(surface.format, 0, 0, 0, 0));
+
+            for (int i = 0; i <= 255; i++)
+            {
+                char c = (char)i;
+                string cStr = $"{c}";
+
+                inBetweenSurface = SDL_ttf.TTF_RenderUTF8_Blended(font.TTFFont, cStr, Colors.White());
+
+                if (inBetweenSurface != IntPtr.Zero)
+                {
+                    SDL_ttf.TTF_SizeText(font.TTFFont, cStr, out dest.w, out dest.h);
+
+                    if (dest.x + dest.w > TEXTURE_SIZE)
+                    {
+                        dest.x = 0;
+                        dest.y += dest.h + 1;
+
+                        if (dest.y + dest.h > TEXTURE_SIZE)
+                        {
+                            Debug.WriteLine($"Out of glyph space for font {font.Name}");
+                            return false;
+                        }
+                    }
+
+                    SDL.SDL_BlitSurface(inBetweenSurface, IntPtr.Zero, finalSurface, ref dest);
+
+                    SDL.SDL_Rect glyph = new SDL.SDL_Rect
+                    {
+                        x = dest.x,
+                        y = dest.y,
+                        w = dest.w,
+                        h = dest.h,
+                    };
+
+                    Glyphs[font.TTFFont].Add(c, glyph);
+
+                    SDL.SDL_FreeSurface(inBetweenSurface);
+
+                    dest.x += dest.w;
+                }
+            }
+
+            FontTextures.Add(font.TTFFont, Graphics.CreateTextureFromSurface(finalSurface));
+
+            return true;
+        }
+
+        public void Draw()
+        {
+            Font font = Fonts["unifont"];
+
+            IntPtr texture = FontTextures[font.TTFFont];
+
+            SDL.SDL_QueryTexture(texture, out _, out _, out int w, out _);
+
+            Graphics.DrawTexture(FontTextures[font.TTFFont], 460 - w / 2, 340);
+        }
+    }
+}

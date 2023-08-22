@@ -4,6 +4,8 @@ namespace WordAlchemy
 {
     internal class Font
     {
+        public string Name { get; set; }    
+
         private int _size;
         public int FontSize 
         { 
@@ -25,8 +27,9 @@ namespace WordAlchemy
 
         public IntPtr TTFFont { get; private set; }
 
-        public Font(string filePath, int fontSize)
+        public Font(string name, string filePath, int fontSize)
         {
+            Name = name;
             FontSize = fontSize;
             FilePath = filePath;
             TTFFont = SDL_ttf.TTF_OpenFont(filePath, fontSize);

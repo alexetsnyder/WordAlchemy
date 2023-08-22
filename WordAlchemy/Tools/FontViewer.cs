@@ -18,7 +18,7 @@ namespace WordAlchemy.Tools
             WindowWidth = windowWidth;
             WindowHeight = windowHeight;
 
-            Font font = new Font("Assets/Fonts/unifont.ttf", 24);
+            Font font = new Font("unifont", "Assets/Fonts/unifont.ttf", 24);
             Symbol = new Text(font, CurrentTerrain.Symbol, CurrentTerrain.Color);
 
             WireEvents();
