@@ -54,9 +54,7 @@ namespace WordAlchemy
 
                     TerrainInfo terrain = MapGen.GetTerrain(i + (Cols / 2), j + (Rows / 2));
 
-                    Text text = new Text(font, terrain.Symbol, terrain.Color);
-
-                    Tile tile = new Tile(text, terrain, x, y);
+                    Tile tile = new Tile(terrain, x, y);
 
                     Tiles[(i + Cols / 2) * Rows + (j + Rows / 2)] = tile;
                 }

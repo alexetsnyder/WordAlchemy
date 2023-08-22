@@ -1,4 +1,5 @@
 ﻿using SDL2;
+using System.Diagnostics;
 
 namespace WordAlchemy
 {
@@ -9,6 +10,8 @@ namespace WordAlchemy
         public int WindowWidth { get; set; }
         public int WindowHeight { get; set; }
 
+        public GlyphAtlas? Atlas { get; set; }
+
         public SDL.SDL_Color ClearColor { get; set; }
 
         private IntPtr Window { get; set; }
@@ -18,6 +21,9 @@ namespace WordAlchemy
         {
             WindowWidth = 0;
             WindowHeight = 0;
+
+            Atlas = null;
+            SetClearColor(Colors.Black());
 
             Window = IntPtr.Zero;
             Renderer = IntPtr.Zero;
@@ -38,9 +44,11 @@ namespace WordAlchemy
             WindowWidth = windowWidth;
             WindowHeight = windowHeight;
 
+            Atlas = new GlyphAtlas();
+
             if (SDL.SDL_Init(SDL.SDL_INIT_VIDEO) < 0)
             {
-                System.Diagnostics.Debug.WriteLine($"There was an issue initializing SDL. {SDL.SDL_GetError()}");
+                Debug.WriteLine($"There was an issue initializing SDL. {SDL.SDL_GetError()}");
                 return false;
             }
 
@@ -54,7 +62,7 @@ namespace WordAlchemy
 
             if (Window == IntPtr.Zero)
             {
-                System.Diagnostics.Debug.WriteLine($"There was an issue creating the window. {SDL.SDL_GetError()}");
+                Debug.WriteLine($"There was an issue creating the window. {SDL.SDL_GetError()}");
                 return false;
             }
 
@@ -66,11 +74,19 @@ namespace WordAlchemy
 
             if (Renderer == IntPtr.Zero)
             {
-                System.Diagnostics.Debug.WriteLine($"There was an issue creating the renderer. {SDL.SDL_GetError()}");
+                Debug.WriteLine($"There was an issue creating the renderer. {SDL.SDL_GetError()}");
                 return false;
             }
 
-            SetClearColor(Colors.Black());
+            if (SDL_ttf.TTF_Init() < 0)
+            {
+                Debug.WriteLine($"Couldn't initialize SDL TTF: {SDL.SDL_GetError()}");
+                return false;
+            }
+
+            Atlas.AddFont(new Font("unifont", "Assets/Fonts/unifont.ttf", 18));
+            Atlas.AddFont(new Font("CourierPrime", "Assets/Fonts/Courier Prime.ttf", 18));
+            Atlas.AddFont(new Font("FreeMono", "Assets/Fonts/FreeMono.ttf", 18));
 
             return true;
         }
@@ -122,9 +138,24 @@ namespace WordAlchemy
 
         public void CleanUp()
         {
+            SDL_ttf.TTF_Quit();
             SDL.SDL_DestroyRenderer(Renderer);
             SDL.SDL_DestroyWindow(Window);
             SDL.SDL_Quit();
+        }
+
+        public void SizeText(string text, string fontName, out int width, out int height)
+        {
+            if (Atlas != null)
+            {
+                IntPtr fontPtr = Atlas.Fonts[fontName].TTFFont;
+                SDL_ttf.TTF_SizeText(fontPtr, text, out width, out height);
+            }
+            else
+            {
+                width = 0;
+                height = 0;
+            }
         }
 
         public IntPtr CreateTextureFromSurface(IntPtr surface)
@@ -147,17 +178,29 @@ namespace WordAlchemy
             SDL.SDL_RenderFillRect(Renderer, ref rect);
         }
 
-        public void DrawText(Text text, int x, int y)
+        public void DrawText(string text, int x, int y, SDL.SDL_Color color, string fontName)
         {
-            SDL.SDL_Rect dest = new SDL.SDL_Rect
+            if (Atlas != null)
             {
-                x = x,
-                y = y,
-                w = text.Width,
-                h = text.Height,
-            };
+                IntPtr font = Atlas.Fonts[fontName].TTFFont;
 
-            SDL.SDL_RenderCopy(Renderer, text.Texture, IntPtr.Zero, ref dest);
+                SDL.SDL_SetTextureColorMod(Atlas.FontTextures[font], color.r, color.g, color.b);
+
+                foreach (char c in text)
+                {
+                    SDL.SDL_Rect glyph = Atlas.Glyphs[font][c];
+
+                    SDL.SDL_Rect dest;
+                    dest.x = x;
+                    dest.y = y;
+                    dest.w = glyph.w;
+                    dest.h = glyph.h;
+
+                    SDL.SDL_RenderCopy(Renderer, Atlas.FontTextures[font], ref glyph, ref dest);
+
+                    x += glyph.w;
+                }
+            }    
         }
 
         public void DrawTexture(IntPtr texture, int x, int y)

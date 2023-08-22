@@ -10,7 +10,7 @@ namespace WordAlchemy.Tools
 
         public TerrainInfo CurrentTerrain { get; set; }
 
-        public Text Symbol { get; set; }
+        //public Text Symbol { get; set; }
 
         public FontViewer(TerrainInfo terrainInfo, int windowWidth, int windowHeight)
         {
@@ -19,7 +19,7 @@ namespace WordAlchemy.Tools
             WindowHeight = windowHeight;
 
             Font font = new Font("unifont", "Assets/Fonts/unifont.ttf", 24);
-            Symbol = new Text(font, CurrentTerrain.Symbol, CurrentTerrain.Color);
+            //Symbol = new Text(font, CurrentTerrain.Symbol, CurrentTerrain.Color);
 
             WireEvents();
         }
@@ -47,12 +47,12 @@ namespace WordAlchemy.Tools
 
             graphics.DrawRect(ref rect);
 
-            Symbol.CreateTexture();
+            //Symbol.CreateTexture();
 
-            int centerXMod = (CurrentTerrain.CenterX == 0) ? 0 : Symbol.Width / CurrentTerrain.CenterX;
-            int centerYMod = (CurrentTerrain.CenterY == 0) ? 0 : Symbol.Height / CurrentTerrain.CenterY;
+            //int centerXMod = (CurrentTerrain.CenterX == 0) ? 0 : Symbol.Width / CurrentTerrain.CenterX;
+            //int centerYMod = (CurrentTerrain.CenterY == 0) ? 0 : Symbol.Height / CurrentTerrain.CenterY;
 
-            Symbol.Draw(centerX + centerXMod, centerY + centerYMod);
+            //Symbol.Draw(centerX + centerXMod, centerY + centerYMod);
         }
 
         public void KeyDownEvent(SDL.SDL_Event e)

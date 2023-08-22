@@ -1,4 +1,6 @@
 ﻿
+using SDL2;
+
 namespace WordAlchemy
 {
     internal class Tile
@@ -6,17 +8,25 @@ namespace WordAlchemy
         public int GridX {  get; set; }
         public int GridY { get; set; }
 
-        public Text TileText { get; set; }
+        private int Width { get; set; }
+        private int Height { get; set; }
 
         public TerrainInfo Info { get; set; }
 
-        public Tile(Text tileText, TerrainInfo terrainInfo, int gridX, int gridY)
+        private SDLGraphics Graphics { get; set; }
+
+        public Tile(TerrainInfo terrainInfo, int gridX, int gridY)
         {
-            TileText = tileText;
             Info = terrainInfo;
 
             GridX = gridX;
             GridY = gridY;
+
+            Graphics = SDLGraphics.Instance;
+            Graphics.SizeText(Info.Symbol, "unifont", out int width, out int height);
+
+            Width = width;
+            Height = height;
         }
 
         public void Draw(Grid grid)
@@ -25,10 +35,10 @@ namespace WordAlchemy
             int centerX = screenX;
             int centerY = screenY;
 
-            int centerXMod = (Info.CenterX == 0) ? 0 : TileText.Width / Info.CenterX;
-            int centerYMod = (Info.CenterY == 0) ? 0 : TileText.Height / Info.CenterY;
+            int centerXMod = (Info.CenterX == 0) ? 0 : Width / Info.CenterX;
+            int centerYMod = (Info.CenterY == 0) ? 0 : Height / Info.CenterY;
 
-            TileText.Draw(centerX + centerXMod, centerY + centerYMod);
+            Graphics.DrawText(Info.Symbol, centerX + centerXMod, centerY + centerYMod, Info.Color, "unifont");
         }
     }
 }

@@ -14,6 +14,16 @@ namespace WordAlchemy
 
         public readonly int TEXTURE_SIZE = 512;
 
+        public readonly string ASCII = "1234567890-=!@#$%^&*()_+qwertyuiop[]\\asdfghjkl;'zxcvbnm,./QWERTYUIOP{}|ASDFGHJKL:ZXCVBNM<>?`~\"";
+        public readonly string[] ExtraChars = new string[]
+        {
+            Terrain.Hill.Symbol, 
+            Terrain.SmallHill.Symbol, 
+            Terrain.PointedHill.Symbol, 
+            Terrain.Mountain.Symbol, 
+            Terrain.SmallMountain.Symbol,
+        };
+
         private SDLGraphics Graphics { get; set; }  
 
         public GlyphAtlas()
@@ -49,9 +59,10 @@ namespace WordAlchemy
             
             SDL.SDL_SetColorKey(finalSurface, 1, SDL.SDL_MapRGBA(surface.format, 0, 0, 0, 0));
 
-            for (int i = 0; i <= 255; i++)
+            string allChars = ASCII + ExtraChars.Aggregate((s1, s2) => s1 + s2); 
+
+            foreach (char c in  allChars)
             {
-                char c = (char)i;
                 string cStr = $"{c}";
 
                 inBetweenSurface = SDL_ttf.TTF_RenderUTF8_Blended(font.TTFFont, cStr, Colors.White());
@@ -101,9 +112,9 @@ namespace WordAlchemy
 
             IntPtr texture = FontTextures[font.TTFFont];
 
-            SDL.SDL_QueryTexture(texture, out _, out _, out int w, out _);
+            SDL.SDL_QueryTexture(texture, out _, out _, out int w, out int h);
 
-            Graphics.DrawTexture(FontTextures[font.TTFFont], 460 - w / 2, 340);
+            Graphics.DrawTexture(FontTextures[font.TTFFont], 460 - w / 2, 340 - h / 4);
         }
     }
 }

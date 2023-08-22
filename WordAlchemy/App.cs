@@ -16,8 +16,6 @@ namespace WordAlchemy
 
         private World GameWorld { get; set; }
 
-        private GlyphAtlas Atlas { get; set; }
-
         private Tools.FontViewer Viewer { get; set; }
 
         public App(int windowWidth, int windowHeight)
@@ -33,24 +31,13 @@ namespace WordAlchemy
                 IsRunning = false;
             }
 
-            Graphics.SetClearColor(Colors.Black());
-
-            if (SDL_ttf.TTF_Init() < 0)
-            {
-                Debug.WriteLine($"Couldn't initialize SDL TTF: {SDL.SDL_GetError()}");
-                IsRunning = false;
-            }
-
             Events = EventSystem.Instance;
             WireEvents();
 
-            GameWorld = new World(windowWidth, windowHeight, 50, 50);
+            GameWorld = new World(windowWidth, windowHeight, 100, 100);
             GameWorld.CreateTiles(Graphics);
 
             Viewer = new Tools.FontViewer(Terrain.SmallDoubleMountain, windowWidth, windowHeight);   
-
-            Atlas = new GlyphAtlas();
-            Atlas.AddFont(new Font("unifont", "Assets/Fonts/unifont.ttf", 18));
         }
 
         public void WireEvents()
@@ -74,7 +61,6 @@ namespace WordAlchemy
             }
 
             Graphics.CleanUp();
-            SDL_ttf.TTF_Quit();
         }
 
         private void PollEvents()
@@ -91,7 +77,7 @@ namespace WordAlchemy
 
             GameWorld.Draw();
             //Viewer.Draw(Graphics);
-            //Atlas.Draw();
+            //Graphics.Atlas.Draw();
 
             Graphics.Present();
         }
