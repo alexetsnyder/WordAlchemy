@@ -29,9 +29,10 @@ namespace WordAlchemy
         public void GenerateHeightMap()
         {
             int index = 0;
-            for (int y = 0; y < Height; y++)
+            
+            for (int x = 0; x < Width; x++)
             {
-                for (int x = 0; x < Width; x++)
+                for (int y = 0; y < Height; y++)
                 {
                     HeightMap[index++] = Noise.GetNoise(x, y);
                 }
@@ -40,7 +41,7 @@ namespace WordAlchemy
 
         public TerrainInfo GetTerrain(int x, int y)
         {
-            float heightValue = HeightMap[y * Width + x];
+            float heightValue = HeightMap[y * Height + x];
 
             TerrainInfo terrain;
             if (heightValue < -0.25f)
