@@ -26,14 +26,6 @@ namespace WordAlchemy.Tools
 
             Width = width;
             Height = height;
-
-            WireEvents();
-        }
-
-        private void WireEvents()
-        {
-            EventSystem eventSystem = EventSystem.Instance;
-            eventSystem.Listen(SDL.SDL_EventType.SDL_KEYDOWN, KeyDownEvent);
         }
 
         public void Draw(SDLGraphics graphics)
@@ -58,11 +50,6 @@ namespace WordAlchemy.Tools
             int centerYMod = (CurrentTerrain.HeightDivisor == 0) ? 0 : Height / CurrentTerrain.HeightDivisor;
 
             Graphics.DrawText(CurrentTerrain.Symbol, centerX + centerXMod, centerY + centerYMod, Colors.Red(), "unifont");
-        }
-
-        public void KeyDownEvent(SDL.SDL_Event e)
-        {
-            
         }
     }
 }

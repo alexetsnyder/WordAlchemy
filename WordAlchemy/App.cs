@@ -46,7 +46,7 @@ namespace WordAlchemy
             Events.Listen(SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, (e) => Debug.WriteLine($"Mouse Button: {e.button.button}"));
             Events.Listen(SDL.SDL_EventType.SDL_KEYDOWN, (e) => Debug.WriteLine($"Key Down: {e.key.keysym.sym}"));
             Events.Listen(SDL.SDL_EventType.SDL_KEYUP, (e) => Debug.WriteLine($"Key Up: {e.key.keysym.sym}"));
-            Events.Listen(SDL.SDL_EventType.SDL_WINDOWEVENT, WindowResizedEvent);
+            Events.Listen(SDL.SDL_EventType.SDL_WINDOWEVENT, OnWindowResizedEvent);
         }
 
         public void Run()
@@ -82,7 +82,7 @@ namespace WordAlchemy
             Graphics.Present();
         }
 
-        private void WindowResizedEvent(SDL.SDL_Event e)
+        private void OnWindowResizedEvent(SDL.SDL_Event e)
         {  
             if (e.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED)
             {

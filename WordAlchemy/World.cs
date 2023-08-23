@@ -37,8 +37,8 @@ namespace WordAlchemy
         private void WireEvents()
         {
             EventSystem eventSystem = EventSystem.Instance;
-            eventSystem.Listen(SDL.SDL_EventType.SDL_KEYDOWN, KeyDownEvent);
-            eventSystem.Listen(SDL.SDL_EventType.SDL_KEYUP, KeyUpEvent);
+            eventSystem.Listen(SDL.SDL_EventType.SDL_KEYDOWN, OnKeyDownEvent);
+            eventSystem.Listen(SDL.SDL_EventType.SDL_KEYUP, OnKeyUpEvent);
         }
 
         public void CreateTiles(SDLGraphics graphics)
@@ -103,7 +103,7 @@ namespace WordAlchemy
             }
         }
 
-        public void KeyDownEvent(SDL.SDL_Event e)
+        public void OnKeyDownEvent(SDL.SDL_Event e)
         {
             if (!KeysPressedList.Contains(e.key.keysym.sym))
             {
@@ -111,7 +111,7 @@ namespace WordAlchemy
             }
         }
 
-        public void KeyUpEvent(SDL.SDL_Event e)
+        public void OnKeyUpEvent(SDL.SDL_Event e)
         {
             KeysPressedList.Remove(e.key.keysym.sym);
         }
