@@ -22,6 +22,7 @@ namespace WordAlchemy
             Terrain.PointedHill.Symbol, 
             Terrain.Mountain.Symbol, 
             Terrain.SmallMountain.Symbol,
+            Terrain.SmallDoubleMountain.Symbol,
         };
 
         private SDLGraphics Graphics { get; set; }  

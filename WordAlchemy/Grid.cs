@@ -57,7 +57,8 @@ namespace WordAlchemy
         public void WireEvents()
         {
             EventSystem eventSystem = EventSystem.Instance;
-            eventSystem.Listen(SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, MouseButtonDownEvent);
+            eventSystem.Listen(SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, OnMouseButtonDownEvent);
+            eventSystem.Listen(SDL.SDL_EventType.SDL_KEYDOWN, OnKeyDownEvent);
         }
 
         public void Draw()
@@ -165,7 +166,7 @@ namespace WordAlchemy
             screenY = cellY - (WorldOriginY - ScreenOriginY - OriginOffsetY);
         }
 
-        private void MouseButtonDownEvent(SDL.SDL_Event e)
+        private void OnMouseButtonDownEvent(SDL.SDL_Event e)
         {
             if (e.button.button == SDL.SDL_BUTTON_LEFT)
             {
@@ -179,6 +180,14 @@ namespace WordAlchemy
                 Debug.WriteLine($"Screen X: {screenX}, Screen Y: {screenY}");
 
                 SelectCell(x, y);
+            }
+        }
+
+        private void OnKeyDownEvent(SDL.SDL_Event e)
+        {
+            if (e.key.keysym.sym == SDL.SDL_Keycode.SDLK_v)
+            {
+                IsVisible = !IsVisible;
             }
         }
     }

@@ -35,8 +35,8 @@ namespace WordAlchemy
             int centerX = screenX;
             int centerY = screenY;
 
-            int centerXMod = (Info.CenterX == 0) ? 0 : Width / Info.CenterX;
-            int centerYMod = (Info.CenterY == 0) ? 0 : Height / Info.CenterY;
+            int centerXMod = (Info.WidthDivisor == 0) ? 0 : Width / Info.WidthDivisor;
+            int centerYMod = (Info.HeightDivisor == 0) ? 0 : Height / Info.HeightDivisor;
 
             Graphics.DrawText(Info.Symbol, centerX + centerXMod, centerY + centerYMod, Info.Color, "unifont");
         }

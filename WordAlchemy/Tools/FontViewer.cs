@@ -8,9 +8,12 @@ namespace WordAlchemy.Tools
         public int WindowWidth { get; set; }
         public int WindowHeight { get; set; }
 
+        public int Width { get; set; }
+        public int Height { get; set; }
+
         public TerrainInfo CurrentTerrain { get; set; }
 
-        //public Text Symbol { get; set; }
+        private SDLGraphics Graphics { get; set; }
 
         public FontViewer(TerrainInfo terrainInfo, int windowWidth, int windowHeight)
         {
@@ -18,8 +21,11 @@ namespace WordAlchemy.Tools
             WindowWidth = windowWidth;
             WindowHeight = windowHeight;
 
-            Font font = new Font("unifont", "Assets/Fonts/unifont.ttf", 24);
-            //Symbol = new Text(font, CurrentTerrain.Symbol, CurrentTerrain.Color);
+            Graphics = SDLGraphics.Instance;
+            Graphics.SizeText(CurrentTerrain.Symbol, "unifont", out int width, out int height);
+
+            Width = width;
+            Height = height;
 
             WireEvents();
         }
@@ -39,20 +45,19 @@ namespace WordAlchemy.Tools
             {
                 x = centerX,
                 y = centerY,
-                w = 20,
-                h = 20,
+                w = 10,
+                h = 10,
             };
 
-            graphics.SetDrawColor(Colors.Black());
+            graphics.SetDrawColor(Colors.White());
 
             graphics.DrawRect(ref rect);
 
-            //Symbol.CreateTexture();
 
-            //int centerXMod = (CurrentTerrain.CenterX == 0) ? 0 : Symbol.Width / CurrentTerrain.CenterX;
-            //int centerYMod = (CurrentTerrain.CenterY == 0) ? 0 : Symbol.Height / CurrentTerrain.CenterY;
+            int centerXMod = (CurrentTerrain.WidthDivisor == 0) ? 0 : Width / CurrentTerrain.WidthDivisor;
+            int centerYMod = (CurrentTerrain.HeightDivisor == 0) ? 0 : Height / CurrentTerrain.HeightDivisor;
 
-            //Symbol.Draw(centerX + centerXMod, centerY + centerYMod);
+            Graphics.DrawText(CurrentTerrain.Symbol, centerX + centerXMod, centerY + centerYMod, Colors.Red(), "unifont");
         }
 
         public void KeyDownEvent(SDL.SDL_Event e)
