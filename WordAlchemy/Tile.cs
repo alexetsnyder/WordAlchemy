@@ -23,7 +23,7 @@ namespace WordAlchemy
             GridY = gridY;
 
             Graphics = SDLGraphics.Instance;
-            Graphics.SizeText(Info.Symbol, "unifont", out int width, out int height);
+            Graphics.SizeText(Info.Symbol, FontName.UNIFONT, out int width, out int height);
 
             Width = width;
             Height = height;
@@ -38,7 +38,7 @@ namespace WordAlchemy
             int centerXMod = (Info.WidthDivisor == 0) ? 0 : Width / Info.WidthDivisor;
             int centerYMod = (Info.HeightDivisor == 0) ? 0 : Height / Info.HeightDivisor;
 
-            Graphics.DrawText(Info.Symbol, centerX + centerXMod, centerY + centerYMod, Info.Color, "unifont");
+            Graphics.DrawText(Info.Symbol, centerX + centerXMod, centerY + centerYMod, Info.Color, FontName.UNIFONT);
         }
     }
 }

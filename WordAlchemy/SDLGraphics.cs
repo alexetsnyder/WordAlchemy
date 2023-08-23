@@ -84,9 +84,9 @@ namespace WordAlchemy
                 return false;
             }
 
-            Atlas.AddFont(new Font("unifont", "Assets/Fonts/unifont.ttf", 18));
-            Atlas.AddFont(new Font("CourierPrime", "Assets/Fonts/Courier Prime.ttf", 18));
-            Atlas.AddFont(new Font("FreeMono", "Assets/Fonts/FreeMono.ttf", 18));
+            Atlas.AddFont(new Font(FontName.UNIFONT, "Assets/Fonts/unifont.ttf", 18));
+            Atlas.AddFont(new Font(FontName.COURIER_PRIME, "Assets/Fonts/Courier Prime.ttf", 18));
+            Atlas.AddFont(new Font(FontName.FREEMONO, "Assets/Fonts/FreeMono.ttf", 18));
 
             return true;
         }

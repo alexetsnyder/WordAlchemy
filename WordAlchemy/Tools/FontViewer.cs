@@ -22,7 +22,7 @@ namespace WordAlchemy.Tools
             WindowHeight = windowHeight;
 
             Graphics = SDLGraphics.Instance;
-            Graphics.SizeText(CurrentTerrain.Symbol, "unifont", out int width, out int height);
+            Graphics.SizeText(CurrentTerrain.Symbol, FontName.UNIFONT, out int width, out int height);
 
             Width = width;
             Height = height;
@@ -49,7 +49,7 @@ namespace WordAlchemy.Tools
             int centerXMod = (CurrentTerrain.WidthDivisor == 0) ? 0 : Width / CurrentTerrain.WidthDivisor;
             int centerYMod = (CurrentTerrain.HeightDivisor == 0) ? 0 : Height / CurrentTerrain.HeightDivisor;
 
-            Graphics.DrawText(CurrentTerrain.Symbol, centerX + centerXMod, centerY + centerYMod, Colors.Red(), "unifont");
+            Graphics.DrawText(CurrentTerrain.Symbol, centerX + centerXMod, centerY + centerYMod, Colors.Red(), FontName.UNIFONT);
         }
     }
 }

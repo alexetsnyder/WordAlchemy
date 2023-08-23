@@ -43,8 +43,6 @@ namespace WordAlchemy
 
         public void CreateTiles(SDLGraphics graphics)
         {
-            Font font = new Font("unifont", "Assets/Fonts/unifont.ttf", 18);
-        
             for (int i = -Cols / 2; i < Cols / 2; i++)
             {
                 for (int j = -Rows / 2; j < Rows / 2; j++)

@@ -4,6 +4,13 @@ using System.Runtime.InteropServices;
 
 namespace WordAlchemy
 {
+    public static class FontName
+    {
+        public static readonly string UNIFONT = "unifont";
+        public static readonly string COURIER_PRIME = "CourierPrime";
+        public static readonly string FREEMONO = "FreeMono";
+    }
+
     internal class GlyphAtlas
     {
         public Dictionary<string, Font> Fonts { get; set; }
@@ -109,7 +116,7 @@ namespace WordAlchemy
 
         public void Draw()
         {
-            Font font = Fonts["unifont"];
+            Font font = Fonts[FontName.UNIFONT];
 
             IntPtr texture = FontTextures[font.TTFFont];
 
