@@ -5,34 +5,34 @@ namespace WordAlchemy
 {
     internal class WorldGen
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
-
+        public int Rows { get; set; }
+        public int Cols { get; set; }
+      
         public int Seed { get; set; }
 
         private FastNoiseLite Noise { get; set; }
         private float[] HeightMap { get; set; }
 
-        public WorldGen(int width, int height, int seed = 0)
+        public WorldGen(int rows, int cols, int seed = 0)
         {
-            Width = width;
-            Height = height;
-            
+            Rows = rows;
+            Cols = cols;
+                 
             Seed = seed;
             Noise = new FastNoiseLite(seed);
             Noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
             Noise.SetFractalType(FastNoiseLite.FractalType.FBm);
 
-            HeightMap = new float[Width * Height];
+            HeightMap = new float[Cols * Rows];
         }
 
         public void GenerateHeightMap()
         {
             int index = 0;
             
-            for (int x = 0; x < Width; x++)
+            for (int x = 0; x < Cols; x++)
             {
-                for (int y = 0; y < Height; y++)
+                for (int y = 0; y < Rows; y++)
                 {
                     HeightMap[index++] = Noise.GetNoise(x, y);
                 }
@@ -41,7 +41,7 @@ namespace WordAlchemy
 
         public TerrainInfo GetTerrain(int x, int y)
         {
-            float heightValue = HeightMap[y * Height + x];
+            float heightValue = HeightMap[x * Rows + y];
 
             TerrainInfo terrain;
             if (heightValue < -0.25f)
