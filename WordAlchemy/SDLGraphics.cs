@@ -163,6 +163,11 @@ namespace WordAlchemy
             return SDL.SDL_CreateTextureFromSurface(Renderer, surface);
         }
 
+        public void DrawPoint(int x, int y)
+        {
+            SDL.SDL_RenderDrawPoint(Renderer, x, y);
+        }
+
         public void DrawLine(int x1, int y1, int x2, int y2) 
         {
             SDL.SDL_RenderDrawLine(Renderer, x1, y1, x2, y2);

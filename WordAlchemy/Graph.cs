@@ -12,6 +12,13 @@ namespace WordAlchemy
             NodeList = new List<Node>();
             EdgeList = new List<Edge>();
         }
+
+        public void AddEdge(Edge edge)
+        {
+            EdgeList.Add(edge);
+            edge.V1.EdgeList.Add(edge);
+            edge.V2.EdgeList.Add(edge);
+        }
     }
 
     public class Edge
@@ -31,11 +38,18 @@ namespace WordAlchemy
     {
         public int Id { get; set; }
 
+        public int X { get; set; }
+        public int Y { get; set; }
+
+        public object? Reference { get; set; }
+
         public List<Edge> EdgeList { get; set;}
 
-        public Node(int id)
+        public Node(int id, int x, int y)
         {
-            Id = id;
+            Id = id;   
+            X = x;
+            Y = y;
             EdgeList = new List<Edge>();      
         }
     }

@@ -16,6 +16,8 @@ namespace WordAlchemy
 
         private World GameWorld { get; set; }
 
+        private WorldMap WorldMap { get; set; }
+
         private Tools.FontViewer Viewer { get; set; }
 
         public App(int windowWidth, int windowHeight)
@@ -36,6 +38,9 @@ namespace WordAlchemy
 
             GameWorld = new World(windowWidth, windowHeight, 100, 100);
             GameWorld.CreateTiles(Graphics);
+
+            WorldMap = new WorldMap(windowWidth, windowHeight);
+            WorldMap.GenerateMap();
 
             Viewer = new Tools.FontViewer(Terrain.SmallDoubleMountain, windowWidth, windowHeight);   
         }
@@ -76,6 +81,7 @@ namespace WordAlchemy
             Graphics.Clear();
 
             GameWorld.Draw();
+            //WorldMap.Draw();
             //Viewer.Draw(Graphics);
             //Graphics.Atlas.Draw();
 

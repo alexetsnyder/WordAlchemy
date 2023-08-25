@@ -17,10 +17,10 @@ namespace WordAlchemy
 
         public IntPtr MapTexture { get; set; }
 
-        private SDLGraphics Graphics { get; set; }
-
         private static readonly int CharWidth = 9;
         private static readonly int CharHeight = 18;
+
+        private SDLGraphics Graphics { get; set; }  
 
         public WorldMap(int width, int height)
         {
@@ -49,19 +49,23 @@ namespace WordAlchemy
 
                     TerrainInfo terrain = Terrain.Water;
 
-                    Node node = new Node(i * Cols + j);
+                    Node node = new Node(i * Cols + j, x, y);
 
                     Graph.NodeList.Add(node);
                     if (j != 0)
                     {
-                        Graph.EdgeList.Add(new Edge(PlotList[i * Cols + (j - 1)].Node, node));
+                        Edge newEdge = new Edge(PlotList[i * Cols + (j - 1)].Node, node);
+                        Graph.AddEdge(newEdge);
                     }
                     if (i != 0)
                     {
-                        Graph.EdgeList.Add(new Edge(PlotList[(i - 1) * Cols + j].Node, node));
+                        Edge newEdge = new Edge(PlotList[(i - 1) * Cols + j].Node, node);
+                        Graph.AddEdge(newEdge);
                     }                 
 
-                    Plot plot = new Plot(node, x, y, terrain);
+                    Plot plot = new Plot(node, terrain);
+                    node.Reference = plot;
+
                     PlotList.Add(plot);
                 }
             }
@@ -69,7 +73,22 @@ namespace WordAlchemy
 
         public void Draw()
         {
+            foreach (Edge edge in Graph.EdgeList)
+            {
+                Graphics.SetDrawColor(Colors.Green());
+                Graphics.DrawLine(edge.V1.X, edge.V1.Y, edge.V2.X, edge.V2.Y);
+            }
 
+            foreach (Node node in Graph.NodeList)
+            {
+                Graphics.SetDrawColor(Colors.Red());
+                Graphics.DrawPoint(node.X, node.Y);
+            }
+
+            foreach (Plot plot in PlotList)
+            {
+                plot.Draw();
+            }
         }
     }
 }
