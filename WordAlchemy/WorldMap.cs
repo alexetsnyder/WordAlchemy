@@ -15,6 +15,8 @@ namespace WordAlchemy
 
         public List<Plot> PlotList { get; set; }
 
+        public MapGen MapGen { get; set; }
+
         public IntPtr MapTexture { get; set; }
 
         private static readonly int CharWidth = 9;
@@ -22,16 +24,20 @@ namespace WordAlchemy
 
         private SDLGraphics Graphics { get; set; }  
 
-        public WorldMap(int width, int height)
+        public WorldMap(int width, int height, int rows, int cols)
         {
             Width = width;
             Height = height;
 
-            Rows = (Height - (Height % CharHeight)) / CharHeight;
-            Cols = (Width - (Width % CharWidth)) / CharWidth;
+            Rows = rows; // (Height - (Height % CharHeight)) / CharHeight;
+            Cols = cols; // (Width - (Width % CharWidth)) / CharWidth;
 
             Graph = new Graph();
             PlotList = new List<Plot>();
+
+            Random random = new Random();
+            MapGen = new MapGen(Rows, Cols, random.Next(0, 1000000));
+            MapGen.GenerateMap();
 
             MapTexture = IntPtr.Zero;
 
@@ -47,7 +53,7 @@ namespace WordAlchemy
                     int x = j * CharWidth;
                     int y = i * CharHeight;
 
-                    TerrainInfo terrain = Terrain.Water;
+                    TerrainInfo terrain = MapGen.GetTerrain(i, j);
 
                     Node node = new Node(i * Cols + j, x, y);
 
@@ -73,17 +79,17 @@ namespace WordAlchemy
 
         public void Draw()
         {
-            foreach (Edge edge in Graph.EdgeList)
-            {
-                Graphics.SetDrawColor(Colors.Green());
-                Graphics.DrawLine(edge.V1.X, edge.V1.Y, edge.V2.X, edge.V2.Y);
-            }
+            //foreach (Edge edge in Graph.EdgeList)
+            //{
+            //    Graphics.SetDrawColor(Colors.Green());
+            //    Graphics.DrawLine(edge.V1.X, edge.V1.Y, edge.V2.X, edge.V2.Y);
+            //}
 
-            foreach (Node node in Graph.NodeList)
-            {
-                Graphics.SetDrawColor(Colors.Red());
-                Graphics.DrawPoint(node.X, node.Y);
-            }
+            //foreach (Node node in Graph.NodeList)
+            //{
+            //    Graphics.SetDrawColor(Colors.Red());
+            //    Graphics.DrawPoint(node.X, node.Y);
+            //}
 
             foreach (Plot plot in PlotList)
             {
