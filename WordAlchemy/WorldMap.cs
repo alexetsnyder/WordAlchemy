@@ -29,8 +29,8 @@ namespace WordAlchemy
             Width = width;
             Height = height;
 
-            Rows = rows; // (Height - (Height % CharHeight)) / CharHeight;
-            Cols = cols; // (Width - (Width % CharWidth)) / CharWidth;
+            Rows = rows; 
+            Cols = cols; 
 
             Graph = new Graph();
             PlotList = new List<Plot>();
@@ -75,26 +75,31 @@ namespace WordAlchemy
                     PlotList.Add(plot);
                 }
             }
+
+            GenerateMapTexture();
+        }
+
+        public void GenerateMapTexture()
+        {
+            MapTexture = Graphics.CreateTexture(Width, Height);
+
+            foreach (Plot plot in PlotList)
+            {
+                plot.DrawTo(MapTexture);
+            }
         }
 
         public void Draw()
         {
-            //foreach (Edge edge in Graph.EdgeList)
-            //{
-            //    Graphics.SetDrawColor(Colors.Green());
-            //    Graphics.DrawLine(edge.V1.X, edge.V1.Y, edge.V2.X, edge.V2.Y);
-            //}
-
-            //foreach (Node node in Graph.NodeList)
-            //{
-            //    Graphics.SetDrawColor(Colors.Red());
-            //    Graphics.DrawPoint(node.X, node.Y);
-            //}
-
-            foreach (Plot plot in PlotList)
+            SDL.SDL_Rect dest = new SDL.SDL_Rect
             {
-                plot.Draw();
-            }
+                x = 0,
+                y = 0,
+                w = Width,
+                h = Height,
+            };
+
+            Graphics.DrawTexture(MapTexture, ref dest);
         }
     }
 }

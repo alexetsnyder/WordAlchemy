@@ -70,7 +70,8 @@ namespace WordAlchemy
                 Window,
                 -1,
                 SDL.SDL_RendererFlags.SDL_RENDERER_ACCELERATED |
-                SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC);
+                SDL.SDL_RendererFlags.SDL_RENDERER_PRESENTVSYNC |
+                SDL.SDL_RendererFlags.SDL_RENDERER_TARGETTEXTURE);
 
             if (Renderer == IntPtr.Zero)
             {
@@ -163,6 +164,11 @@ namespace WordAlchemy
             return SDL.SDL_CreateTextureFromSurface(Renderer, surface);
         }
 
+        public IntPtr CreateTexture(int width, int height)
+        {
+            return SDL.SDL_CreateTexture(Renderer, SDL.SDL_PIXELFORMAT_RGBA8888, (int)SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_TARGET, width, height);
+        }
+
         public void DrawPoint(int x, int y)
         {
             SDL.SDL_RenderDrawPoint(Renderer, x, y);
@@ -181,6 +187,16 @@ namespace WordAlchemy
         public void FillRect(ref SDL.SDL_Rect rect)
         {
             SDL.SDL_RenderFillRect(Renderer, ref rect);
+        }
+
+        public void DrawTextToTexture(IntPtr dstTexture, string text, int x, int y, SDL.SDL_Color color, string fontName)
+        {
+            SDL.SDL_SetTextureBlendMode(dstTexture, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
+            SDL.SDL_SetRenderTarget(Renderer, dstTexture);
+
+            DrawText(text, x, y, color, fontName);
+
+            SDL.SDL_SetRenderTarget(Renderer, IntPtr.Zero);
         }
 
         public void DrawText(string text, int x, int y, SDL.SDL_Color color, string fontName)
@@ -218,6 +234,11 @@ namespace WordAlchemy
 
             SDL.SDL_QueryTexture(texture, out _, out _, out dest.w, out dest.h);
 
+            DrawTexture(texture, ref dest);
+        }
+
+        public void DrawTexture(IntPtr texture, ref SDL.SDL_Rect dest)
+        {
             SDL.SDL_RenderCopy(Renderer, texture, IntPtr.Zero, ref dest);
         }
     }

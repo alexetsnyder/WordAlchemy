@@ -17,6 +17,14 @@ namespace WordAlchemy
             Graphics = SDLGraphics.Instance;
         }
 
+        public void DrawTo(IntPtr texture)
+        {
+            int x = Node.X;
+            int y = Node.Y;
+
+            Graphics.DrawTextToTexture(texture, Info.Symbol, x, y, Info.Color, FontName.UNIFONT);
+        }
+
         public void Draw()
         {
             int x = Node.X;
