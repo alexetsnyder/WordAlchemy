@@ -3,13 +3,16 @@ using SDL2;
 
 namespace WordAlchemy
 {
-    internal class WorldMap
+    internal class Map
     {
         public int Width { get; set; }
         public int Height { get; set; }
 
         public int Rows { get; set; }
         public int Cols { get; set; }
+
+        public int OffsetX { get; set; }
+        public int OffsetY { get; set; }
 
         public Graph Graph { get; set; }
 
@@ -19,18 +22,21 @@ namespace WordAlchemy
 
         public IntPtr MapTexture { get; set; }
 
-        private static readonly int CharWidth = 9;
-        private static readonly int CharHeight = 18;
+        private static readonly int CharWidth = 8;
+        private static readonly int CharHeight = 12; //16;
 
-        private SDLGraphics Graphics { get; set; }  
+        private SDLGraphics Graphics { get; set; }
 
-        public WorldMap(int width, int height, int rows, int cols)
+        public Map(int width, int height, int rows, int cols, int offsetX = 0, int offsetY = 0)
         {
             Width = width;
             Height = height;
 
             Rows = rows; 
             Cols = cols; 
+
+            OffsetX = offsetX;
+            OffsetY = offsetY;
 
             Graph = new Graph();
             PlotList = new List<Plot>();
@@ -93,8 +99,8 @@ namespace WordAlchemy
         {
             SDL.SDL_Rect dest = new SDL.SDL_Rect
             {
-                x = 0,
-                y = 0,
+                x = OffsetX,
+                y = OffsetY,
                 w = Width,
                 h = Height,
             };

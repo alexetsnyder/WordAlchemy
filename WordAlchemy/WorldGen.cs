@@ -69,7 +69,7 @@ namespace WordAlchemy
     {
         public static TerrainInfo Water = new TerrainInfo("~", 0, 0, Colors.Blue());
 
-        public static TerrainInfo Grass = new TerrainInfo(",", 0,  -2, Colors.Green());
+        public static TerrainInfo Grass = new TerrainInfo("n", 0,  -2, Colors.Green());
 
         public static TerrainInfo Dirt = new TerrainInfo(".", 8,  -2, Colors.Brown());
 
