@@ -5,12 +5,17 @@ namespace WordAlchemy
     {
         public List<Node> NodeList { get; set; }
         
-        public List<Edge> EdgeList { get; set; }
+        public List<Edge> EdgeList { get; private set; }
 
         public Graph() 
         {
             NodeList = new List<Node>();
             EdgeList = new List<Edge>();
+        }
+
+        public void AddNode(Node node)
+        {
+            NodeList.Add(node);
         }
 
         public void AddEdge(Edge edge)

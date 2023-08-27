@@ -79,7 +79,7 @@ namespace WordAlchemy
 
                     Node node = new Node(i * Cols + j, x, y);
 
-                    Graph.NodeList.Add(node);
+                    Graph.AddNode(node);
                     if (j != 0)
                     {
                         Edge newEdge = new Edge(PlotList[i * Cols + (j - 1)].Node, node);

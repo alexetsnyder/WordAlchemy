@@ -57,7 +57,7 @@ namespace WordAlchemy
             }
             else if (heightValue < 25.0f)
             {
-                terrain= Terrain.Sand;
+                terrain = Terrain.Sand;
             }
             else if (heightValue < 40.0f)
             {
