@@ -3,15 +3,19 @@ namespace WordAlchemy
 {
     internal class MapNode : Node
     {
+        public int X {  get; set; }
+        public int Y { get; set; }
+
         public TerrainInfo Info { get; set; }
 
         private SDLGraphics Graphics { get; set; }
 
         public MapNode(int id, int x, int y, TerrainInfo terrainInfo)
-            : base(id, x, y)
+            : base(id)
         {
             Info = terrainInfo;
-
+            X = x;
+            Y = y;
             Graphics = SDLGraphics.Instance;
         }
 
