@@ -92,7 +92,7 @@ namespace WordAlchemy
             foreach (var c in Atlas.ExtraChars)
             {
                 SizeText(c, FontName.UNIFONT, out int width, out int height);
-                Debug.WriteLine($"{c}: ({width}, {height}");
+                Debug.WriteLine($"{c}: ({width}, {height})");
             }
 
             return true;
@@ -246,6 +246,11 @@ namespace WordAlchemy
         public void DrawTexture(IntPtr texture, ref SDL.SDL_Rect dest)
         {
             SDL.SDL_RenderCopy(Renderer, texture, IntPtr.Zero, ref dest);
+        }
+
+        public void DrawTexture(IntPtr texture, ref SDL.SDL_Rect src, ref SDL.SDL_Rect dest)
+        {
+            SDL.SDL_RenderCopy(Renderer, texture, ref src, ref dest);
         }
     }
 }

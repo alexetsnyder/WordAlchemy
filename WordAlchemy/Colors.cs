@@ -168,5 +168,16 @@ namespace WordAlchemy
                 a = 255,
             };
         }
+
+        public static SDL.SDL_Color Sand()
+        {
+            return new SDL.SDL_Color
+            {
+                r = 194,
+                g = 178,
+                b = 128,
+                a = 255,
+            };
+        }
     }
 }

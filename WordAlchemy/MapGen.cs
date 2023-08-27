@@ -1,4 +1,6 @@
 ﻿
+using WordAlchemy.Helpers;
+
 namespace WordAlchemy
 {
     internal class MapGen
@@ -35,7 +37,10 @@ namespace WordAlchemy
             {
                 for (int j = 0; j < Cols; j++)
                 {
-                    HeightMap[i * Cols + j] = Noise.GetNoise(i, j);
+                    float noise = Noise.GetNoise(i, j);
+                    float remapNoise = MathHelper.Remap(noise, -1.0f, 1.0f, 0.0f, 100.0f);
+
+                    HeightMap[i * Cols + j] = remapNoise * MathHelper.FallOffMapCircular(j, i, Cols, Rows);
                 }
             }
         }
@@ -45,19 +50,23 @@ namespace WordAlchemy
             float heightValue = HeightMap[i * Cols + j];
 
             TerrainInfo terrain;
-            if (heightValue < -0.25f)
+            if (heightValue < 20.0f)
             {
                 terrain = Terrain.Water;
             }
-            else if (heightValue < 0.0f)
+            else if (heightValue < 25.0f)
+            {
+                terrain= Terrain.Sand;
+            }
+            else if (heightValue < 40.0f)
             {
                 terrain = Terrain.Grass;
             }
-            else if (heightValue < 0.25f)
+            else if (heightValue < 60.0f)
             {
                 terrain = Terrain.SmallHill;
             }
-            else //(heightValue < 0.5f)
+            else //(heightValue < 100.0f)
             {
                 terrain = Terrain.SmallMountain;
             }
