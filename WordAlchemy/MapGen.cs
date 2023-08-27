@@ -1,4 +1,5 @@
 ﻿
+using SDL2;
 using WordAlchemy.Helpers;
 
 namespace WordAlchemy
@@ -72,6 +73,45 @@ namespace WordAlchemy
             }
 
             return terrain;
+        }
+    }
+
+    public static class Terrain
+    {
+        public static TerrainInfo Water = new TerrainInfo("~", 0, 0, Colors.Blue());
+
+        public static TerrainInfo Sand = new TerrainInfo("~", 0, 0, Colors.Sand());
+
+        public static TerrainInfo Grass = new TerrainInfo(",", 0, -2, Colors.Green());
+
+        public static TerrainInfo Dirt = new TerrainInfo(".", 8, -2, Colors.Brown());
+
+        public static TerrainInfo Hill = new TerrainInfo("\u0361", -2, 8, Colors.DarkGreen());
+
+        public static TerrainInfo SmallHill = new TerrainInfo("\u032F", 8, -2, Colors.DarkGreen());
+
+        public static TerrainInfo PointedHill = new TerrainInfo("\u02C4", 0, 0, Colors.DarkGreen());
+
+        public static TerrainInfo Mountain = new TerrainInfo("\u0245", 8, -4, Colors.Grey());
+
+        public static TerrainInfo SmallMountain = new TerrainInfo("\u028C", 8, -4, Colors.Grey());
+
+        public static TerrainInfo SmallDoubleMountain = new TerrainInfo("\u028D", 0, -4, Colors.Grey());
+    }
+
+    public struct TerrainInfo
+    {
+        public string Symbol { get; set; }
+        public SDL.SDL_Color Color { get; set; }
+        public int WidthDivisor { get; set; }
+        public int HeightDivisor { get; set; }
+
+        public TerrainInfo(string symbol, int centerX, int centerY, SDL.SDL_Color color)
+        {
+            Symbol = symbol;
+            WidthDivisor = centerX;
+            HeightDivisor = centerY;
+            Color = color;
         }
     }
 }
