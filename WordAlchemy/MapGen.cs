@@ -41,7 +41,7 @@ namespace WordAlchemy
                     float noise = Noise.GetNoise(i, j);
                     float remapNoise = MathHelper.Remap(noise, -1.0f, 1.0f, 0.0f, 100.0f);
 
-                    HeightMap[i * Cols + j] = remapNoise * MathHelper.FallOffMapCircular(j, i, Cols, Rows);
+                    HeightMap[i * Cols + j] = remapNoise * MathHelper.SigmoidFallOffMapCircular(j, i, Cols, Rows);
                 }
             }
         }

@@ -11,20 +11,31 @@ namespace WordAlchemy.Helpers
             return outputStart + (R / r) * (inputValue - inputStart);
         }
 
-        public static float FallOffMapCircular(float x, float y, int width, int height)
+        public static float LinearFallOffMapCircular(float x, float y, int width, int height)
         {
             int midX = width / 2;
             int midY = height / 2;
 
-            return 1 - MathF.Sqrt(DistanceSquared(x, y, midX, midY)) / MathF.Sqrt(DistanceSquared(0, 0, midX, midY));
+            return 1 - Distance(x, y, midX, midY) / Distance(0, 0, midX, midY);
         }
 
-        public static float DistanceSquared(float x1, float y1, float x2, float y2)
+        public static float SigmoidFallOffMapCircular(float x, float y,  int width, int height)
+        {
+            int midX = width / 2;
+            int midY = height / 2;
+
+            float d = Distance(x, y, midX, midY);
+            float dMax = Distance(0, 0, midX, midY);
+
+            return 1 / (1 + MathF.Pow(MathF.E, (d * 12 / dMax - 6)));
+        }
+
+        public static float Distance(float x1, float y1, float x2, float y2)
         {
             float xDiff = x2 - x1;
             float yDiff = y2 - y1;
 
-            return (xDiff * xDiff) + (yDiff * yDiff);
+            return MathF.Sqrt((xDiff * xDiff) + (yDiff * yDiff));
         }
     }
 }
