@@ -140,24 +140,46 @@ namespace WordAlchemy
                 if (key == SDL.SDL_Keycode.SDLK_w)
                 {
                     ViewWindow.OffsetY -= speed;
-                    ViewWindow.OffsetY = Math.Clamp(ViewWindow.OffsetY, 0, Rows * CharHeight - Height);
+                    ViewWindow.OffsetY = Math.Clamp(ViewWindow.OffsetY, 0, GetYMax());
                 }
                 if (key == SDL.SDL_Keycode.SDLK_s)
                 {
                     ViewWindow.OffsetY += speed;
-                    ViewWindow.OffsetY = Math.Clamp(ViewWindow.OffsetY, 0, Rows * CharHeight - Height);
+                    ViewWindow.OffsetY = Math.Clamp(ViewWindow.OffsetY, 0, GetYMax());
                 }
                 if (key == SDL.SDL_Keycode.SDLK_a)
                 {
                     ViewWindow.OffsetX -= speed;
-                    ViewWindow.OffsetX = Math.Clamp(ViewWindow.OffsetX, 0, Cols * CharWidth - Width);
+                    ViewWindow.OffsetX = Math.Clamp(ViewWindow.OffsetX, 0, GetXMax());
                 }
                 if (key == SDL.SDL_Keycode.SDLK_d)
                 {
                     ViewWindow.OffsetX += speed;
-                    ViewWindow.OffsetX = Math.Clamp(ViewWindow.OffsetX, 0, Cols * CharWidth - Width);
+                    ViewWindow.OffsetX = Math.Clamp(ViewWindow.OffsetX, 0, GetXMax());
                 }
             }
+        }
+
+        public int GetXMax()
+        {
+            int textureWidth = Cols * CharWidth;
+
+            if (textureWidth <= Width)
+            {
+                return 0;
+            }
+            return textureWidth - Width;
+        }
+
+        public int GetYMax()
+        {
+            int textureHeight = Rows * CharHeight;
+
+            if (textureHeight <= Height)
+            {
+                return 0;
+            }
+            return textureHeight - Height;
         }
 
         public void OnKeyDown(SDL.SDL_Event e)
