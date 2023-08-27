@@ -46,8 +46,6 @@ namespace WordAlchemy
         public int X { get; set; }
         public int Y { get; set; }
 
-        public object? Reference { get; set; }
-
         public List<Edge> EdgeList { get; set;}
 
         public Node(int id, int x, int y)

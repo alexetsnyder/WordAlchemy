@@ -1,17 +1,15 @@
 ﻿
 namespace WordAlchemy
 {
-    internal class MapNode
+    internal class MapNode : Node
     {
-        public Node Node { get; set; }
-
         public TerrainInfo Info { get; set; }
 
         private SDLGraphics Graphics { get; set; }
 
-        public MapNode(Node node, TerrainInfo terrainInfo)
+        public MapNode(int id, int x, int y, TerrainInfo terrainInfo)
+            : base(id, x, y)
         {
-            Node = node;
             Info = terrainInfo;
 
             Graphics = SDLGraphics.Instance;
@@ -19,16 +17,16 @@ namespace WordAlchemy
 
         public void DrawTo(IntPtr texture)
         {
-            int x = Node.X;
-            int y = Node.Y;
+            int x = X;
+            int y = Y; 
 
             Graphics.DrawTextToTexture(texture, Info.Symbol, x, y, Info.Color, FontName.UNIFONT);
         }
 
         public void Draw()
         {
-            int x = Node.X;
-            int y = Node.Y;
+            int x = X;
+            int y = Y;
 
             Graphics.DrawText(Info.Symbol, x, y, Info.Color, FontName.UNIFONT);
         }

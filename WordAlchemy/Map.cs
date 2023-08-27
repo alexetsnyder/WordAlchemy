@@ -18,8 +18,6 @@ namespace WordAlchemy
 
         public Graph Graph { get; set; }
 
-        public List<MapNode> MapNodeList { get; set; }
-
         public MapGen MapGen { get; set; }
 
         public IntPtr MapTexture { get; set; }
@@ -45,7 +43,6 @@ namespace WordAlchemy
             ViewWindow = new ViewWindow(0, 0, width, height);
 
             Graph = new Graph();
-            MapNodeList = new List<MapNode>();
 
             Random random = new Random();
             MapGen = new MapGen(Rows, Cols, random.Next(0, 1000000));
@@ -77,24 +74,19 @@ namespace WordAlchemy
 
                     TerrainInfo terrain = MapGen.GetTerrain(i, j);
 
-                    Node node = new Node(i * Cols + j, x, y);
+                    MapNode mapNode = new MapNode(i * Cols + j, x, y, terrain);
 
-                    Graph.AddNode(node);
+                    Graph.AddNode(mapNode);
                     if (j != 0)
                     {
-                        Edge newEdge = new Edge(MapNodeList[i * Cols + (j - 1)].Node, node);
+                        Edge newEdge = new Edge(Graph.NodeList[i * Cols + (j - 1)], mapNode);
                         Graph.AddEdge(newEdge);
                     }
                     if (i != 0)
                     {
-                        Edge newEdge = new Edge(MapNodeList[(i - 1) * Cols + j].Node, node);
+                        Edge newEdge = new Edge(Graph.NodeList[(i - 1) * Cols + j], mapNode);
                         Graph.AddEdge(newEdge);
                     }                 
-
-                    MapNode mapNode = new MapNode(node, terrain);
-                    node.Reference = mapNode;
-
-                    MapNodeList.Add(mapNode);
                 }
             }
 
@@ -105,7 +97,7 @@ namespace WordAlchemy
         {
             MapTexture = Graphics.CreateTexture(Cols * CharWidth, Rows * CharHeight);
 
-            foreach (MapNode mapNode in MapNodeList)
+            foreach (MapNode mapNode in Graph.NodeList)
             {
                 mapNode.DrawTo(MapTexture);
             }
