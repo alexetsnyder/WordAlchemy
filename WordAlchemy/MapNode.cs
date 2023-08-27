@@ -1,7 +1,7 @@
 ﻿
 namespace WordAlchemy
 {
-    internal class Plot
+    internal class MapNode
     {
         public Node Node { get; set; }
 
@@ -9,7 +9,7 @@ namespace WordAlchemy
 
         private SDLGraphics Graphics { get; set; }
 
-        public Plot(Node node, TerrainInfo terrainInfo)
+        public MapNode(Node node, TerrainInfo terrainInfo)
         {
             Node = node;
             Info = terrainInfo;

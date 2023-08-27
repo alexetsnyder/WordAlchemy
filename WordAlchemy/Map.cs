@@ -18,7 +18,7 @@ namespace WordAlchemy
 
         public Graph Graph { get; set; }
 
-        public List<Plot> PlotList { get; set; }
+        public List<MapNode> MapNodeList { get; set; }
 
         public MapGen MapGen { get; set; }
 
@@ -45,7 +45,7 @@ namespace WordAlchemy
             ViewWindow = new ViewWindow(0, 0, width, height);
 
             Graph = new Graph();
-            PlotList = new List<Plot>();
+            MapNodeList = new List<MapNode>();
 
             Random random = new Random();
             MapGen = new MapGen(Rows, Cols, random.Next(0, 1000000));
@@ -82,19 +82,19 @@ namespace WordAlchemy
                     Graph.AddNode(node);
                     if (j != 0)
                     {
-                        Edge newEdge = new Edge(PlotList[i * Cols + (j - 1)].Node, node);
+                        Edge newEdge = new Edge(MapNodeList[i * Cols + (j - 1)].Node, node);
                         Graph.AddEdge(newEdge);
                     }
                     if (i != 0)
                     {
-                        Edge newEdge = new Edge(PlotList[(i - 1) * Cols + j].Node, node);
+                        Edge newEdge = new Edge(MapNodeList[(i - 1) * Cols + j].Node, node);
                         Graph.AddEdge(newEdge);
                     }                 
 
-                    Plot plot = new Plot(node, terrain);
-                    node.Reference = plot;
+                    MapNode mapNode = new MapNode(node, terrain);
+                    node.Reference = mapNode;
 
-                    PlotList.Add(plot);
+                    MapNodeList.Add(mapNode);
                 }
             }
 
@@ -105,9 +105,9 @@ namespace WordAlchemy
         {
             MapTexture = Graphics.CreateTexture(Cols * CharWidth, Rows * CharHeight);
 
-            foreach (Plot plot in PlotList)
+            foreach (MapNode mapNode in MapNodeList)
             {
-                plot.DrawTo(MapTexture);
+                mapNode.DrawTo(MapTexture);
             }
         }
 
