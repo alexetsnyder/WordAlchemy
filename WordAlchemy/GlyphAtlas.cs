@@ -6,6 +6,7 @@ namespace WordAlchemy
 {
     public static class FontName
     {
+        public static readonly string IBM_VGA_8X14 = "Px437_IBM_VGA_8x14";
         public static readonly string UNIFONT = "unifont";
         public static readonly string COURIER_PRIME = "CourierPrime";
         public static readonly string FREEMONO = "FreeMono";
@@ -116,7 +117,7 @@ namespace WordAlchemy
 
         public void Draw()
         {
-            Font font = Fonts[FontName.UNIFONT];
+            Font font = Fonts[FontName.IBM_VGA_8X14];
 
             IntPtr texture = FontTextures[font.TTFFont];
 

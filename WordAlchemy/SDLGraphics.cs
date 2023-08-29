@@ -76,13 +76,14 @@ namespace WordAlchemy
                 return false;
             }
 
+            Atlas.AddFont(new Font(FontName.IBM_VGA_8X14, "Assets/Fonts/Px437_IBM_VGA_8x14.ttf", 16));
             Atlas.AddFont(new Font(FontName.UNIFONT, "Assets/Fonts/unifont.ttf", 16));
             Atlas.AddFont(new Font(FontName.COURIER_PRIME, "Assets/Fonts/Courier Prime.ttf", 16));
             Atlas.AddFont(new Font(FontName.FREEMONO, "Assets/Fonts/FreeMono.ttf", 16));
 
             foreach (var c in Atlas.ExtraChars)
             {
-                SizeText(c, FontName.UNIFONT, out int width, out int height);
+                SizeText(c, FontName.IBM_VGA_8X14, out int width, out int height);
                 Debug.WriteLine($"{c}: ({width}, {height})");
             }
 

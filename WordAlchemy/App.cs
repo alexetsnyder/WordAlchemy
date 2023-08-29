@@ -71,7 +71,7 @@ namespace WordAlchemy
 
             Map.Draw();
             //Viewer.Draw(Graphics);
-            //Graphics.Atlas.Draw();
+            //Graphics.Atlas?.Draw();
 
             Graphics.Present();
         }
