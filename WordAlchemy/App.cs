@@ -38,8 +38,6 @@ namespace WordAlchemy
         {
             Events.Listen(SDL.SDL_EventType.SDL_QUIT, (e) => this.IsRunning = false);
             Events.Listen(SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, (e) => Debug.WriteLine($"Mouse Button: {e.button.button}"));
-            Events.Listen(SDL.SDL_EventType.SDL_KEYDOWN, (e) => Debug.WriteLine($"Key Down: {e.key.keysym.sym}"));
-            Events.Listen(SDL.SDL_EventType.SDL_KEYUP, (e) => Debug.WriteLine($"Key Up: {e.key.keysym.sym}"));
             Events.Listen(SDL.SDL_EventType.SDL_WINDOWEVENT, OnWindowResizedEvent);
         }
 
