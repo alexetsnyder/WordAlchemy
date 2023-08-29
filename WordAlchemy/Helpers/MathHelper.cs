@@ -1,4 +1,6 @@
 ﻿
+using SDL2;
+
 namespace WordAlchemy.Helpers
 {
     public static class MathHelper
@@ -36,6 +38,33 @@ namespace WordAlchemy.Helpers
             float yDiff = y2 - y1;
 
             return MathF.Sqrt((xDiff * xDiff) + (yDiff * yDiff));
+        }
+
+        public static int Dot(int Ax, int Ay, int Bx, int By)
+        {
+            return Ax * Bx + Ay * By;
+        }
+
+        public static bool IsInRectangle(int Ax, int Ay, int Bx, int By, int Cx, int Cy, int x, int y)
+        {
+            int ABx = Bx - Ax;
+            int ABy = By - Ay;
+
+            int BCx = Cx - Bx;
+            int BCy = Cy - By;
+
+            int AMx = x - Ax;
+            int AMy = y - Ay;
+
+            int BMx = x - Bx;
+            int BMy = y - By;
+
+            int dotABAM = Dot(ABx, ABy, AMx, AMy);
+            int dotABAB = Dot(ABx, ABy, ABx, ABy);
+            int dotBCBM = Dot(BCx, BCy, BMx, BMy);
+            int dotBCBC = Dot(BCx, BCy, BCx, BCy);
+
+            return dotABAM >= 0 && dotABAM <= dotABAB && dotBCBM >= 0 && dotBCBM <= dotBCBC;
         }
     }
 }

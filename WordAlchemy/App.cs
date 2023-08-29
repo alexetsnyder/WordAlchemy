@@ -14,8 +14,6 @@ namespace WordAlchemy
 
         private EventSystem Events { get; set; }
 
-        private World GameWorld { get; set; }
-
         private Map Map { get; set; }
 
         private Tools.FontViewer Viewer { get; set; }
@@ -35,9 +33,6 @@ namespace WordAlchemy
 
             Events = EventSystem.Instance;
             WireEvents();
-
-            GameWorld = new World(windowWidth, windowHeight, 100, 100);
-            GameWorld.CreateTiles(Graphics);
 
             Map = new Map(windowWidth, windowHeight, 240, 240);
             Map.GenerateMap();
@@ -60,7 +55,6 @@ namespace WordAlchemy
             {
                 PollEvents();
 
-                GameWorld.Update();
                 Map.Update();
 
                 Render();
@@ -81,7 +75,6 @@ namespace WordAlchemy
         {
             Graphics.Clear();
 
-            //GameWorld.Draw();
             Map.Draw();
             //Viewer.Draw(Graphics);
             //Graphics.Atlas.Draw();
@@ -98,8 +91,6 @@ namespace WordAlchemy
 
                 Graphics.WindowWidth = WindowWidth;
                 Graphics.WindowHeight = WindowHeight;
-
-                GameWorld.WorldGrid.SetWindowSize(WindowWidth, WindowHeight);
 
                 Viewer.WindowWidth = WindowWidth;
                 Viewer.WindowHeight = WindowHeight;
