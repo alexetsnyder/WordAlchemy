@@ -5,9 +5,6 @@ namespace WordAlchemy
 {
     internal class App
     {
-        public int WindowWidth { get; set; }
-        public int WindowHeight { get; set; }
-
         public bool IsRunning { get; set; }
 
         private SDLGraphics Graphics { get; set; }
@@ -18,15 +15,12 @@ namespace WordAlchemy
 
         private Tools.FontViewer Viewer { get; set; }
 
-        public App(int windowWidth, int windowHeight)
+        public App()
         {
-            WindowWidth = windowWidth;
-            WindowHeight = windowHeight;
-
             IsRunning = true;
             Graphics = SDLGraphics.Instance;
             
-            if (!Graphics.Init(windowWidth, windowHeight))
+            if (!Graphics.Init())
             {
                 IsRunning = false;
             }
@@ -34,10 +28,10 @@ namespace WordAlchemy
             Events = EventSystem.Instance;
             WireEvents();
 
-            Map = new Map(windowWidth, windowHeight, 240, 240);
+            Map = new Map(AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight, 240, 240);
             Map.GenerateMap();
 
-            Viewer = new Tools.FontViewer(Terrain.SmallDoubleMountain, windowWidth, windowHeight);   
+            Viewer = new Tools.FontViewer(Terrain.SmallDoubleMountain);   
         }
 
         public void WireEvents()
@@ -86,14 +80,8 @@ namespace WordAlchemy
         {  
             if (e.window.windowEvent == SDL.SDL_WindowEventID.SDL_WINDOWEVENT_RESIZED)
             {
-                WindowWidth = e.window.data1;
-                WindowHeight = e.window.data2;
-
-                Graphics.WindowWidth = WindowWidth;
-                Graphics.WindowHeight = WindowHeight;
-
-                Viewer.WindowWidth = WindowWidth;
-                Viewer.WindowHeight = WindowHeight;
+                AppSettings.Instance.WindowWidth = e.window.data1;
+                AppSettings.Instance.WindowHeight = e.window.data2;
             }
         }
     }

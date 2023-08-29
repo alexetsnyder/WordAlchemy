@@ -1,4 +1,5 @@
 ﻿using WordAlchemy;
 
-App app = new App(1920, 1017);
+AppSettings.Instance.Init(1920, 1017);
+App app = new App();
 app.Run();

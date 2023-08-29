@@ -7,9 +7,6 @@ namespace WordAlchemy
     {
         public static SDLGraphics Instance { get { return Nested.instance; } }
 
-        public int WindowWidth { get; set; }
-        public int WindowHeight { get; set; }
-
         public GlyphAtlas? Atlas { get; set; }
 
         public SDL.SDL_Color ClearColor { get; set; }
@@ -19,9 +16,6 @@ namespace WordAlchemy
 
         private SDLGraphics() 
         {
-            WindowWidth = 0;
-            WindowHeight = 0;
-
             Atlas = null;
             SetClearColor(Colors.Black());
 
@@ -39,11 +33,8 @@ namespace WordAlchemy
             internal static readonly SDLGraphics instance = new SDLGraphics();
         }
 
-        public bool Init(int windowWidth, int windowHeight)
+        public bool Init()
         {
-            WindowWidth = windowWidth;
-            WindowHeight = windowHeight;
-
             Atlas = new GlyphAtlas();
 
             if (SDL.SDL_Init(SDL.SDL_INIT_VIDEO) < 0)
@@ -55,8 +46,8 @@ namespace WordAlchemy
             Window = SDL.SDL_CreateWindow("Word Alchemy",
                 SDL.SDL_WINDOWPOS_UNDEFINED,
                 SDL.SDL_WINDOWPOS_UNDEFINED,
-                WindowWidth,
-                WindowHeight,
+                AppSettings.Instance.WindowWidth,
+                AppSettings.Instance.WindowHeight,
                 SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN |
                 SDL.SDL_WindowFlags.SDL_WINDOW_RESIZABLE);
 

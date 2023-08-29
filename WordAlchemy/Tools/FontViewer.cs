@@ -5,9 +5,6 @@ namespace WordAlchemy.Tools
 {
     internal class FontViewer
     {
-        public int WindowWidth { get; set; }
-        public int WindowHeight { get; set; }
-
         public int Width { get; set; }
         public int Height { get; set; }
 
@@ -15,11 +12,9 @@ namespace WordAlchemy.Tools
 
         private SDLGraphics Graphics { get; set; }
 
-        public FontViewer(TerrainInfo terrainInfo, int windowWidth, int windowHeight)
+        public FontViewer(TerrainInfo terrainInfo)
         {
             CurrentTerrain = terrainInfo;
-            WindowWidth = windowWidth;
-            WindowHeight = windowHeight;
 
             Graphics = SDLGraphics.Instance;
             Graphics.SizeText(CurrentTerrain.Symbol, FontName.UNIFONT, out int width, out int height);
@@ -30,8 +25,8 @@ namespace WordAlchemy.Tools
 
         public void Draw(SDLGraphics graphics)
         {
-            int centerX = WindowWidth / 2;
-            int centerY = WindowHeight / 2;
+            int centerX = AppSettings.Instance.WindowWidth / 2;
+            int centerY = AppSettings.Instance.WindowHeight / 2;
 
             SDL.SDL_Rect rect = new SDL.SDL_Rect
             {
