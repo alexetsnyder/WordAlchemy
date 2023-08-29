@@ -31,7 +31,7 @@ namespace WordAlchemy
             Map = new Map(AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight, 240, 240);
             Map.GenerateMap();
 
-            Viewer = new Tools.FontViewer(Terrain.Water);   
+            Viewer = new Tools.FontViewer();   
         }
 
         public void WireEvents()

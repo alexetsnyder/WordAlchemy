@@ -160,17 +160,17 @@ namespace WordAlchemy
 
     public static class Terrain
     {
-        public static TerrainInfo Water = new TerrainInfo("~", Colors.Blue());
+        public static TerrainInfo Water = new TerrainInfo("~", Colors.Blue(), 1, 4);
 
-        public static TerrainInfo Sand = new TerrainInfo("~", Colors.Sand());
+        public static TerrainInfo Sand = new TerrainInfo("~", Colors.Sand(), 1, 4);
 
-        public static TerrainInfo Grass = new TerrainInfo(",", Colors.Green());
+        public static TerrainInfo Grass = new TerrainInfo(",", Colors.Green(), 0, -3);
 
-        public static TerrainInfo Dirt = new TerrainInfo(".", Colors.Brown());
+        public static TerrainInfo Dirt = new TerrainInfo(".", Colors.Brown(), 0, -3);
 
-        public static TerrainInfo Hill = new TerrainInfo("∩", Colors.DarkGreen());
+        public static TerrainInfo Hill = new TerrainInfo("∩", Colors.DarkGreen(), 0, 0);
 
-        public static TerrainInfo Mountain = new TerrainInfo("▲", Colors.Grey());
+        public static TerrainInfo Mountain = new TerrainInfo("▲", Colors.Grey(), 0, 0);
     }
 
     public struct TerrainInfo
@@ -178,10 +178,15 @@ namespace WordAlchemy
         public string Symbol { get; set; }
         public SDL.SDL_Color Color { get; set; }
 
-        public TerrainInfo(string symbol, SDL.SDL_Color color)
+        public int XMod { get; set; }
+        public int YMod { get; set; }
+
+        public TerrainInfo(string symbol, SDL.SDL_Color color, int xMod, int yMod)
         {
             Symbol = symbol;
             Color = color;
+            XMod = xMod;
+            YMod = yMod;
         }
     }
 }
