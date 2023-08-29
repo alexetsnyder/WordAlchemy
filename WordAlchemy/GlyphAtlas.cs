@@ -26,11 +26,7 @@ namespace WordAlchemy
         public readonly string[] ExtraChars = new string[]
         {
             Terrain.Hill.Symbol, 
-            Terrain.SmallHill.Symbol, 
-            Terrain.PointedHill.Symbol, 
             Terrain.Mountain.Symbol, 
-            Terrain.SmallMountain.Symbol,
-            Terrain.SmallDoubleMountain.Symbol,
         };
 
         private SDLGraphics Graphics { get; set; }  

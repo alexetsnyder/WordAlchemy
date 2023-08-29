@@ -41,8 +41,8 @@ namespace WordAlchemy.Tools
             graphics.DrawRect(ref rect);
 
 
-            int centerXMod = (CurrentTerrain.WidthDivisor == 0) ? 0 : Width / CurrentTerrain.WidthDivisor;
-            int centerYMod = (CurrentTerrain.HeightDivisor == 0) ? 0 : Height / CurrentTerrain.HeightDivisor;
+            int centerXMod = 0;
+            int centerYMod = 0; 
 
             Graphics.DrawText(CurrentTerrain.Symbol, centerX + centerXMod, centerY + centerYMod, Colors.Red(), FontName.UNIFONT);
         }

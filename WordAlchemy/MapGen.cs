@@ -1,6 +1,5 @@
 ﻿
 using SDL2;
-using System.Diagnostics;
 using WordAlchemy.Helpers;
 
 namespace WordAlchemy
@@ -148,11 +147,11 @@ namespace WordAlchemy
             }
             else if (heightValue < 60.0f)
             {
-                terrain = Terrain.SmallHill;
+                terrain = Terrain.Hill;
             }
             else //(heightValue < 100.0f)
             {
-                terrain = Terrain.SmallMountain;
+                terrain = Terrain.Mountain;
             }
 
             return terrain;
@@ -161,39 +160,27 @@ namespace WordAlchemy
 
     public static class Terrain
     {
-        public static TerrainInfo Water = new TerrainInfo("~", 0, 0, Colors.Blue());
+        public static TerrainInfo Water = new TerrainInfo("~", Colors.Blue());
 
-        public static TerrainInfo Sand = new TerrainInfo("~", 0, 0, Colors.Sand());
+        public static TerrainInfo Sand = new TerrainInfo("~", Colors.Sand());
 
-        public static TerrainInfo Grass = new TerrainInfo(",", 0, -2, Colors.Green());
+        public static TerrainInfo Grass = new TerrainInfo(",", Colors.Green());
 
-        public static TerrainInfo Dirt = new TerrainInfo(".", 8, -2, Colors.Brown());
+        public static TerrainInfo Dirt = new TerrainInfo(".", Colors.Brown());
 
-        public static TerrainInfo Hill = new TerrainInfo("\u0361", -2, 8, Colors.DarkGreen());
+        public static TerrainInfo Hill = new TerrainInfo("∩", Colors.DarkGreen());
 
-        public static TerrainInfo SmallHill = new TerrainInfo("\u032F", 8, -2, Colors.DarkGreen());
-
-        public static TerrainInfo PointedHill = new TerrainInfo("\u02C4", 0, 0, Colors.DarkGreen());
-
-        public static TerrainInfo Mountain = new TerrainInfo("\u0245", 8, -4, Colors.Grey());
-
-        public static TerrainInfo SmallMountain = new TerrainInfo("\u028C", 8, -4, Colors.Grey());
-
-        public static TerrainInfo SmallDoubleMountain = new TerrainInfo("\u028D", 0, -4, Colors.Grey());
+        public static TerrainInfo Mountain = new TerrainInfo("▲", Colors.Grey());
     }
 
     public struct TerrainInfo
     {
         public string Symbol { get; set; }
         public SDL.SDL_Color Color { get; set; }
-        public int WidthDivisor { get; set; }
-        public int HeightDivisor { get; set; }
 
-        public TerrainInfo(string symbol, int centerX, int centerY, SDL.SDL_Color color)
+        public TerrainInfo(string symbol, SDL.SDL_Color color)
         {
             Symbol = symbol;
-            WidthDivisor = centerX;
-            HeightDivisor = centerY;
             Color = color;
         }
     }

@@ -24,7 +24,7 @@ namespace WordAlchemy
             int x = X;
             int y = Y; 
 
-            Graphics.DrawTextToTexture(texture, Info.Symbol, x, y, Info.Color, FontName.UNIFONT);
+            Graphics.DrawTextToTexture(texture, Info.Symbol, x, y, Info.Color, FontName.IBM_VGA_8X14);
         }
 
         public void Draw()
@@ -32,7 +32,7 @@ namespace WordAlchemy
             int x = X;
             int y = Y;
 
-            Graphics.DrawText(Info.Symbol, x, y, Info.Color, FontName.UNIFONT);
+            Graphics.DrawText(Info.Symbol, x, y, Info.Color, FontName.IBM_VGA_8X14);
         }
     }
 }

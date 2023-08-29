@@ -29,7 +29,7 @@ namespace WordAlchemy
         private List<SDL.SDL_Keycode> KeysPressedList { get; set; }
 
         private static readonly int CharWidth = 8;
-        private static readonly int CharHeight = 16;
+        private static readonly int CharHeight = 14;
 
         private SDLGraphics Graphics { get; set; }
 
