@@ -118,6 +118,7 @@ namespace WordAlchemy
                     if (!mapNode.GroupID.HasValue)
                     {
                         Group group = new Group(groupIndex);
+                        group.Name = mapNode.Info.Type.ToString();
                         FillGroup(mapNode, group);
                         groupList.Add(group);
                         groupIndex++;
@@ -273,29 +274,32 @@ namespace WordAlchemy
 
     public static class Terrain
     {
-        public static TerrainInfo Water = new TerrainInfo("~", Colors.Blue(), 1, 4);
+        public static TerrainInfo Water = new TerrainInfo(TerrainType.WATER, "~", Colors.Blue(), 1, 4);
 
-        public static TerrainInfo Sand = new TerrainInfo("~", Colors.Sand(), 1, 4);
+        public static TerrainInfo Sand = new TerrainInfo(TerrainType.SAND, "~", Colors.Sand(), 1, 4);
 
-        public static TerrainInfo Grass = new TerrainInfo(",", Colors.Green(), 0, -3);
+        public static TerrainInfo Grass = new TerrainInfo(TerrainType.GRASS, ",", Colors.Green(), 0, -3);
 
-        public static TerrainInfo Dirt = new TerrainInfo(".", Colors.Brown(), 0, -3);
+        public static TerrainInfo Dirt = new TerrainInfo(TerrainType.DIRT, ".", Colors.Brown(), 0, -3);
 
-        public static TerrainInfo Hill = new TerrainInfo("∩", Colors.DarkGreen(), 0, 0);
+        public static TerrainInfo Hill = new TerrainInfo(TerrainType.HILL, "∩", Colors.DarkGreen(), 0, 0);
 
-        public static TerrainInfo Mountain = new TerrainInfo("▲", Colors.Grey(), 0, 0);
+        public static TerrainInfo Mountain = new TerrainInfo(TerrainType.MOUNTAIN, "▲", Colors.Grey(), 0, 0);
     }
 
     public struct TerrainInfo
     {
+        public TerrainType Type { get; set; }
+
         public string Symbol { get; set; }
         public SDL.SDL_Color Color { get; set; }
 
         public int XMod { get; set; }
         public int YMod { get; set; }
 
-        public TerrainInfo(string symbol, SDL.SDL_Color color, int xMod, int yMod)
+        public TerrainInfo(TerrainType type, string symbol, SDL.SDL_Color color, int xMod, int yMod)
         {
+            Type = type;
             Symbol = symbol;
             Color = color;
             XMod = xMod;
@@ -312,5 +316,15 @@ namespace WordAlchemy
                    this.XMod == other.XMod &&
                    this.YMod == other.YMod;
         }
+    }
+
+    public enum TerrainType
+    {
+        WATER,
+        SAND,
+        GRASS,
+        DIRT,
+        HILL,
+        MOUNTAIN,
     }
 }
