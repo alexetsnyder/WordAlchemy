@@ -28,8 +28,13 @@ namespace WordAlchemy
             Events = EventSystem.Instance;
             WireEvents();
 
-            Map = new Map(AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight, 240, 240);
-            Map.GenerateMap();
+            Random random = new Random();
+            MapGen mapGen = new MapGen(240, 240, random.Next(0, 1000000));
+
+            Map = mapGen.GenerateMap();
+            Map.DstViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
+            Map.SrcViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
+            Map.GenerateMapTexture();
 
             Viewer = new Tools.FontViewer();   
         }

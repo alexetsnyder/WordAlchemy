@@ -7,18 +7,13 @@ namespace WordAlchemy
 {
     internal class Map
     {
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public ViewWindow? SrcViewWindow { get; set; }
 
-        public int Rows { get; set; }
-        public int Cols { get; set; }
+        public ViewWindow? DstViewWindow { get; set; }
 
-        public int OffsetX { get; set; }
-        public int OffsetY { get; set; }
+        public Graph? Graph { get; set; }
 
-        public ViewWindow ViewWindow { get; set; }
-
-        public Graph Graph { get; set; }
+        public List<Group> GroupList { get; set; }
 
         public MapGen MapGen { get; set; }
 
@@ -28,29 +23,17 @@ namespace WordAlchemy
 
         private List<SDL.SDL_Keycode> KeysPressedList { get; set; }
 
-        private static readonly int CharWidth = 8;
-        private static readonly int CharHeight = 14;
-
         private SDLGraphics Graphics { get; set; }
 
-        public Map(int width, int height, int rows, int cols, int offsetX = 0, int offsetY = 0)
+        public Map(MapGen mapGen, int rows, int cols)
         {
-            Width = width;
-            Height = height;
+            DstViewWindow = null;
+            SrcViewWindow = null;
 
-            Rows = rows; 
-            Cols = cols; 
+            MapGen = mapGen;
 
-            OffsetX = offsetX;
-            OffsetY = offsetY;
-
-            ViewWindow = new ViewWindow(0, 0, width, height);
-
-            Graph = new Graph();
-
-            Random random = new Random();
-            MapGen = new MapGen(Rows, Cols, random.Next(0, 1000000));
-            MapGen.GenerateMap();
+            Graph = null;
+            GroupList = new List<Group>();
 
             MapTexture = IntPtr.Zero;
 
@@ -70,44 +53,17 @@ namespace WordAlchemy
             eventSystem.Listen(SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, OnMouseButtonDown);
         }
 
-        public void GenerateMap()
-        {
-            for (int i = 0; i < Rows;  i++)
-            {
-                for (int j = 0; j < Cols; j++)
-                {
-                    int x = j * CharWidth;
-                    int y = i * CharHeight;
-
-                    TerrainInfo terrain = MapGen.GetTerrain(i, j);
-
-                    MapNode mapNode = new MapNode(i * Cols + j, x, y, terrain);
-
-                    Graph.AddNode(mapNode);
-                    if (j != 0)
-                    {
-                        Edge newEdge = new Edge(Graph.NodeList[i * Cols + (j - 1)], mapNode);
-                        Graph.AddEdge(newEdge);
-                    }
-                    if (i != 0)
-                    {
-                        Edge newEdge = new Edge(Graph.NodeList[(i - 1) * Cols + j], mapNode);
-                        Graph.AddEdge(newEdge);
-                    }                 
-                }
-            }
-
-            GenerateMapTexture();
-        }
-
         public void GenerateMapTexture()
         {
-            MapTexture = Graphics.CreateTexture(Cols * CharWidth, Rows * CharHeight);
+            MapTexture = Graphics.CreateTexture(MapGen.Width, MapGen.Height);
 
-            foreach (MapNode mapNode in Graph.NodeList)
+            if (Graph != null)
             {
-                mapNode.DrawTo(MapTexture);
-            }
+                foreach (MapNode mapNode in Graph.NodeList)
+                {
+                    mapNode.DrawTo(MapTexture);
+                }
+            } 
         }
 
         public void Update()
@@ -133,80 +89,95 @@ namespace WordAlchemy
                 Graphics.DrawRect(ref rect);
             }
 
-            SDL.SDL_Rect src = ViewWindow.GetViewRect();
-            
-            SDL.SDL_Rect dest = new SDL.SDL_Rect
+            if (DstViewWindow != null && SrcViewWindow != null)
             {
-                x = OffsetX,
-                y = OffsetY,
-                w = Width,
-                h = Height,
-            };
+                SDL.SDL_Rect src = SrcViewWindow.GetViewRect();
+                SDL.SDL_Rect dest = DstViewWindow.GetViewRect();
 
-            Graphics.DrawTexture(MapTexture, ref src, ref dest);
+                Graphics.DrawTexture(MapTexture, ref src, ref dest);
+            }  
         }
 
         private void HandleKeys()
         {
+            if (SrcViewWindow == null)
+            {
+                return;
+            }
+
             int speed = 5;
 
             foreach (var key in KeysPressedList)
             {
                 if (key == SDL.SDL_Keycode.SDLK_w)
                 {
-                    ViewWindow.OffsetY -= speed;
-                    ViewWindow.OffsetY = Math.Clamp(ViewWindow.OffsetY, 0, GetYMax());
+                    SrcViewWindow.OffsetY -= speed;
+                    SrcViewWindow.OffsetY = Math.Clamp(SrcViewWindow.OffsetY, 0, GetYMax());
                 }
                 if (key == SDL.SDL_Keycode.SDLK_s)
                 {
-                    ViewWindow.OffsetY += speed;
-                    ViewWindow.OffsetY = Math.Clamp(ViewWindow.OffsetY, 0, GetYMax());
+                    SrcViewWindow.OffsetY += speed;
+                    SrcViewWindow.OffsetY = Math.Clamp(SrcViewWindow.OffsetY, 0, GetYMax());
                 }
                 if (key == SDL.SDL_Keycode.SDLK_a)
                 {
-                    ViewWindow.OffsetX -= speed;
-                    ViewWindow.OffsetX = Math.Clamp(ViewWindow.OffsetX, 0, GetXMax());
+                    SrcViewWindow.OffsetX -= speed;
+                    SrcViewWindow.OffsetX = Math.Clamp(SrcViewWindow.OffsetX, 0, GetXMax());
                 }
                 if (key == SDL.SDL_Keycode.SDLK_d)
                 {
-                    ViewWindow.OffsetX += speed;
-                    ViewWindow.OffsetX = Math.Clamp(ViewWindow.OffsetX, 0, GetXMax());
+                    SrcViewWindow.OffsetX += speed;
+                    SrcViewWindow.OffsetX = Math.Clamp(SrcViewWindow.OffsetX, 0, GetXMax());
                 }
             }
         }
 
         private int GetXMax()
         {
-            int textureWidth = Cols * CharWidth;
+            int textureWidth = MapGen.Width;
 
-            if (textureWidth <= Width)
+            if (SrcViewWindow == null || textureWidth <= SrcViewWindow.Width)
             {
                 return 0;
             }
-            return textureWidth - Width;
+            return textureWidth - SrcViewWindow.Width;
         }
 
         private int GetYMax()
         {
-            int textureHeight = Rows * CharHeight;
+            int textureHeight = MapGen.Height;
 
-            if (textureHeight <= Height)
+            if (SrcViewWindow == null || textureHeight <= SrcViewWindow.Height)
             {
                 return 0;
             }
-            return textureHeight - Height;
+            return textureHeight - SrcViewWindow.Height;
         }
 
         public void ScreenToWorld(int screenX, int screenY, out int worldX, out int worldY)
         {
-            worldX = screenX - OffsetX + ViewWindow.OffsetX;
-            worldY = screenY - OffsetY + ViewWindow.OffsetY;
+            if (DstViewWindow == null || SrcViewWindow == null)
+            {
+                worldX = screenX;
+                worldY = screenY;
+                return;
+            }
+            
+            worldX = screenX - DstViewWindow.OffsetX + SrcViewWindow.OffsetX;
+            worldY = screenY - DstViewWindow.OffsetY + SrcViewWindow.OffsetY;
         }
 
         public void WorldToScreen(int worldX, int worldY, out int screenX, out int screenY)
         {
-            screenX = worldX + OffsetX - ViewWindow.OffsetX;
-            screenY = worldY + OffsetY - ViewWindow.OffsetY;
+            if (DstViewWindow == null || SrcViewWindow == null)
+            {
+                screenX = worldX;
+                screenY = worldY;
+                return;
+            }
+
+            screenX = worldX + DstViewWindow.OffsetX - SrcViewWindow.OffsetX;
+            screenY = worldY + DstViewWindow.OffsetY - SrcViewWindow.OffsetY;
         }
 
         public void OnKeyDown(SDL.SDL_Event e)
@@ -226,6 +197,11 @@ namespace WordAlchemy
         {
             if (e.button.button == SDL.SDL_BUTTON_LEFT)
             {
+                if (Graph == null)
+                {
+                    return;
+                }
+
                 SDL.SDL_GetMouseState(out int screenX, out int screenY);
                 Debug.WriteLine($"Mouse X: {screenX}, Mouse Y: {screenY}");
 
@@ -234,8 +210,8 @@ namespace WordAlchemy
                 foreach (MapNode mapNode in Graph.NodeList)
                 {
                     int Ax = mapNode.X, Ay = mapNode.Y;
-                    int Bx = Ax + CharWidth, By = Ay;
-                    int Cx = Ax, Cy = Ay + CharHeight;
+                    int Bx = Ax + MapGen.CharWidth, By = Ay;
+                    int Cx = Ax, Cy = Ay + MapGen.CharHeight;
 
                     if (MathHelper.IsInRectangle(Ax, Ay, Bx, By, Cx, Cy, worldX, worldY))
                     {
@@ -243,8 +219,8 @@ namespace WordAlchemy
                         {
                             x = mapNode.X,
                             y = mapNode.Y,
-                            w = CharWidth,
-                            h = CharHeight,
+                            w = MapGen.CharWidth,
+                            h = MapGen.CharHeight,
                         };
                     }
                 }

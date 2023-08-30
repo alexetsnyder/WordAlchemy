@@ -6,10 +6,29 @@ namespace WordAlchemy
 {
     internal class MapGen
     {
+        public int Width
+        {
+            get
+            {
+                return Cols * CharWidth;
+            }
+        }
+
+        public int Height
+        {
+            get
+            {
+                return Rows * CharHeight;
+            }
+        }
+
         public int Rows { get; set; }
         public int Cols { get; set; }
 
         public int Seed { get; set; }
+
+        public int CharWidth { get; private set; }
+        public int CharHeight { get; private set; }
 
         private FastNoiseLite Noise { get; set; }
         private float[] HeightMap { get; set; }
@@ -24,13 +43,22 @@ namespace WordAlchemy
             Noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
             Noise.SetFractalType(FastNoiseLite.FractalType.FBm);
 
+            SDLGraphics.Instance.SizeText(Terrain.Water.Symbol, FontName.IBM_VGA_8X14, out int width, out int height);
+            CharWidth = width;
+            CharHeight = height;
+
             HeightMap = new float[Cols * Rows];
         }
 
-        public void GenerateMap()
+        public Map GenerateMap()
         {
             GenerateHeightMap();
-            //GenerateRivers();
+
+            Map map = new Map(this, Rows, Cols);
+            map.Graph = GenerateGraph();
+            map.GroupList = GroupTerrain(map);
+
+            return map;
         }
 
         private void GenerateHeightMap()
@@ -46,6 +74,52 @@ namespace WordAlchemy
                     HeightMap[i * Cols + j] = remapNoise * fallOffValue;
                 }
             }
+        }
+
+        private Graph GenerateGraph()
+        {
+            Graph graph = new Graph();
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Cols; j++)
+                {
+                    int x = j * CharWidth;
+                    int y = i * CharHeight;
+
+                    TerrainInfo terrain = GetTerrain(i, j);
+
+                    MapNode mapNode = new MapNode(i * Cols + j, x, y, terrain);
+
+                    graph.AddNode(mapNode);
+                    if (j != 0)
+                    {
+                        Edge newEdge = new Edge(graph.NodeList[i * Cols + (j - 1)], mapNode);
+                        graph.AddEdge(newEdge);
+                    }
+                    if (i != 0)
+                    {
+                        Edge newEdge = new Edge(graph.NodeList[(i - 1) * Cols + j], mapNode);
+                        graph.AddEdge(newEdge);
+                    }
+                }
+            }
+            return graph;
+        }
+
+        private List<Group> GroupTerrain(Map map)
+        {
+            List<Group> groupList = new List<Group>();
+
+            FillGroup(map.Graph, 0);
+
+            return groupList;
+        }
+
+        private Group FillGroup(Graph graph, int groupId)
+        {
+            Group group = new Group(groupId);
+
+            return group;
         }
 
         private void GenerateRivers()
