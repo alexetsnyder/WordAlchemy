@@ -117,9 +117,11 @@ namespace WordAlchemy
                 {
                     if (!mapNode.GroupID.HasValue)
                     {
-                        Group group = new Group(groupIndex);
-                        group.Name = mapNode.Info.Type.ToString();
+                        TerrainType type = mapNode.Info.Type;
+                        Group group = new Group(groupIndex, type, type.ToString());
+
                         FillGroup(mapNode, group);
+
                         groupList.Add(group);
                         groupIndex++;
                     }
@@ -320,6 +322,7 @@ namespace WordAlchemy
 
     public enum TerrainType
     {
+        NONE,
         WATER,
         SAND,
         GRASS,
