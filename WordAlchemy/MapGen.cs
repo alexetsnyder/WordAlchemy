@@ -110,16 +110,55 @@ namespace WordAlchemy
         {
             List<Group> groupList = new List<Group>();
 
-            FillGroup(map.Graph, 0);
+            if (map.Graph != null)
+            {
+                int groupIndex = 0;
+                foreach (MapNode mapNode in map.Graph.NodeList)
+                {
+                    if (!mapNode.GroupID.HasValue)
+                    {
+                        Group group = new Group(groupIndex);
+                        FillGroup(mapNode, group);
+                        groupList.Add(group);
+                        groupIndex++;
+                    }
+                }
+            }
 
             return groupList;
         }
 
-        private Group FillGroup(Graph graph, int groupId)
+        private void FillGroup(MapNode mapNode, Group group)
         {
-            Group group = new Group(groupId);
+            Stack<MapNode> stack = new Stack<MapNode>(new MapNode[] { mapNode }); 
+            
+            while (stack.Count > 0)
+            {
+                MapNode currentNode = stack.Pop();
+                if (!currentNode.GroupID.HasValue)
+                {
+                    group.MapNodeList.Add(currentNode);
+                    currentNode.GroupID = group.Id;
 
-            return group;
+                    foreach (Edge edge in currentNode.EdgeList)
+                    {
+                        if (edge.V1 == currentNode)
+                        {
+                            if (edge.V2 is MapNode otherNode && otherNode.Info.Equals(currentNode.Info))
+                            {
+                                stack.Push(otherNode);
+                            }
+                        }
+                        else
+                        {
+                            if (edge.V1 is MapNode otherNode && otherNode.Info.Equals(currentNode.Info))
+                            {
+                                stack.Push(otherNode);
+                            }
+                        }
+                    }
+                }
+            } 
         }
 
         private void GenerateRivers()
@@ -261,6 +300,17 @@ namespace WordAlchemy
             Color = color;
             XMod = xMod;
             YMod = yMod;
+        }
+
+        public bool Equals(TerrainInfo other)
+        {
+            return this.Symbol == other.Symbol &&
+                   this.Color.r == other.Color.r &&
+                   this.Color.g == other.Color.g &&
+                   this.Color.b == other.Color.b &&
+                   this.Color.a == other.Color.a &&
+                   this.XMod == other.XMod &&
+                   this.YMod == other.YMod;
         }
     }
 }

@@ -1,12 +1,14 @@
 ﻿
 namespace WordAlchemy
 {
-    internal class MapNode : Node
+    public class MapNode : Node
     {
         public int X {  get; set; }
         public int Y { get; set; }
 
         public TerrainInfo Info { get; set; }
+
+        public int? GroupID { get; set; }
 
         private SDLGraphics Graphics { get; set; }
 
@@ -14,8 +16,12 @@ namespace WordAlchemy
             : base(id)
         {
             Info = terrainInfo;
+            
             X = x;
             Y = y;
+
+            GroupID = null;
+
             Graphics = SDLGraphics.Instance;
         }
 
