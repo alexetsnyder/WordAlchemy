@@ -173,20 +173,21 @@ namespace WordAlchemy
                 if (group.Type == TerrainType.MOUNTAIN)
                 {
                     MapNode mapNode = GetMaxHeight(group.MapNodeList);
+                    Group riverGroup = new Group(map.GroupList.Last().Id + 1, TerrainType.WATER, TerrainType.WATER.ToString());
 
                     if (mapNode.X <= Width / 2)
                     {
-                        GenerateRiverRecursive(mapNode, (x, y) => x < y);
+                        GenerateRiverRecursive(riverGroup, mapNode, (x, y) => x <= y);
                     }
                     else
                     {
-                        GenerateRiverRecursive(mapNode, (x, y) => x > y);
+                        GenerateRiverRecursive(riverGroup, mapNode, (x, y) => x >= y);
                     }     
                 }
             }
         }
 
-        private void GenerateRiverRecursive(MapNode mapNode, Func<int, int, bool> compare)
+        private void GenerateRiverRecursive(Group group, MapNode mapNode, Func<int, int, bool> compare)
         {
             TerrainType type = mapNode.Info.Type;
             if (type != TerrainType.WATER)
@@ -196,26 +197,58 @@ namespace WordAlchemy
                     mapNode.Info = Terrain.Water;
                 }
 
+                mapNode.GroupID = group.Id;
+                group.MapNodeList.Add(mapNode);
+
+                List<MapNode> possibleNodes = new List<MapNode>();
                 foreach (Edge edge in mapNode.EdgeList)
                 {
                     if (edge.V1 == mapNode)
                     {
                         if (edge.V2 is MapNode newNode && compare(newNode.X, mapNode.X))
                         {
-                            GenerateRiverRecursive(newNode, compare);
-                            break;
+                            if (newNode.GroupID != group.Id)
+                            {
+                                possibleNodes.Add(newNode);
+                            }  
                         }
                     }
                     else
                     {
                         if (edge.V1 is MapNode newNode && compare(newNode.X, mapNode.X))
                         {
-                            GenerateRiverRecursive(newNode, compare);
-                            break;
+                            if (newNode.GroupID != group.Id)
+                            {
+                                possibleNodes.Add(newNode);
+                            }
                         }
                     }
                 }
+
+                MapNode? minMapNode = GetMinHeight(possibleNodes);
+                if (minMapNode != null)
+                {
+                    GenerateRiverRecursive(group, minMapNode, compare);
+                }
             }
+        }
+
+        private MapNode? GetMinHeight(List<MapNode> mapNodeList)
+        {
+            float minHeight = float.MaxValue;
+            MapNode? minMapNode = null;
+
+            foreach (MapNode mapNode in mapNodeList)
+            {
+                float height = HeightMap[mapNode.Id];
+                if (height < minHeight)
+                {
+                    minHeight = height;
+                    minMapNode = mapNode;
+                }
+            }
+
+            return minMapNode;
         }
 
         private MapNode GetMaxHeight(List<MapNode> mapNodeList)
