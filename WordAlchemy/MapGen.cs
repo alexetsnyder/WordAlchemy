@@ -58,6 +58,8 @@ namespace WordAlchemy
             map.Graph = GenerateGraph();
             map.GroupList = GroupTerrain(map);
 
+            GenerateRivers(map);
+
             return map;
         }
 
@@ -164,84 +166,84 @@ namespace WordAlchemy
             } 
         }
 
-        private void GenerateRivers()
+        private void GenerateRivers(Map map)
         {
-            int[] riverStarts = GetMaxHeights(6);
-            
-            foreach (int index in riverStarts)
+            foreach (Group group in map.GroupList)
             {
-                int j = index % Cols;
-                int i = (index - j) / Cols;
-
-                if (j > Cols / 2)
+                if (group.Type == TerrainType.MOUNTAIN)
                 {
-                    j++;
-                    if (j < Cols)
+                    MapNode mapNode = GetMaxHeight(group.MapNodeList);
+
+                    if (mapNode.X <= Width / 2)
                     {
-                        int newIndex = i * Cols + j;
-                        float height = HeightMap[newIndex];
-
-                        while (height >= 20.0f && j < Cols)
-                        {
-                            if (height < 60.0f)
-                            {
-                                HeightMap[newIndex] = 19.0f;
-                            }                 
-
-                            j++;
-                            newIndex = i * Cols + j;
-                            height = HeightMap[newIndex];
-                        }
-                    }            
+                        GenerateRiverRecursive(mapNode, (x, y) => x < y);
+                    }
+                    else
+                    {
+                        GenerateRiverRecursive(mapNode, (x, y) => x > y);
+                    }     
                 }
-                else
+            }
+        }
+
+        private void GenerateRiverRecursive(MapNode mapNode, Func<int, int, bool> compare)
+        {
+            TerrainType type = mapNode.Info.Type;
+            if (type != TerrainType.WATER)
+            {
+                if (type != TerrainType.MOUNTAIN)
                 {
-                    j--;
-                    if (j >= 0)
+                    mapNode.Info = Terrain.Water;
+                }
+
+                foreach (Edge edge in mapNode.EdgeList)
+                {
+                    if (edge.V1 == mapNode)
                     {
-                        int newIndex = i * Cols + j;
-                        float height = HeightMap[newIndex];
-
-                        while (height >= 20.0f && j >= 0)
+                        if (edge.V2 is MapNode newNode && compare(newNode.X, mapNode.X))
                         {
-                            if (height < 60.0f)
-                            {
-                                HeightMap[newIndex] = 19.0f;
-                            }
-
-                            j--;
-                            newIndex = i * Cols + j;
-                            height = HeightMap[newIndex];
+                            GenerateRiverRecursive(newNode, compare);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if (edge.V1 is MapNode newNode && compare(newNode.X, mapNode.X))
+                        {
+                            GenerateRiverRecursive(newNode, compare);
+                            break;
                         }
                     }
                 }
             }
         }
 
-        private int[] GetMaxHeights(int n = 1)
+        private MapNode GetMaxHeight(List<MapNode> mapNodeList)
+        {
+            return GetMaxHeights(mapNodeList, 1).First();
+        }
+
+        private MapNode[] GetMaxHeights(List<MapNode> mapNodeList, int n = 1)
         {
             float[] maxValues = new float[n];
-            int[] maxIndexes = new int[n];
+            MapNode[] mapNodeArray = new MapNode[n];
 
-            for (int i = 0; i < Rows; i++)
+            foreach (MapNode mapNode in mapNodeList)
             {
-                for (int j = 0; j < Cols; j++)
-                {
-                    float heightValue = HeightMap[i * Cols + j];
+                float heightValue = HeightMap[mapNode.Id];
 
-                    for (int k = 0; k < n; k++)
+                for (int k = 0; k < n; k++)
+                {
+                    if (heightValue > maxValues[k])
                     {
-                        if (heightValue > maxValues[k])
-                        {
-                            maxValues[k] = heightValue;
-                            maxIndexes[k] = i * Cols + j;
-                            break;
-                        }
+                        maxValues[k] = heightValue;
+                        mapNodeArray[k] = mapNode;
+                        break;
                     }
                 }
             }
 
-            return maxIndexes;
+            return mapNodeArray;
         }
 
         public TerrainInfo GetTerrain(int i, int j)
