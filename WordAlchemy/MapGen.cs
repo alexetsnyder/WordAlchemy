@@ -197,6 +197,7 @@ namespace WordAlchemy
 
         private void GenerateRivers(Map map)
         {
+            List<Group> riverGroupList = new List<Group>();
             foreach (Group group in map.GroupList)
             {
                 if (group.Type == TerrainType.MOUNTAIN)
@@ -211,8 +212,15 @@ namespace WordAlchemy
                     else
                     {
                         GenerateRiverRecursive(riverGroup, mapNode, (x, y) => x >= y);
-                    }     
+                    } 
+                    
+                    riverGroupList.Add(riverGroup);
                 }
+            }
+
+            if (riverGroupList.Count > 0)
+            {
+                map.GroupList.AddRange(riverGroupList);
             }
         }
 

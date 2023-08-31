@@ -98,6 +98,39 @@ namespace WordAlchemy
             }  
         }
 
+        public Group? GetGroup(int groupId)
+        {
+            foreach (Group group in GroupList)
+            {
+                if (group.Id == groupId)
+                {
+                    return group;
+                }
+            }
+
+            return null;
+        }
+
+        public MapNode? GetMapNode(int worldX, int worldY)
+        {
+            if (Graph != null)
+            {
+                foreach (MapNode mapNode in Graph.NodeList)
+                {
+                    int Ax = mapNode.X, Ay = mapNode.Y;
+                    int Bx = Ax + MapGen.CharWidth, By = Ay;
+                    int Cx = Ax, Cy = Ay + MapGen.CharHeight;
+
+                    if (MathHelper.IsInRectangle(Ax, Ay, Bx, By, Cx, Cy, worldX, worldY))
+                    {
+                        return mapNode;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         private void HandleKeys()
         {
             if (SrcViewWindow == null)
@@ -197,32 +230,22 @@ namespace WordAlchemy
         {
             if (e.button.button == SDL.SDL_BUTTON_LEFT)
             {
-                if (Graph == null)
-                {
-                    return;
-                }
-
                 SDL.SDL_GetMouseState(out int screenX, out int screenY);
                 Debug.WriteLine($"Mouse X: {screenX}, Mouse Y: {screenY}");
 
                 ScreenToWorld(screenX, screenY, out int worldX, out int worldY);
 
-                foreach (MapNode mapNode in Graph.NodeList)
-                {
-                    int Ax = mapNode.X, Ay = mapNode.Y;
-                    int Bx = Ax + MapGen.CharWidth, By = Ay;
-                    int Cx = Ax, Cy = Ay + MapGen.CharHeight;
+                MapNode? mapNode = GetMapNode(worldX, worldY);
 
-                    if (MathHelper.IsInRectangle(Ax, Ay, Bx, By, Cx, Cy, worldX, worldY))
+                if (mapNode != null)
+                {
+                    SelectRect = new SDL.SDL_Rect
                     {
-                        SelectRect = new SDL.SDL_Rect
-                        {
-                            x = mapNode.X,
-                            y = mapNode.Y,
-                            w = MapGen.CharWidth,
-                            h = MapGen.CharHeight,
-                        };
-                    }
+                        x = mapNode.X,
+                        y = mapNode.Y,
+                        w = MapGen.CharWidth,
+                        h = MapGen.CharHeight,
+                    };
                 }
             }
         }

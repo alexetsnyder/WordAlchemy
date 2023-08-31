@@ -13,6 +13,8 @@ namespace WordAlchemy
 
         private Map Map { get; set; }
 
+        private UI HUD { get; set; }
+
         private Tools.FontViewer Viewer { get; set; }
 
         public App()
@@ -36,6 +38,8 @@ namespace WordAlchemy
             Map.SrcViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
             Map.GenerateMapTexture();
 
+            HUD = new UI(Map);
+
             Viewer = new Tools.FontViewer();   
         }
 
@@ -53,6 +57,7 @@ namespace WordAlchemy
                 PollEvents();
 
                 Map.Update();
+                HUD.Update();
 
                 Render();
             }
@@ -73,6 +78,7 @@ namespace WordAlchemy
             Graphics.Clear();
 
             Map.Draw();
+            HUD.Draw();
             //Viewer.Draw(Graphics);
             //Graphics.Atlas?.Draw();
 
