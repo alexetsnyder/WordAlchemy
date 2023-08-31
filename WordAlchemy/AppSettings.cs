@@ -8,10 +8,13 @@ namespace WordAlchemy
         public int WindowWidth { get; set; }
         public int WindowHeight { get; set; }
 
+        public string MapFontName { get; set; }
+
         private AppSettings()
         {
             WindowWidth = 0;
             WindowHeight = 0;
+            MapFontName = string.Empty;
         }
 
         private class Nested

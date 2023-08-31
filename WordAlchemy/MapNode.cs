@@ -30,7 +30,7 @@ namespace WordAlchemy
             int x = X;
             int y = Y; 
 
-            Graphics.DrawTextToTexture(texture, Info.Symbol, x + Info.XMod, y + Info.YMod, Info.Color, FontName.IBM_VGA_8X14);
+            Graphics.DrawTextToTexture(texture, Info.Symbol, x + Info.XMod, y + Info.YMod, Info.Color, AppSettings.Instance.MapFontName);
         }
 
         public void Draw()
@@ -38,7 +38,7 @@ namespace WordAlchemy
             int x = X;
             int y = Y;
 
-            Graphics.DrawText(Info.Symbol, x + Info.XMod, y + Info.YMod, Info.Color, FontName.IBM_VGA_8X14);
+            Graphics.DrawText(Info.Symbol, x + Info.XMod, y + Info.YMod, Info.Color, AppSettings.Instance.MapFontName);
         }
     }
 }

@@ -23,7 +23,7 @@ namespace WordAlchemy.Tools
             TerrainInfoList.Add(Terrain.Mountain);
 
             Graphics = SDLGraphics.Instance;
-            Graphics.SizeText(Terrain.Water.Symbol, FontName.IBM_VGA_8X14, out int width, out int height);
+            Graphics.SizeText(Terrain.Water.Symbol, AppSettings.Instance.MapFontName, out int width, out int height);
 
             Width = width;
             Height = height;
@@ -54,7 +54,7 @@ namespace WordAlchemy.Tools
 
                 graphics.DrawRect(ref rect);
 
-                Graphics.DrawText(terrain.Symbol, startX + terrain.XMod, startY + terrain.YMod, terrain.Color, FontName.IBM_VGA_8X14);
+                Graphics.DrawText(terrain.Symbol, startX + terrain.XMod, startY + terrain.YMod, terrain.Color, AppSettings.Instance.MapFontName);
 
                 startX +=  2 * Width;
             }

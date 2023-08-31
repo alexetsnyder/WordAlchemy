@@ -43,7 +43,7 @@ namespace WordAlchemy
             Noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
             Noise.SetFractalType(FastNoiseLite.FractalType.FBm);
 
-            SDLGraphics.Instance.SizeText(Terrain.Water.Symbol, FontName.IBM_VGA_8X14, out int width, out int height);
+            SDLGraphics.Instance.SizeText(Terrain.Water.Symbol, AppSettings.Instance.MapFontName, out int width, out int height);
             CharWidth = width;
             CharHeight = height;
 
