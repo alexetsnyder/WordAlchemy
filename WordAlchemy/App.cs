@@ -81,18 +81,18 @@ namespace WordAlchemy
             Graphics.Present();
         }
 
+        private void Update()
+        {
+            Map.Update();
+            HUD.Update();
+        }
+
         private void Draw()
         {
             Map.Draw();
             HUD.Draw();
             //Viewer.Draw(Graphics);
             //Graphics.Atlas?.Draw();
-        }
-
-        private void Update()
-        {
-            Map.Update();
-            HUD.Update();
         }
 
         private void OnWindowResizedEvent(SDL.SDL_Event e)

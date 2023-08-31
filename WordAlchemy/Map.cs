@@ -142,22 +142,22 @@ namespace WordAlchemy
 
             foreach (var key in KeysPressedList)
             {
-                if (key == SDL.SDL_Keycode.SDLK_w)
+                if (key == InputSettings.Instance.MapUp)
                 {
                     SrcViewWindow.OffsetY -= speed;
                     SrcViewWindow.OffsetY = Math.Clamp(SrcViewWindow.OffsetY, 0, GetYMax());
                 }
-                if (key == SDL.SDL_Keycode.SDLK_s)
+                if (key == InputSettings.Instance.MapDown)
                 {
                     SrcViewWindow.OffsetY += speed;
                     SrcViewWindow.OffsetY = Math.Clamp(SrcViewWindow.OffsetY, 0, GetYMax());
                 }
-                if (key == SDL.SDL_Keycode.SDLK_a)
+                if (key == InputSettings.Instance.MapLeft)
                 {
                     SrcViewWindow.OffsetX -= speed;
                     SrcViewWindow.OffsetX = Math.Clamp(SrcViewWindow.OffsetX, 0, GetXMax());
                 }
-                if (key == SDL.SDL_Keycode.SDLK_d)
+                if (key == InputSettings.Instance.MapRight)
                 {
                     SrcViewWindow.OffsetX += speed;
                     SrcViewWindow.OffsetX = Math.Clamp(SrcViewWindow.OffsetX, 0, GetXMax());
@@ -228,7 +228,7 @@ namespace WordAlchemy
 
         public void OnMouseButtonDown(SDL.SDL_Event e)
         {
-            if (e.button.button == SDL.SDL_BUTTON_LEFT)
+            if (e.button.button == InputSettings.Instance.MouseButtonSelect)
             {
                 SDL.SDL_GetMouseState(out int screenX, out int screenY);
                 Debug.WriteLine($"Mouse X: {screenX}, Mouse Y: {screenY}");
