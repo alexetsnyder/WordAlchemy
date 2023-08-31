@@ -56,8 +56,7 @@ namespace WordAlchemy
             {
                 PollEvents();
 
-                Map.Update();
-                HUD.Update();
+                Update();
 
                 Render();
             }
@@ -77,12 +76,23 @@ namespace WordAlchemy
         {
             Graphics.Clear();
 
+            Draw();
+
+            Graphics.Present();
+        }
+
+        private void Draw()
+        {
             Map.Draw();
             HUD.Draw();
             //Viewer.Draw(Graphics);
             //Graphics.Atlas?.Draw();
+        }
 
-            Graphics.Present();
+        private void Update()
+        {
+            Map.Update();
+            HUD.Update();
         }
 
         private void OnWindowResizedEvent(SDL.SDL_Event e)
