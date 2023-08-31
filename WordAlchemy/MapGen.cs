@@ -93,19 +93,48 @@ namespace WordAlchemy
                     MapNode mapNode = new MapNode(i * Cols + j, x, y, terrain);
 
                     graph.AddNode(mapNode);
-                    if (j != 0)
-                    {
-                        Edge newEdge = new Edge(graph.NodeList[i * Cols + (j - 1)], mapNode);
-                        graph.AddEdge(newEdge);
-                    }
-                    if (i != 0)
-                    {
-                        Edge newEdge = new Edge(graph.NodeList[(i - 1) * Cols + j], mapNode);
-                        graph.AddEdge(newEdge);
-                    }
+                    AddEdges(graph, mapNode, i, j);
                 }
             }
             return graph;
+        }
+
+        private void AddEdges(Graph graph, MapNode mapNode, int i, int j)
+        {
+            List<int[]> neighbors = new List<int[]>()
+                    {
+                        new int[] {i - 1, j - 1},
+                        new int[] {i - 1, j    },
+                        new int[] {i - 1, j + 1},
+                        new int[] {i,     j - 1},
+                        new int[] {i + 1, j - 1},
+                    };
+
+            foreach (int[] pair in neighbors)
+            {
+                MapNode? prevMapNode = GetMapNode(graph, pair[0], pair[1]);
+                if (prevMapNode != null)
+                {
+                    Edge newEdge = new Edge(prevMapNode, mapNode);
+                    graph.AddEdge(newEdge);
+                }
+            }
+        }
+
+        private MapNode? GetMapNode(Graph graph, int i, int j)
+        {
+            MapNode? mapNode = null;
+
+            if (i >= 0 && i < Rows && j >= 0 && j < Cols)
+            {
+                int index = i * Cols + j;
+                if (index < graph.NodeList.Count)
+                {
+                    mapNode = graph.NodeList[index] as MapNode;
+                }    
+            }
+
+            return mapNode;
         }
 
         private List<Group> GroupTerrain(Map map)
