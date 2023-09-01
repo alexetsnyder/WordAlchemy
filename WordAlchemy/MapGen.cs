@@ -205,16 +205,11 @@ namespace WordAlchemy
                     MapNode mapNode = GetMaxHeight(group.MapNodeList);
                     Group riverGroup = new Group(map.GroupList.Last().Id + 1, TerrainType.WATER, TerrainType.WATER.ToString());
 
-                    if (mapNode.X <= Width / 2)
-                    {
-                        MapNode startMapNode = GetStartingMapNode(mapNode, (x, y) => x > y);
-                        GenerateRiverRecursive(riverGroup, mapNode, (x, y) => x >= y);
-                    }
-                    else
-                    {
-                        MapNode startMapNode = GetStartingMapNode(mapNode, (x, y) => x < y);
-                        GenerateRiverRecursive(riverGroup, mapNode, (x, y) => x <= y);
-                    } 
+                    Func<MapNode, MapNode, bool> StartNodeCheck = GetStartNodeCheck(mapNode);
+                    Func<MapNode, MapNode, bool> OrMapNodeCheck = GetOrMapNodeCheck(mapNode);
+
+                    MapNode startMapNode = GetStartMapNode(mapNode, StartNodeCheck);
+                    GenerateRiverRecursive(riverGroup, mapNode, OrMapNodeCheck);
                     
                     riverGroupList.Add(riverGroup);
                 }
@@ -226,7 +221,55 @@ namespace WordAlchemy
             }
         }
 
-        private MapNode GetStartingMapNode(MapNode mapNode, Func<int, int, bool> xCompare)
+        private Func<MapNode, MapNode, bool> GetStartNodeCheck(MapNode mapNode)
+        {
+            Func<MapNode, MapNode, bool> StartNodeCheck;
+
+            if (mapNode.X <= Width / 2 && mapNode.Y <= Height / 2)
+            {
+                StartNodeCheck = (m1, m2) => m1.Y == m2.Y && m1.X > m2.X;
+            }
+            else if (mapNode.X > Width / 2 && mapNode.Y <= Height / 2)
+            {
+                StartNodeCheck = (m1, m2) => m1.Y == m2.Y && m1.X < m2.X;
+            }
+            else if (mapNode.X <= Width / 2 && mapNode.Y > Height / 2)
+            {
+                StartNodeCheck = (m1, m2) => m1.Y == m2.Y && m1.X > m2.X;
+            }
+            else // mapNode.X > Width / 2 && mapNode.Y > Height / 2
+            {
+                StartNodeCheck = (m1, m2) => m1.Y == m2.Y && m1.X < m2.X;
+            }
+
+            return StartNodeCheck;
+        }
+
+        private Func<MapNode, MapNode, bool> GetOrMapNodeCheck(MapNode mapNode)
+        {
+            Func<MapNode, MapNode, bool> OrMapNodeCheck;
+
+            if (mapNode.X <= Width / 2 && mapNode.Y <= Height / 2)
+            {
+                OrMapNodeCheck = (m1, m2) => m1.Y <= m2.Y && m1.X >= m2.X;
+            }
+            else if (mapNode.X > Width / 2 && mapNode.Y <= Height / 2)
+            {
+                OrMapNodeCheck = (m1, m2) => m1.Y <= m2.Y && m1.X <= m2.X;
+            }
+            else if (mapNode.X <= Width / 2 && mapNode.Y > Height / 2)
+            {
+                OrMapNodeCheck = (m1, m2) => m1.Y >= m2.Y && m1.X >= m2.X;
+            }
+            else // mapNode.X > Width / 2 && mapNode.Y > Height / 2
+            {
+                OrMapNodeCheck = (m1, m2) => m1.Y >= m2.Y && m1.X <= m2.X;
+            }
+
+            return OrMapNodeCheck;
+        }
+
+        private MapNode GetStartMapNode(MapNode mapNode, Func<MapNode, MapNode, bool> StartNodeCheck)
         {
             MapNode startingMapNode = mapNode;
 
@@ -234,7 +277,7 @@ namespace WordAlchemy
             {
                 if (edge.V1 == mapNode)
                 {
-                    if (edge.V2 is MapNode node && node.Y == mapNode.Y && xCompare(node.X, mapNode.X))
+                    if (edge.V2 is MapNode node && StartNodeCheck(node, mapNode)) 
                     {
                         startingMapNode = node;
                         break;
@@ -242,7 +285,7 @@ namespace WordAlchemy
                 }
                 else
                 {
-                    if (edge.V1 is MapNode node && node.Y == mapNode.Y && xCompare(node.X, mapNode.X))
+                    if (edge.V1 is MapNode node && StartNodeCheck(node, mapNode))
                     {
                         startingMapNode = node;
                         break;
@@ -253,7 +296,7 @@ namespace WordAlchemy
             return startingMapNode;
         }
 
-        private void GenerateRiverRecursive(Group group, MapNode mapNode, Func<int, int, bool> compare)
+        private void GenerateRiverRecursive(Group group, MapNode mapNode, Func<MapNode, MapNode, bool> OrMapNodeCheck)
         {
             TerrainType type = mapNode.Info.Type;
             if (type != TerrainType.WATER)
@@ -267,7 +310,7 @@ namespace WordAlchemy
                 {
                     if (edge.V1 == mapNode)
                     {
-                        if (edge.V2 is MapNode newNode && compare(newNode.X, mapNode.X))
+                        if (edge.V2 is MapNode newNode && OrMapNodeCheck(newNode, mapNode))
                         {
                             if (newNode.GroupID != group.Id)
                             {
@@ -277,7 +320,7 @@ namespace WordAlchemy
                     }
                     else
                     {
-                        if (edge.V1 is MapNode newNode && compare(newNode.X, mapNode.X))
+                        if (edge.V1 is MapNode newNode && OrMapNodeCheck(newNode, mapNode))
                         {
                             if (newNode.GroupID != group.Id)
                             {
@@ -290,7 +333,7 @@ namespace WordAlchemy
                 MapNode? minMapNode = GetMinHeight(possibleNodes);
                 if (minMapNode != null)
                 {
-                    GenerateRiverRecursive(group, minMapNode, compare);
+                    GenerateRiverRecursive(group, minMapNode, OrMapNodeCheck);
                 }
             }
         }
