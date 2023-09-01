@@ -44,7 +44,7 @@ namespace WordAlchemy
                 Group? group = Map.GetGroup((int)mapNode.GroupID);
                 if (group != null)
                 {
-                    SetGroupTypeStr(group.Name);
+                    SetGroupTypeStr($"{group.Name} {group.Id}");
                 }
             }
         }

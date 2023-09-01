@@ -22,7 +22,7 @@ namespace WordAlchemy
 
         public readonly int TEXTURE_SIZE = 512;
 
-        public readonly string ASCII = "1234567890-=!@#$%^&*()_+qwertyuiop[]\\asdfghjkl;'zxcvbnm,./QWERTYUIOP{}|ASDFGHJKL:ZXCVBNM<>?`~\"";
+        public readonly string ASCII = " \n1234567890-=!@#$%^&*()_+qwertyuiop[]\\asdfghjkl;'zxcvbnm,./QWERTYUIOP{}|ASDFGHJKL:ZXCVBNM<>?`~\"";
         public readonly string[] ExtraChars = new string[]
         {
             Terrain.Hill.Symbol, 
