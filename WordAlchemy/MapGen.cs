@@ -207,11 +207,13 @@ namespace WordAlchemy
 
                     if (mapNode.X <= Width / 2)
                     {
-                        GenerateRiverRecursive(true, riverGroup, mapNode, (x, y) => x <= y);
+                        MapNode startMapNode = GetStartingMapNode(mapNode, (x, y) => x > y);
+                        GenerateRiverRecursive(riverGroup, mapNode, (x, y) => x >= y);
                     }
                     else
                     {
-                        GenerateRiverRecursive(true, riverGroup, mapNode, (x, y) => x >= y);
+                        MapNode startMapNode = GetStartingMapNode(mapNode, (x, y) => x < y);
+                        GenerateRiverRecursive(riverGroup, mapNode, (x, y) => x <= y);
                     } 
                     
                     riverGroupList.Add(riverGroup);
@@ -224,16 +226,39 @@ namespace WordAlchemy
             }
         }
 
-        private void GenerateRiverRecursive(bool IsFirstMountain, Group group, MapNode mapNode, Func<int, int, bool> compare)
+        private MapNode GetStartingMapNode(MapNode mapNode, Func<int, int, bool> xCompare)
+        {
+            MapNode startingMapNode = mapNode;
+
+            foreach (Edge edge in mapNode.EdgeList)
+            {
+                if (edge.V1 == mapNode)
+                {
+                    if (edge.V2 is MapNode node && node.Y == mapNode.Y && xCompare(node.X, mapNode.X))
+                    {
+                        startingMapNode = node;
+                        break;
+                    }
+                }
+                else
+                {
+                    if (edge.V1 is MapNode node && node.Y == mapNode.Y && xCompare(node.X, mapNode.X))
+                    {
+                        startingMapNode = node;
+                        break;
+                    }
+                }    
+            }
+
+            return startingMapNode;
+        }
+
+        private void GenerateRiverRecursive(Group group, MapNode mapNode, Func<int, int, bool> compare)
         {
             TerrainType type = mapNode.Info.Type;
             if (type != TerrainType.WATER)
             {
-                if (!IsFirstMountain)
-                {
-                    mapNode.Info = Terrain.Water;
-                }
-                
+                mapNode.Info = Terrain.Water;
                 mapNode.GroupID = group.Id;
                 group.MapNodeList.Add(mapNode);
 
@@ -265,7 +290,7 @@ namespace WordAlchemy
                 MapNode? minMapNode = GetMinHeight(possibleNodes);
                 if (minMapNode != null)
                 {
-                    GenerateRiverRecursive(false, group, minMapNode, compare);
+                    GenerateRiverRecursive(group, minMapNode, compare);
                 }
             }
         }
