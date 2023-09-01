@@ -196,13 +196,14 @@ namespace WordAlchemy
 
         private void GenerateRivers(Map map)
         {
-            List<Group> riverGroupList = new List<Group>();
+            int nextGroupId = map.GroupList.Last().Id + 1;
+            List<Group> riverGroupList = new List<Group>();  
             foreach (Group group in map.GroupList)
             {
                 if (group.Type == TerrainType.MOUNTAIN)
                 {
                     MapNode mapNode = GetMaxHeight(group.MapNodeList);
-                    Group riverGroup = new Group(map.GroupList.Last().Id + 1, TerrainType.WATER, TerrainType.WATER.ToString());
+                    Group riverGroup = new Group(nextGroupId++, TerrainType.WATER, TerrainType.WATER.ToString());
 
                     Func<MapNode, MapNode, bool> StartNodeCheck = GetStartNodeCheck(mapNode);
                     Func<MapNode, MapNode, bool> OrMapNodeCheck = GetOrMapNodeCheck(mapNode);
