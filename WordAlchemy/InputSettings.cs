@@ -11,6 +11,8 @@ namespace WordAlchemy
         public SDL.SDL_Keycode MapLeft { get; set; }
         public SDL.SDL_Keycode MapRight { get; set; }
 
+        public SDL.SDL_Keycode MapButton { get; set; }
+
         public uint MouseButtonSelect { get; set; }
 
         private InputSettings()
@@ -19,6 +21,8 @@ namespace WordAlchemy
             MapDown = SDL.SDL_Keycode.SDLK_s;
             MapLeft = SDL.SDL_Keycode.SDLK_a;
             MapRight = SDL.SDL_Keycode.SDLK_d;
+
+            MapButton = SDL.SDL_Keycode.SDLK_m;
 
             MouseButtonSelect = SDL.SDL_BUTTON_LEFT;
         }

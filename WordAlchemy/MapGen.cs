@@ -62,6 +62,25 @@ namespace WordAlchemy
             return map;
         }
 
+        public Graph GenerateWorldGraph(TerrainInfo terrain)
+        {
+            Graph graph = new Graph();
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Cols; j++)
+                {
+                    int x = j * CharWidth;
+                    int y = i * CharHeight;
+
+                    MapNode mapNode = new MapNode(i * Cols + j, x, y, terrain);
+
+                    graph.AddNode(mapNode);
+                    AddEdges(graph, mapNode, i, j);
+                }
+            }
+            return graph;
+        }
+
         private void GenerateHeightMap()
         {
             for (int i = 0; i < Rows; i++)
