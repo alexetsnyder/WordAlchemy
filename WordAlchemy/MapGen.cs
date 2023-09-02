@@ -57,6 +57,8 @@ namespace WordAlchemy
             map.Graph = GenerateGraph();
             map.GroupList = GroupTerrain(map);
 
+            ClassifyWaterGroups(map.GroupList);
+
             GenerateRivers(map);
 
             return map;
@@ -213,6 +215,23 @@ namespace WordAlchemy
             } 
         }
 
+        private void ClassifyWaterGroups(List<Group> groupList)
+        {
+            Group oceanGroup = groupList.First();
+            if (oceanGroup.Type == TerrainType.WATER)
+            {
+                oceanGroup.Type = TerrainType.OCEAN;
+                oceanGroup.Name = TerrainType.OCEAN.ToString();
+            }
+            
+            foreach (Group group in groupList.Where(g => g.Type == TerrainType.WATER))
+            {
+                TerrainType type = TerrainType.SEA;
+                group.Type = type;
+                group.Name = type.ToString();
+            }
+        }
+
         private void GenerateRivers(Map map)
         {
             int nextGroupId = map.GroupList.Last().Id + 1;
@@ -222,7 +241,7 @@ namespace WordAlchemy
                 if (group.Type == TerrainType.MOUNTAIN)
                 {
                     MapNode mapNode = GetMaxHeight(group.MapNodeList);
-                    Group riverGroup = new Group(nextGroupId++, TerrainType.WATER, TerrainType.WATER.ToString());
+                    Group riverGroup = new Group(nextGroupId++, TerrainType.RIVER, TerrainType.RIVER.ToString());
 
                     Func<MapNode, MapNode, bool> StartNodeCheck = GetStartNodeCheck(mapNode);
                     Func<MapNode, MapNode, bool> OrMapNodeCheck = GetOrMapNodeCheck(mapNode);

@@ -20,6 +20,9 @@ namespace WordAlchemy
     public enum TerrainType
     {
         NONE,
+        OCEAN,
+        SEA, 
+        RIVER,
         WATER,
         SAND,
         GRASS,
