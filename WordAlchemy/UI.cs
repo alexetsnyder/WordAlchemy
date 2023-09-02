@@ -4,7 +4,7 @@ namespace WordAlchemy
 {
     internal class UI
     {
-        public Map Map { get; set; }
+        public MapViewer MapViewer { get; set; }
 
         public string GroupTypeStr { get; private set; }
         public int GroupTypeStrWidth { get; private set; }
@@ -12,15 +12,15 @@ namespace WordAlchemy
 
         private SDLGraphics Graphics { get; set; }
 
-        public UI(Map map)
+        public UI(MapViewer mapViewer)
         {
-            Map = map;
+            MapViewer = mapViewer;
 
             GroupTypeStr = string.Empty;
             GroupTypeStrWidth = 0;
             GroupTypeStrHeight = 0;
 
-            Graphics = SDLGraphics.Instance;
+            Graphics = SDLGraphics.Instance;  
         }
 
         public void SetGroupTypeStr(string groupTypeStr)
@@ -36,12 +36,12 @@ namespace WordAlchemy
         {
             SDL.SDL_GetMouseState(out int screenX, out int screenY);
 
-            Map.ScreenToWorld(screenX, screenY, out int worldX, out int worldY);
+            MapViewer.ScreenToWorld(screenX, screenY, out int worldX, out int worldY);
 
-            MapNode? mapNode = Map.GetMapNode(worldX, worldY);
+            MapNode? mapNode = MapViewer.Map.GetMapNode(worldX, worldY);
             if (mapNode != null && mapNode.GroupID != null)
             {
-                Group? group = Map.GetGroup((int)mapNode.GroupID);
+                Group? group = MapViewer.Map.GetGroup((int)mapNode.GroupID);
                 if (group != null)
                 {
                     SetGroupTypeStr($"{group.Name} {group.Id}");

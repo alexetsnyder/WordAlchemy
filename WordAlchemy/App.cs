@@ -11,7 +11,7 @@ namespace WordAlchemy
 
         private EventSystem Events { get; set; }
 
-        private Map Map { get; set; }
+        private MapViewer MapViewer { get; set; }
 
         private UI HUD { get; set; }
 
@@ -33,12 +33,14 @@ namespace WordAlchemy
             Random random = new Random();
             MapGen mapGen = new MapGen(240, 240, random.Next(0, 1000000));
 
-            Map = mapGen.GenerateMap();
-            Map.DstViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
-            Map.SrcViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
-            Map.GenerateMapTexture();
+            Map map = mapGen.GenerateMap();
+            map.GenerateMapTexture();
 
-            HUD = new UI(Map);
+            ViewWindow DstViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
+            ViewWindow SrcViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
+            MapViewer = new MapViewer(map, SrcViewWindow, DstViewWindow);
+
+            HUD = new UI(MapViewer);
 
             Viewer = new Tools.FontViewer();   
         }
@@ -83,13 +85,13 @@ namespace WordAlchemy
 
         private void Update()
         {
-            Map.Update();
+            MapViewer.Update();
             HUD.Update();
         }
 
         private void Draw()
         {
-            Map.Draw();
+            MapViewer.Draw();   
             HUD.Draw();
             //Viewer.Draw(Graphics);
             //Graphics.Atlas?.Draw();

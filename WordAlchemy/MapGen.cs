@@ -3,7 +3,7 @@ using WordAlchemy.Helpers;
 
 namespace WordAlchemy
 {
-    internal class MapGen
+    public class MapGen
     {
         public int Width
         {
@@ -53,7 +53,7 @@ namespace WordAlchemy
         {
             GenerateHeightMap();
 
-            Map map = new Map(this, Rows, Cols);
+            Map map = new Map(this);
             map.Graph = GenerateGraph();
             map.GroupList = GroupTerrain(map);
 
