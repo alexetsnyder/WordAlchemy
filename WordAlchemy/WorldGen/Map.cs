@@ -8,37 +8,24 @@ namespace WordAlchemy.WorldGen
     {
         public Graph? Graph { get; set; }
 
-        public Graph? WorldGraph { get; set; }
-
         public List<Group> GroupList { get; set; }
 
         public MapGen MapGen { get; set; }
 
-        private MapState MapState { get; set; }
-
         private IntPtr MapTexture { get; set; }
-
-        private IntPtr WorldTexture { get; set; }
 
         private SDLGraphics Graphics { get; set; }
 
         public Map(MapGen mapGen)
         {
-            MapState = MapState.MAP;
             MapGen = mapGen;
 
             Graph = null;
-            WorldGraph = null;
             GroupList = new List<Group>();
 
             MapTexture = IntPtr.Zero;
 
             Graphics = SDLGraphics.Instance;
-        }
-
-        public void ToggleMapState()
-        {
-            MapState = (MapState == MapState.MAP) ? MapState.WORLD : MapState.MAP;
         }
 
         public void GenerateMapTexture()
@@ -54,36 +41,9 @@ namespace WordAlchemy.WorldGen
             } 
         }
 
-        public void CreateWorld(TerrainInfo terrain)
+        public void Draw(ref SDL.SDL_Rect src,  ref SDL.SDL_Rect dest)
         {
-            MapState = MapState.WORLD;
-            WorldGraph = MapGen.GenerateWorldGraph(terrain);
-            GenerateWorldTexture();
-        }
-
-        public void GenerateWorldTexture()
-        {
-            WorldTexture = Graphics.CreateTexture(MapGen.Width, MapGen.Height);
-
-            if (WorldGraph != null)
-            {
-                foreach (MapNode mapNode in WorldGraph.NodeList)
-                {
-                    mapNode.DrawTo(WorldTexture);
-                }
-            }
-        }
-
-        public void Draw(SDL.SDL_Rect src,  SDL.SDL_Rect dest)
-        {
-            if (MapState == MapState.MAP)
-            {
-                Graphics.DrawTexture(MapTexture, ref src, ref dest);
-            }
-            else
-            {
-                Graphics.DrawTexture(WorldTexture, ref src, ref dest);
-            }      
+            Graphics.DrawTexture(MapTexture, ref src, ref dest);
         }
 
         public Group? GetGroup(int groupId)
@@ -118,11 +78,5 @@ namespace WordAlchemy.WorldGen
 
             return null;
         }
-    }
-
-    public enum MapState
-    {
-        MAP,
-        WORLD,
     }
 }

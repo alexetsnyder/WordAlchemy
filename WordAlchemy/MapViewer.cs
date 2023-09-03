@@ -64,7 +64,7 @@ namespace WordAlchemy
                 SDL.SDL_Rect src = SrcViewWindow.GetViewRect();
                 SDL.SDL_Rect dest = DstViewWindow.GetViewRect();
 
-                Map.Draw(src, dest);
+                Map.Draw(ref src, ref dest);
             }
         }
 
@@ -134,11 +134,6 @@ namespace WordAlchemy
 
         public void OnKeyUp(SDL.SDL_Event e)
         {
-            if (e.key.keysym.sym == InputSettings.Instance.MapButton)
-            {
-                Map.ToggleMapState();
-            }
-
             KeysPressedList.Remove(e.key.keysym.sym);
         }
 
@@ -162,8 +157,6 @@ namespace WordAlchemy
                         w = Map.MapGen.CharWidth,
                         h = Map.MapGen.CharHeight,
                     };
-
-                    Map.CreateWorld(mapNode.Info);
                 }
             }
         }
