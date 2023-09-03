@@ -11,7 +11,7 @@ namespace WordAlchemy
         public int GroupTypeStrWidth { get; private set; }
         public int GroupTypeStrHeight { get; private set; }
 
-        private SDLGraphics Graphics { get; set; }
+        private GraphicSystem GraphicSystem { get; set; }
 
         public UI(MapViewer mapViewer)
         {
@@ -21,14 +21,14 @@ namespace WordAlchemy
             GroupTypeStrWidth = 0;
             GroupTypeStrHeight = 0;
 
-            Graphics = SDLGraphics.Instance;  
+            GraphicSystem = GraphicSystem.Instance;  
         }
 
         public void SetGroupTypeStr(string groupTypeStr)
         {
             GroupTypeStr = groupTypeStr;
 
-            Graphics.SizeText(GroupTypeStr, FontName.IBM_VGA_8X14, out int width, out int height);
+            GraphicSystem.SizeText(GroupTypeStr, FontName.IBM_VGA_8X14, out int width, out int height);
             GroupTypeStrWidth = width;
             GroupTypeStrHeight = height;
         }
@@ -55,7 +55,7 @@ namespace WordAlchemy
             int windowWidth = AppSettings.Instance.WindowWidth;
             int windowHeight = AppSettings.Instance.WindowHeight;
 
-            Graphics.DrawText(GroupTypeStr, windowWidth - GroupTypeStrWidth - 10, windowHeight - 2 * GroupTypeStrHeight, Colors.White(), FontName.IBM_VGA_8X14);
+            GraphicSystem.DrawText(GroupTypeStr, windowWidth - GroupTypeStrWidth - 10, windowHeight - 2 * GroupTypeStrHeight, Colors.White(), FontName.IBM_VGA_8X14);
         }
     }
 }

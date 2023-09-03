@@ -42,7 +42,7 @@ namespace WordAlchemy.WorldGen
             Noise.SetNoiseType(FastNoiseLite.NoiseType.OpenSimplex2);
             Noise.SetFractalType(FastNoiseLite.FractalType.FBm);
 
-            SDLGraphics.Instance.SizeText(Terrain.Water.Symbol, AppSettings.Instance.MapFontName, out int width, out int height);
+            GraphicSystem.Instance.SizeText(Terrain.Water.Symbol, AppSettings.Instance.MapFontName, out int width, out int height);
             CharWidth = width;
             CharHeight = height;
 

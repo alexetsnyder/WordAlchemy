@@ -30,7 +30,7 @@ namespace WordAlchemy
             Terrain.Mountain.Symbol, 
         };
 
-        private SDLGraphics Graphics { get; set; }  
+        private GraphicSystem GraphicSystem { get; set; }  
 
         public GlyphAtlas()
         {
@@ -38,7 +38,7 @@ namespace WordAlchemy
             Glyphs = new Dictionary<IntPtr, Dictionary<char, SDL.SDL_Rect>>();
             FontTextures = new Dictionary<IntPtr, IntPtr>();
 
-            Graphics = SDLGraphics.Instance;
+            GraphicSystem = GraphicSystem.Instance;
         }
 
         public bool AddFont(Font font)
@@ -107,7 +107,7 @@ namespace WordAlchemy
                 }
             }
 
-            FontTextures.Add(font.TTFFont, Graphics.CreateTextureFromSurface(finalSurface));
+            FontTextures.Add(font.TTFFont, GraphicSystem.CreateTextureFromSurface(finalSurface));
 
             return true;
         }
@@ -120,7 +120,7 @@ namespace WordAlchemy
 
             SDL.SDL_QueryTexture(texture, out _, out _, out int w, out int h);
 
-            Graphics.DrawTexture(FontTextures[font.TTFFont], 460 - w / 2, 340 - h / 4);
+            GraphicSystem.DrawTexture(FontTextures[font.TTFFont], 460 - w / 2, 340 - h / 4);
         }
     }
 }

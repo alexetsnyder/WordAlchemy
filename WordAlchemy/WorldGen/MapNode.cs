@@ -10,7 +10,7 @@ namespace WordAlchemy.WorldGen
 
         public int? GroupID { get; set; }
 
-        private SDLGraphics Graphics { get; set; }
+        private GraphicSystem GraphicSystem { get; set; }
 
         public MapNode(int id, int x, int y, TerrainInfo terrainInfo)
             : base(id)
@@ -22,7 +22,7 @@ namespace WordAlchemy.WorldGen
 
             GroupID = null;
 
-            Graphics = SDLGraphics.Instance;
+            GraphicSystem = GraphicSystem.Instance;
         }
 
         public void DrawTo(IntPtr texture)
@@ -30,7 +30,7 @@ namespace WordAlchemy.WorldGen
             int x = X;
             int y = Y; 
 
-            Graphics.DrawTextToTexture(texture, Info.Symbol, x + Info.XMod, y + Info.YMod, Info.Color, AppSettings.Instance.MapFontName);
+            GraphicSystem.DrawTextToTexture(texture, Info.Symbol, x + Info.XMod, y + Info.YMod, Info.Color, AppSettings.Instance.MapFontName);
         }
 
         public void Draw()
@@ -38,7 +38,7 @@ namespace WordAlchemy.WorldGen
             int x = X;
             int y = Y;
 
-            Graphics.DrawText(Info.Symbol, x + Info.XMod, y + Info.YMod, Info.Color, AppSettings.Instance.MapFontName);
+            GraphicSystem.DrawText(Info.Symbol, x + Info.XMod, y + Info.YMod, Info.Color, AppSettings.Instance.MapFontName);
         }
     }
 }

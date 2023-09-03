@@ -8,7 +8,7 @@ namespace WordAlchemy
     {
         public bool IsRunning { get; set; }
 
-        private SDLGraphics Graphics { get; set; }
+        private GraphicSystem GraphicSystem { get; set; }
 
         private EventSystem Events { get; set; }
 
@@ -25,9 +25,9 @@ namespace WordAlchemy
         public App()
         {
             IsRunning = true;
-            Graphics = SDLGraphics.Instance;
+            GraphicSystem = GraphicSystem.Instance;
 
-            if (!Graphics.Init())
+            if (!GraphicSystem.Init())
             {
                 IsRunning = false;
             }
@@ -76,12 +76,12 @@ namespace WordAlchemy
                 Render();
             }
 
-            Graphics.CleanUp();
+            GraphicSystem.CleanUp();
         }
 
         private void PollEvents()
         {
-            foreach (var e in Graphics.PollEvents())
+            foreach (var e in GraphicSystem.PollEvents())
             {
                 Events.Invoke((int)GameSettings.State, e);
             }
@@ -89,11 +89,11 @@ namespace WordAlchemy
 
         private void Render()
         {
-            Graphics.Clear();
+            GraphicSystem.Clear();
 
             Draw();
 
-            Graphics.Present();
+            GraphicSystem.Present();
         }
 
         private void Update()

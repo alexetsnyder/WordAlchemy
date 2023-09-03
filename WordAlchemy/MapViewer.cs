@@ -13,7 +13,7 @@ namespace WordAlchemy
 
         private List<SDL.SDL_Keycode> KeysPressedList { get; set; }
 
-        private SDLGraphics Graphics { get; set; }
+        private GraphicSystem GraphicSystem { get; set; }
 
         public MapViewer(Map map, ViewWindow? srcViewWindow = null, ViewWindow? dstViewWindow = null)
             : base(srcViewWindow, dstViewWindow)
@@ -23,7 +23,7 @@ namespace WordAlchemy
             SelectRect = null;
             KeysPressedList = new List<SDL.SDL_Keycode>();
 
-            Graphics = SDLGraphics.Instance;
+            GraphicSystem = GraphicSystem.Instance;
 
             WireEvents();
         }
@@ -55,8 +55,8 @@ namespace WordAlchemy
                     h = SelectRect.Value.h,
                 };
 
-                Graphics.SetDrawColor(Colors.Red());
-                Graphics.DrawRect(ref rect);
+                GraphicSystem.SetDrawColor(Colors.Red());
+                GraphicSystem.DrawRect(ref rect);
             }
 
             if (DstViewWindow != null && SrcViewWindow != null)

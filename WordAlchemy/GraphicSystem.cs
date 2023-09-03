@@ -3,9 +3,9 @@ using System.Diagnostics;
 
 namespace WordAlchemy
 {
-    internal class SDLGraphics
+    internal class GraphicSystem
     {
-        public static SDLGraphics Instance { get { return Nested.instance; } }
+        public static GraphicSystem Instance { get { return Nested.instance; } }
 
         public GlyphAtlas? Atlas { get; set; }
 
@@ -14,7 +14,7 @@ namespace WordAlchemy
         private IntPtr Window { get; set; }
         private IntPtr Renderer { get; set; }
 
-        private SDLGraphics() 
+        private GraphicSystem() 
         {
             Atlas = null;
             SetClearColor(Colors.Black());
@@ -30,7 +30,7 @@ namespace WordAlchemy
 
             }
 
-            internal static readonly SDLGraphics instance = new SDLGraphics();
+            internal static readonly GraphicSystem instance = new GraphicSystem();
         }
 
         public bool Init()

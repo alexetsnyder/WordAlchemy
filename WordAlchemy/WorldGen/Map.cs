@@ -14,7 +14,7 @@ namespace WordAlchemy.WorldGen
 
         private IntPtr MapTexture { get; set; }
 
-        private SDLGraphics Graphics { get; set; }
+        private GraphicSystem GraphicSystem { get; set; }
 
         public Map(MapGen mapGen)
         {
@@ -25,12 +25,12 @@ namespace WordAlchemy.WorldGen
 
             MapTexture = IntPtr.Zero;
 
-            Graphics = SDLGraphics.Instance;
+            GraphicSystem = GraphicSystem.Instance;
         }
 
         public void GenerateMapTexture()
         {
-            MapTexture = Graphics.CreateTexture(MapGen.Width, MapGen.Height);
+            MapTexture = GraphicSystem.CreateTexture(MapGen.Width, MapGen.Height);
 
             if (Graph != null)
             {
@@ -43,7 +43,7 @@ namespace WordAlchemy.WorldGen
 
         public void Draw(ref SDL.SDL_Rect src,  ref SDL.SDL_Rect dest)
         {
-            Graphics.DrawTexture(MapTexture, ref src, ref dest);
+            GraphicSystem.DrawTexture(MapTexture, ref src, ref dest);
         }
 
         public Group? GetGroup(int groupId)

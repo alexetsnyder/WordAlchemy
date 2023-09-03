@@ -12,7 +12,7 @@ namespace WordAlchemy.Tools
         public int Height { get; set; }
 
 
-        private SDLGraphics Graphics { get; set; }
+        private GraphicSystem GraphicSystem { get; set; }
 
         public FontViewer()
         {
@@ -23,14 +23,14 @@ namespace WordAlchemy.Tools
             TerrainInfoList.Add(Terrain.Hill);
             TerrainInfoList.Add(Terrain.Mountain);
 
-            Graphics = SDLGraphics.Instance;
-            Graphics.SizeText(Terrain.Water.Symbol, AppSettings.Instance.MapFontName, out int width, out int height);
+            GraphicSystem = GraphicSystem.Instance;
+            GraphicSystem.SizeText(Terrain.Water.Symbol, AppSettings.Instance.MapFontName, out int width, out int height);
 
             Width = width;
             Height = height;
         }
 
-        public void Draw(SDLGraphics graphics)
+        public void Draw(GraphicSystem graphics)
         {
             int viewerWidth = TerrainInfoList.Count * 2 * Width;
             int ViewerHeight = TerrainInfoList.Count * 2 * Height;
@@ -55,7 +55,7 @@ namespace WordAlchemy.Tools
 
                 graphics.DrawRect(ref rect);
 
-                Graphics.DrawText(terrain.Symbol, startX + terrain.XMod, startY + terrain.YMod, terrain.Color, AppSettings.Instance.MapFontName);
+                GraphicSystem.DrawText(terrain.Symbol, startX + terrain.XMod, startY + terrain.YMod, terrain.Color, AppSettings.Instance.MapFontName);
 
                 startX +=  2 * Width;
             }
