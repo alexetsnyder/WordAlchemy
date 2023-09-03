@@ -1,7 +1,7 @@
 ﻿
 using WordAlchemy.Helpers;
 
-namespace WordAlchemy
+namespace WordAlchemy.WorldGen
 {
     public class MapGen
     {

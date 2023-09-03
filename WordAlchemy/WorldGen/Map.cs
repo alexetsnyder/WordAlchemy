@@ -1,9 +1,8 @@
 ﻿
 using SDL2;
-using System.Diagnostics;
 using WordAlchemy.Helpers;
 
-namespace WordAlchemy
+namespace WordAlchemy.WorldGen
 {
     public class Map
     {

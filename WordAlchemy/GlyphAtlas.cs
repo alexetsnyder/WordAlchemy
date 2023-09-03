@@ -1,6 +1,7 @@
 ﻿using SDL2;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using WordAlchemy.WorldGen;
 
 namespace WordAlchemy
 {

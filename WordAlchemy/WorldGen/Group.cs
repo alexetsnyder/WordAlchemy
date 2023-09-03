@@ -1,5 +1,5 @@
 ﻿
-namespace WordAlchemy
+namespace WordAlchemy.WorldGen
 {
     public class Group
     {
