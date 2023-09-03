@@ -5,13 +5,9 @@ using WordAlchemy.WorldGen;
 
 namespace WordAlchemy
 {
-    public class MapViewer
+    public class MapViewer : Viewer
     {
         public Map Map { get; set; }
-
-        public ViewWindow? SrcViewWindow { get; set; }
-
-        public ViewWindow? DstViewWindow { get; set; }
 
         private SDL.SDL_Rect? SelectRect { get; set; }
 
@@ -20,11 +16,9 @@ namespace WordAlchemy
         private SDLGraphics Graphics { get; set; }
 
         public MapViewer(Map map, ViewWindow? srcViewWindow = null, ViewWindow? dstViewWindow = null)
+            : base(srcViewWindow, dstViewWindow)
         {
             Map = map;
-
-            SrcViewWindow = srcViewWindow;
-            DstViewWindow = dstViewWindow;
 
             SelectRect = null;
             KeysPressedList = new List<SDL.SDL_Keycode>();
@@ -130,32 +124,6 @@ namespace WordAlchemy
             return textureHeight - SrcViewWindow.Height;
         }
 
-        public void ScreenToWorld(int screenX, int screenY, out int worldX, out int worldY)
-        {
-            if (DstViewWindow == null || SrcViewWindow == null)
-            {
-                worldX = screenX;
-                worldY = screenY;
-                return;
-            }
-
-            worldX = screenX - DstViewWindow.OffsetX + SrcViewWindow.OffsetX;
-            worldY = screenY - DstViewWindow.OffsetY + SrcViewWindow.OffsetY;
-        }
-
-        public void WorldToScreen(int worldX, int worldY, out int screenX, out int screenY)
-        {
-            if (DstViewWindow == null || SrcViewWindow == null)
-            {
-                screenX = worldX;
-                screenY = worldY;
-                return;
-            }
-
-            screenX = worldX + DstViewWindow.OffsetX - SrcViewWindow.OffsetX;
-            screenY = worldY + DstViewWindow.OffsetY - SrcViewWindow.OffsetY;
-        }
-
         public void OnKeyDown(SDL.SDL_Event e)
         {
             if (!KeysPressedList.Contains(e.key.keysym.sym))
@@ -198,34 +166,6 @@ namespace WordAlchemy
                     Map.CreateWorld(mapNode.Info);
                 }
             }
-        }
-    }
-
-    public class ViewWindow
-    {
-        public int OffsetX { get; set; }
-        public int OffsetY { get; set; }
-
-        public int Width { get; set; }
-        public int Height { get; set; }
-
-        public ViewWindow(int offsetX, int offsetY, int width, int height)
-        {
-            OffsetX = offsetX;
-            OffsetY = offsetY;
-            Width = width;
-            Height = height;
-        }
-
-        public SDL.SDL_Rect GetViewRect()
-        {
-            return new SDL.SDL_Rect
-            {
-                x = OffsetX,
-                y = OffsetY,
-                w = Width,
-                h = Height,
-            };
         }
     }
 }
