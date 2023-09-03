@@ -140,6 +140,11 @@ namespace WordAlchemy
             if (e.key.keysym.sym == InputSettings.Instance.MapButton)
             {
                 GameSettings.State = (GameSettings.State == GameState.MAP) ? GameState.PLAYER : GameState.MAP;
+
+                if (GameSettings.State == GameState.PLAYER && MapViewer.SelectRect.HasValue && MapViewer.SelectedMapNode != null)
+                {
+                    PlayerViewer.MapChunk = MapViewer.Map.MapGen.GenerateMapChunk(MapViewer.SelectedMapNode);
+                }
             }
         }
     }

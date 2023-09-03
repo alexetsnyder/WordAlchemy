@@ -64,23 +64,12 @@ namespace WordAlchemy.WorldGen
             return map;
         }
 
-        public Graph GenerateWorldGraph(TerrainInfo terrain)
+        public MapChunk GenerateMapChunk(MapNode mapNode)
         {
-            Graph graph = new Graph();
-            for (int i = 0; i < Rows; i++)
-            {
-                for (int j = 0; j < Cols; j++)
-                {
-                    int x = j * CharWidth;
-                    int y = i * CharHeight;
-
-                    MapNode mapNode = new MapNode(i * Cols + j, x, y, terrain);
-
-                    graph.AddNode(mapNode);
-                    AddEdges(graph, mapNode, i, j);
-                }
-            }
-            return graph;
+            Graph chunkGraph = GenerateChunkGraph(mapNode.Info);
+            MapChunk mapChunk = new MapChunk(mapNode, chunkGraph);
+            mapChunk.GenerateChunkTexture(Width, Height);
+            return mapChunk;
         }
 
         private void GenerateHeightMap()
@@ -109,6 +98,25 @@ namespace WordAlchemy.WorldGen
                     int y = i * CharHeight;
 
                     TerrainInfo terrain = GetTerrain(i, j);
+
+                    MapNode mapNode = new MapNode(i * Cols + j, x, y, terrain);
+
+                    graph.AddNode(mapNode);
+                    AddEdges(graph, mapNode, i, j);
+                }
+            }
+            return graph;
+        }
+
+        private Graph GenerateChunkGraph(TerrainInfo terrain)
+        {
+            Graph graph = new Graph();
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Cols; j++)
+                {
+                    int x = j * CharWidth;
+                    int y = i * CharHeight;
 
                     MapNode mapNode = new MapNode(i * Cols + j, x, y, terrain);
 

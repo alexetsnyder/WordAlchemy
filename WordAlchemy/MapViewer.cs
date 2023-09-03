@@ -9,7 +9,9 @@ namespace WordAlchemy
     {
         public Map Map { get; set; }
 
-        private SDL.SDL_Rect? SelectRect { get; set; }
+        public SDL.SDL_Rect? SelectRect { get; private set; }
+
+        public MapNode? SelectedMapNode { get; private set; }
 
         private List<SDL.SDL_Keycode> KeysPressedList { get; set; }
 
@@ -21,6 +23,7 @@ namespace WordAlchemy
             Map = map;
 
             SelectRect = null;
+            SelectedMapNode = null;
             KeysPressedList = new List<SDL.SDL_Keycode>();
 
             GraphicSystem = GraphicSystem.Instance;
@@ -150,6 +153,8 @@ namespace WordAlchemy
 
                 if (mapNode != null)
                 {
+                    SelectedMapNode = mapNode;
+
                     SelectRect = new SDL.SDL_Rect
                     {
                         x = mapNode.X,
