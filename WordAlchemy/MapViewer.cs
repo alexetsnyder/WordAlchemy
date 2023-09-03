@@ -31,9 +31,9 @@ namespace WordAlchemy
         private void WireEvents()
         {
             EventSystem eventSystem = EventSystem.Instance;
-            eventSystem.Listen(SDL.SDL_EventType.SDL_KEYDOWN, OnKeyDown);
-            eventSystem.Listen(SDL.SDL_EventType.SDL_KEYUP, OnKeyUp);
-            eventSystem.Listen(SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, OnMouseButtonDown);
+            eventSystem.Listen((int)GameState.MAP, SDL.SDL_EventType.SDL_KEYDOWN, OnKeyDown);
+            eventSystem.Listen((int)GameState.MAP, SDL.SDL_EventType.SDL_KEYUP, OnKeyUp);
+            eventSystem.Listen((int)GameState.MAP, SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, OnMouseButtonDown);
         }
 
         public void Update()

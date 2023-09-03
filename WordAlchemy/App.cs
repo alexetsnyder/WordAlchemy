@@ -59,10 +59,10 @@ namespace WordAlchemy
 
         public void WireEvents()
         {
-            Events.Listen(SDL.SDL_EventType.SDL_QUIT, (e) => this.IsRunning = false);
-            Events.Listen(SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, (e) => Debug.WriteLine($"Mouse Button: {e.button.button}"));
-            Events.Listen(SDL.SDL_EventType.SDL_WINDOWEVENT, OnWindowResizedEvent);
-            Events.Listen(SDL.SDL_EventType.SDL_KEYDOWN, OnKeyDown);
+            Events.Listen(-1, SDL.SDL_EventType.SDL_QUIT, (e) => this.IsRunning = false);
+            Events.Listen(-1, SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, (e) => Debug.WriteLine($"Mouse Button: {e.button.button}"));
+            Events.Listen(-1, SDL.SDL_EventType.SDL_WINDOWEVENT, OnWindowResizedEvent);
+            Events.Listen(-1, SDL.SDL_EventType.SDL_KEYDOWN, OnKeyDown);
         }
 
         public void Run()
@@ -83,7 +83,7 @@ namespace WordAlchemy
         {
             foreach (var e in Graphics.PollEvents())
             {
-                Events.Invoke(e);
+                Events.Invoke((int)GameSettings.State, e);
             }
         }
 
