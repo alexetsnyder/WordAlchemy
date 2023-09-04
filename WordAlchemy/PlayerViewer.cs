@@ -10,11 +10,14 @@ namespace WordAlchemy
 
         public MapChunk? MapChunk { get; set; }
 
+        public List<MapChunk> ChunkList { get; set; }
+
         public PlayerViewer(ViewWindow? srcViewWindow, ViewWindow? dstViewWindow)
             : base(srcViewWindow,  dstViewWindow)
         {
             Player = new Player();
             MapChunk = null;
+            ChunkList = new List<MapChunk>();
         }
 
         public void Update()

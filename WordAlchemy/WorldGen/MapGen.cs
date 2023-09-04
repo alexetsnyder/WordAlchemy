@@ -202,21 +202,13 @@ namespace WordAlchemy.WorldGen
                     group.MapNodeList.Add(currentNode);
                     currentNode.GroupID = group.Id;
 
-                    foreach (Edge edge in currentNode.EdgeList)
+                    List<MapNode> connectedNodeList = currentNode.GetConnectedNodes();
+
+                    foreach (MapNode connectedNode in connectedNodeList)
                     {
-                        if (edge.V1 == currentNode)
+                        if (connectedNode.Info.Equals(currentNode.Info))
                         {
-                            if (edge.V2 is MapNode otherNode && otherNode.Info.Equals(currentNode.Info))
-                            {
-                                stack.Push(otherNode);
-                            }
-                        }
-                        else
-                        {
-                            if (edge.V1 is MapNode otherNode && otherNode.Info.Equals(currentNode.Info))
-                            {
-                                stack.Push(otherNode);
-                            }
+                            stack.Push(connectedNode);
                         }
                     }
                 }
@@ -317,29 +309,17 @@ namespace WordAlchemy.WorldGen
 
         private MapNode GetStartMapNode(MapNode mapNode, Func<MapNode, MapNode, bool> StartNodeCheck)
         {
-            MapNode startingMapNode = mapNode;
+            List<MapNode> connectedNodeList = mapNode.GetConnectedNodes();
 
-            foreach (Edge edge in mapNode.EdgeList)
+            foreach (MapNode connectedNode in connectedNodeList)
             {
-                if (edge.V1 == mapNode)
+                if (StartNodeCheck(connectedNode, mapNode))
                 {
-                    if (edge.V2 is MapNode node && StartNodeCheck(node, mapNode)) 
-                    {
-                        startingMapNode = node;
-                        break;
-                    }
+                    return connectedNode;
                 }
-                else
-                {
-                    if (edge.V1 is MapNode node && StartNodeCheck(node, mapNode))
-                    {
-                        startingMapNode = node;
-                        break;
-                    }
-                }    
             }
 
-            return startingMapNode;
+            return mapNode;
         }
 
         private void GenerateRiverRecursive(Group group, MapNode mapNode, Func<MapNode, MapNode, bool> OrMapNodeCheck)
@@ -351,28 +331,14 @@ namespace WordAlchemy.WorldGen
                 mapNode.GroupID = group.Id;
                 group.MapNodeList.Add(mapNode);
 
+                List<MapNode> connectedNodeList = mapNode.GetConnectedNodes();
+
                 List<MapNode> possibleNodes = new List<MapNode>();
-                foreach (Edge edge in mapNode.EdgeList)
+                foreach (MapNode connectedNode in connectedNodeList)
                 {
-                    if (edge.V1 == mapNode)
+                    if (OrMapNodeCheck(connectedNode, mapNode) && connectedNode.GroupID != group.Id)
                     {
-                        if (edge.V2 is MapNode newNode && OrMapNodeCheck(newNode, mapNode))
-                        {
-                            if (newNode.GroupID != group.Id)
-                            {
-                                possibleNodes.Add(newNode);
-                            }  
-                        }
-                    }
-                    else
-                    {
-                        if (edge.V1 is MapNode newNode && OrMapNodeCheck(newNode, mapNode))
-                        {
-                            if (newNode.GroupID != group.Id)
-                            {
-                                possibleNodes.Add(newNode);
-                            }
-                        }
+                        possibleNodes.Add(connectedNode);
                     }
                 }
 

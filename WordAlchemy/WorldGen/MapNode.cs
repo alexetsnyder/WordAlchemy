@@ -25,6 +25,28 @@ namespace WordAlchemy.WorldGen
             GraphicSystem = GraphicSystem.Instance;
         }
 
+        public List<MapNode> GetConnectedNodes()
+        {
+            List<MapNode> connectedNodeList = new List<MapNode>();
+
+            foreach (Edge edge in EdgeList)
+            {
+                MapNode v1Node = (MapNode)edge.V1;
+                MapNode v2Node = (MapNode)edge.V2;
+
+                if (v1Node == this)
+                {
+                    connectedNodeList.Add(v2Node);
+                }
+                else
+                {
+                    connectedNodeList.Add(v1Node);
+                }
+            }
+
+            return connectedNodeList;
+        }
+
         public void DrawTo(IntPtr texture)
         {
             int x = X;
