@@ -143,7 +143,7 @@ namespace WordAlchemy
 
                 if (GameSettings.State == GameState.PLAYER && MapViewer.SelectRect.HasValue && MapViewer.SelectedMapNode != null)
                 {
-                    PlayerViewer.MapChunk = MapViewer.Map.MapGen.GenerateMapChunk(MapViewer.SelectedMapNode);
+                    PlayerViewer.SetMapChunkList(MapViewer.Map.MapGen.GenerateMapChunks(MapViewer.SelectedMapNode, 100, 100));
                 }
             }
         }

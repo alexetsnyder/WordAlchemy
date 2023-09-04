@@ -1,5 +1,7 @@
 ﻿using SDL2;
 using System.Diagnostics;
+using static System.Net.Mime.MediaTypeNames;
+using System.Drawing;
 
 namespace WordAlchemy
 {
@@ -185,6 +187,16 @@ namespace WordAlchemy
         public void FillRect(ref SDL.SDL_Rect rect)
         {
             SDL.SDL_RenderFillRect(Renderer, ref rect);
+        }
+
+        public void DrawTextureToTexture(IntPtr srcTexture, IntPtr dstTexture, ref SDL.SDL_Rect src, ref SDL.SDL_Rect dst)
+        {
+            SDL.SDL_SetTextureBlendMode(dstTexture, SDL.SDL_BlendMode.SDL_BLENDMODE_BLEND);
+            SDL.SDL_SetRenderTarget(Renderer, dstTexture);
+
+            DrawTexture(srcTexture, ref src, ref dst);
+
+            SDL.SDL_SetRenderTarget(Renderer, IntPtr.Zero);
         }
 
         public void DrawTextToTexture(IntPtr dstTexture, string text, int x, int y, SDL.SDL_Color color, string fontName)

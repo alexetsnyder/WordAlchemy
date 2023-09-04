@@ -64,12 +64,35 @@ namespace WordAlchemy.WorldGen
             return map;
         }
 
-        public MapChunk GenerateMapChunk(MapNode mapNode)
+        public List<MapChunk> GenerateMapChunks(MapNode mapNode, int rows, int cols)
         {
-            Graph chunkGraph = GenerateChunkGraph(mapNode.Info);
-            MapChunk mapChunk = new MapChunk(mapNode, chunkGraph);
-            mapChunk.GenerateChunkTexture(Width, Height);
-            return mapChunk;
+            List<MapChunk> chunkList = new List<MapChunk>();
+
+            int i = mapNode.Y / CharHeight;
+            int j = mapNode.X / CharWidth;
+
+            int chunkWidth = cols * CharWidth;
+            int chunkHeight = rows * CharHeight;
+
+            Graph chunkGraph = GenerateChunkGraph(mapNode.Info, rows, cols);
+            MapChunk mapChunk = new MapChunk(mapNode, chunkGraph, j * chunkWidth, i * chunkHeight, chunkWidth, chunkHeight);
+            mapChunk.GenerateChunkTexture();
+            chunkList.Add(mapChunk);
+
+            List<MapNode> connectedNodeList = mapNode.GetConnectedNodes();
+
+            foreach (MapNode connectedNode in connectedNodeList)
+            {
+                i = connectedNode.Y / CharHeight;
+                j = connectedNode.X / CharWidth;
+
+                chunkGraph = GenerateChunkGraph(connectedNode.Info, rows, cols);
+                mapChunk = new MapChunk(connectedNode, chunkGraph, j * chunkWidth, i * chunkHeight, chunkWidth, chunkHeight);
+                mapChunk.GenerateChunkTexture();
+                chunkList.Add(mapChunk);
+            }
+
+            return chunkList;
         }
 
         private void GenerateHeightMap()
@@ -108,12 +131,12 @@ namespace WordAlchemy.WorldGen
             return graph;
         }
 
-        private Graph GenerateChunkGraph(TerrainInfo terrain)
+        private Graph GenerateChunkGraph(TerrainInfo terrain, int rows, int cols)
         {
             Graph graph = new Graph();
-            for (int i = 0; i < Rows; i++)
+            for (int i = 0; i < rows; i++)
             {
-                for (int j = 0; j < Cols; j++)
+                for (int j = 0; j < cols; j++)
                 {
                     int x = j * CharWidth;
                     int y = i * CharHeight;

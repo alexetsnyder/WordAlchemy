@@ -1,5 +1,6 @@
 ﻿
 using SDL2;
+using System.IO.Compression;
 using WordAlchemy.WorldGen;
 
 namespace WordAlchemy
@@ -8,32 +9,124 @@ namespace WordAlchemy
     {
         public Player Player { get; set; }
 
-        public MapChunk? MapChunk { get; set; }
+        public List<MapChunk> MapChunkList { get; private set; }
 
-        public List<MapChunk> ChunkList { get; set; }
+        private List<SDL.SDL_Keycode> KeysPressedList { get; set; }
+
+        private GraphicSystem GraphicSystem { get; set; }
 
         public PlayerViewer(ViewWindow? srcViewWindow, ViewWindow? dstViewWindow)
             : base(srcViewWindow,  dstViewWindow)
         {
             Player = new Player();
-            MapChunk = null;
-            ChunkList = new List<MapChunk>();
+            MapChunkList = new List<MapChunk>();
+
+            KeysPressedList = new List<SDL.SDL_Keycode>();
+
+            GraphicSystem = GraphicSystem.Instance;
+
+            WireEvents();
+        }
+
+        private void WireEvents()
+        {
+            EventSystem eventSystem = EventSystem.Instance;
+            eventSystem.Listen((int)GameState.PLAYER, SDL.SDL_EventType.SDL_KEYDOWN, OnKeyDown);
+            eventSystem.Listen((int)GameState.PLAYER, SDL.SDL_EventType.SDL_KEYUP, OnKeyUp);
+        }
+
+        public void SetMapChunkList(List<MapChunk> mapChunkList)
+        {
+            MapChunkList.Clear();
+
+            MapChunkList.AddRange(mapChunkList);
+
+            if (MapChunkList.Count > 0 )
+            {
+                MapChunk mapChunk = MapChunkList.First();
+                Player.X = mapChunk.X;
+                Player.Y = mapChunk.Y;
+
+                if (SrcViewWindow != null)
+                {
+                    SrcViewWindow.Width = mapChunk.Width;
+                    SrcViewWindow.Height = mapChunk.Height;
+                }
+
+                if (DstViewWindow != null)
+                {
+                    DstViewWindow.Width = mapChunk.Width;
+                    DstViewWindow.Height = mapChunk.Height;
+                }
+            }
         }
 
         public void Update()
         {
-
+            HandleKeys();
         }
 
         public void Draw()
         {
-            if (MapChunk != null && SrcViewWindow != null && DstViewWindow != null)
+            if (SrcViewWindow != null && DstViewWindow != null)
             {
                 SDL.SDL_Rect src = SrcViewWindow.GetViewRect();
                 SDL.SDL_Rect dst = DstViewWindow.GetViewRect();
 
-                MapChunk.Draw(ref src, ref dst);
+                foreach (MapChunk mapChunk in MapChunkList)
+                {
+                    dst.x = mapChunk.X - Player.X; 
+                    dst.y = mapChunk.Y - Player.Y;
+
+                    GraphicSystem.SetDrawColor(Colors.Red());
+                    GraphicSystem.DrawRect(ref dst);
+
+                    mapChunk.Draw(ref src, ref dst);
+                }
             }
+        }
+
+        private void HandleKeys()
+        {
+            if (SrcViewWindow == null)
+            {
+                return;
+            }
+
+            int speed = 5;
+
+            foreach (var key in KeysPressedList)
+            {
+                if (key == InputSettings.Instance.MapUp)
+                {
+                    Player.Y -= speed;
+                }
+                if (key == InputSettings.Instance.MapDown)
+                {
+                    Player.Y += speed;
+                }
+                if (key == InputSettings.Instance.MapLeft)
+                {
+                    Player.X -= speed;
+                }
+                if (key == InputSettings.Instance.MapRight)
+                {
+                    Player.X += speed;
+                }
+            }
+        }
+
+        public void OnKeyDown(SDL.SDL_Event e)
+        {
+            if (!KeysPressedList.Contains(e.key.keysym.sym))
+            {
+                KeysPressedList.Add(e.key.keysym.sym);
+            }
+        }
+
+        public void OnKeyUp(SDL.SDL_Event e)
+        {
+            KeysPressedList.Remove(e.key.keysym.sym);
         }
     }
 }
