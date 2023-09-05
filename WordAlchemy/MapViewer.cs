@@ -1,6 +1,7 @@
 ﻿
 using SDL2;
 using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
 using WordAlchemy.WorldGen;
 
 namespace WordAlchemy
@@ -39,6 +40,7 @@ namespace WordAlchemy
         public void Update()
         {
             HandleKeys();
+            CheckSelection();
         }
 
         public void Draw()
@@ -98,6 +100,23 @@ namespace WordAlchemy
                 {
                     SrcViewWindow.OffsetX += speed;
                     SrcViewWindow.OffsetX = Math.Clamp(SrcViewWindow.OffsetX, 0, GetXMax());
+                }
+            }
+        }
+
+        private void CheckSelection()
+        {
+            if (SelectRect.HasValue && Map.CurrentMapNode != null)
+            {
+                if (SelectRect.Value.x != Map.CurrentMapNode.X || SelectRect.Value.y != Map.CurrentMapNode.Y)
+                {
+                    SelectRect = new SDL.SDL_Rect
+                    {
+                        x = Map.CurrentMapNode.X,
+                        y = Map.CurrentMapNode.Y,
+                        w = Map.MapGen.CharWidth,
+                        h = Map.MapGen.CharHeight,
+                    };
                 }
             }
         }

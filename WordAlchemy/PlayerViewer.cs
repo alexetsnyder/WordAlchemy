@@ -1,6 +1,6 @@
 ﻿
 using SDL2;
-using System.IO.Compression;
+using WordAlchemy.Helpers;
 using WordAlchemy.WorldGen;
 
 namespace WordAlchemy
@@ -13,22 +13,28 @@ namespace WordAlchemy
 
         public List<MapChunk> MapChunkList { get; private set; }
 
-        public int ChunkWidth { get; set; }
-        public int ChunkHeight { get; set; }
+        public int ChunkRows { get; set; }
+        public int ChunkCols { get; set; }
+
+        private int CenterX { get; set; }
+        private int CenterY { get; set; }
 
         private List<SDL.SDL_Keycode> KeysPressedList { get; set; }
 
         private GraphicSystem GraphicSystem { get; set; }
 
-        public PlayerViewer(Map map, int chunkWidth, int chunkHeight, ViewWindow? srcViewWindow, ViewWindow? dstViewWindow)
+        public PlayerViewer(Map map, int chunkRows, int chunkCols, ViewWindow? srcViewWindow, ViewWindow? dstViewWindow)
             : base(srcViewWindow,  dstViewWindow)
         {
             Map = map;
             Player = new Player();
 
             MapChunkList = new List<MapChunk>();
-            ChunkWidth = chunkWidth;
-            ChunkHeight = chunkHeight;
+            ChunkRows = chunkRows;
+            ChunkCols = chunkCols;
+
+            CenterX = 0;
+            CenterY = 0;
 
             KeysPressedList = new List<SDL.SDL_Keycode>();
 
@@ -60,9 +66,15 @@ namespace WordAlchemy
 
             if (MapChunkList.Count > 0 )
             {
+                int windowWidth = AppSettings.Instance.WindowWidth;
+                int windowHeight = AppSettings.Instance.WindowHeight;
+
                 MapChunk mapChunk = MapChunkList.First();
-                Player.X = mapChunk.X;
-                Player.Y = mapChunk.Y;
+                CenterX = mapChunk.X - windowWidth / 2 + mapChunk.Width / 2;
+                CenterY = mapChunk.Y - windowHeight / 2 + mapChunk.Height / 2;
+
+                Player.X = mapChunk.X + mapChunk.Width / 2;
+                Player.Y = mapChunk.Y + mapChunk.Height / 2;
 
                 if (SrcViewWindow != null)
                 {
@@ -81,6 +93,7 @@ namespace WordAlchemy
         public void Update()
         {
             HandleKeys();
+            CheckChunks();
         }
 
         public void Draw()
@@ -92,14 +105,16 @@ namespace WordAlchemy
 
                 foreach (MapChunk mapChunk in MapChunkList)
                 {
-                    dst.x = mapChunk.X - Player.X; 
-                    dst.y = mapChunk.Y - Player.Y;
+                    dst.x = mapChunk.X - CenterX; 
+                    dst.y = mapChunk.Y - CenterY;
 
                     GraphicSystem.SetDrawColor(Colors.Red());
                     GraphicSystem.DrawRect(ref dst);
 
                     mapChunk.Draw(ref src, ref dst);
                 }
+
+                GraphicSystem.DrawText(Player.Symbol, Player.X - CenterX, Player.Y - CenterY, Colors.Red(), AppSettings.Instance.MapFontName);
             }
         }
 
@@ -131,6 +146,42 @@ namespace WordAlchemy
                     Player.X += speed;
                 }
             }
+        }
+
+        private void CheckChunks()
+        {
+            MapChunk? mapChunk = GetMapChunk(Player.X, Player.Y);
+            if (mapChunk != null && mapChunk.MapNode != Map.CurrentMapNode)
+            {
+                Map.CurrentMapNode = mapChunk.MapNode;
+                List<MapChunk> newChunkList = Map.MapGen.GenerateMapChunks(mapChunk.MapNode, ChunkRows, ChunkCols);
+
+                MapChunkList.Clear();
+                MapChunkList.AddRange(newChunkList);
+
+                int windowWidth = AppSettings.Instance.WindowWidth;
+                int windowHeight = AppSettings.Instance.WindowHeight;
+
+                CenterX = mapChunk.X - windowWidth / 2 + mapChunk.Width / 2;
+                CenterY = mapChunk.Y - windowHeight / 2 + mapChunk.Height / 2;
+            }
+        }
+
+        public MapChunk? GetMapChunk(int worldX, int worldY)
+        {
+            foreach (MapChunk chunk in MapChunkList)
+            {
+                int Ax = chunk.X; int Ay = chunk.Y;
+                int Bx = chunk.X + chunk.Width; int By = chunk.Y;
+                int Cx = chunk.X; int Cy = chunk.Y + chunk.Height;
+
+                if (MathHelper.IsInRectangle(Ax, Ay, Bx, By, Cx, Cy, worldX, worldY))
+                {
+                    return chunk;
+                }
+            }
+
+            return null;
         }
 
         public void OnKeyDown(SDL.SDL_Event e)

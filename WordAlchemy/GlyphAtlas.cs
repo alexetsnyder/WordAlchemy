@@ -27,7 +27,9 @@ namespace WordAlchemy
         public readonly string[] ExtraChars = new string[]
         {
             Terrain.Hill.Symbol, 
-            Terrain.Mountain.Symbol, 
+            Terrain.Mountain.Symbol,
+            "\u263A",
+            "\u263B",
         };
 
         private GraphicSystem GraphicSystem { get; set; }  
