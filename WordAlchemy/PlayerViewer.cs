@@ -16,8 +16,8 @@ namespace WordAlchemy
         public int ChunkRows { get; set; }
         public int ChunkCols { get; set; }
 
-        private int CenterX { get; set; }
-        private int CenterY { get; set; }
+        private int TopLeftX { get; set; }
+        private int TopLeftY { get; set; }
 
         private List<SDL.SDL_Keycode> KeysPressedList { get; set; }
 
@@ -33,8 +33,8 @@ namespace WordAlchemy
             ChunkRows = chunkRows;
             ChunkCols = chunkCols;
 
-            CenterX = 0;
-            CenterY = 0;
+            TopLeftX = 0;
+            TopLeftY = 0;
 
             KeysPressedList = new List<SDL.SDL_Keycode>();
 
@@ -70,8 +70,8 @@ namespace WordAlchemy
                 int windowHeight = AppSettings.Instance.WindowHeight;
 
                 MapChunk mapChunk = MapChunkList.First();
-                CenterX = mapChunk.X - windowWidth / 2 + mapChunk.Width / 2;
-                CenterY = mapChunk.Y - windowHeight / 2 + mapChunk.Height / 2;
+                TopLeftX = mapChunk.X - windowWidth / 2 + mapChunk.Width / 2;
+                TopLeftY = mapChunk.Y - windowHeight / 2 + mapChunk.Height / 2;
 
                 Player.X = mapChunk.X + mapChunk.Width / 2;
                 Player.Y = mapChunk.Y + mapChunk.Height / 2;
@@ -105,8 +105,8 @@ namespace WordAlchemy
 
                 foreach (MapChunk mapChunk in MapChunkList)
                 {
-                    dst.x = mapChunk.X - CenterX; 
-                    dst.y = mapChunk.Y - CenterY;
+                    dst.x = mapChunk.X - TopLeftX; 
+                    dst.y = mapChunk.Y - TopLeftY;
 
                     GraphicSystem.SetDrawColor(Colors.Red());
                     GraphicSystem.DrawRect(ref dst);
@@ -114,7 +114,7 @@ namespace WordAlchemy
                     mapChunk.Draw(ref src, ref dst);
                 }
 
-                GraphicSystem.DrawText(Player.Symbol, Player.X - CenterX, Player.Y - CenterY, Colors.Red(), AppSettings.Instance.MapFontName);
+                GraphicSystem.DrawText(Player.Symbol, Player.X - TopLeftX, Player.Y - TopLeftY, Colors.Red(), AppSettings.Instance.MapFontName);
             }
         }
 
@@ -131,18 +131,22 @@ namespace WordAlchemy
             {
                 if (key == InputSettings.Instance.MapUp)
                 {
+                    TopLeftY -= speed;
                     Player.Y -= speed;
                 }
                 if (key == InputSettings.Instance.MapDown)
                 {
+                    TopLeftY += speed;
                     Player.Y += speed;
                 }
                 if (key == InputSettings.Instance.MapLeft)
                 {
+                    TopLeftX -= speed;
                     Player.X -= speed;
                 }
                 if (key == InputSettings.Instance.MapRight)
                 {
+                    TopLeftX += speed;
                     Player.X += speed;
                 }
             }
@@ -158,12 +162,6 @@ namespace WordAlchemy
 
                 MapChunkList.Clear();
                 MapChunkList.AddRange(newChunkList);
-
-                int windowWidth = AppSettings.Instance.WindowWidth;
-                int windowHeight = AppSettings.Instance.WindowHeight;
-
-                CenterX = mapChunk.X - windowWidth / 2 + mapChunk.Width / 2;
-                CenterY = mapChunk.Y - windowHeight / 2 + mapChunk.Height / 2;
             }
         }
 
