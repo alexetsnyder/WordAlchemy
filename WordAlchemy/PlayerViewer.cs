@@ -9,17 +9,26 @@ namespace WordAlchemy
     {
         public Player Player { get; set; }
 
+        public Map Map { get; set; }
+
         public List<MapChunk> MapChunkList { get; private set; }
+
+        public int ChunkWidth { get; set; }
+        public int ChunkHeight { get; set; }
 
         private List<SDL.SDL_Keycode> KeysPressedList { get; set; }
 
         private GraphicSystem GraphicSystem { get; set; }
 
-        public PlayerViewer(ViewWindow? srcViewWindow, ViewWindow? dstViewWindow)
+        public PlayerViewer(Map map, int chunkWidth, int chunkHeight, ViewWindow? srcViewWindow, ViewWindow? dstViewWindow)
             : base(srcViewWindow,  dstViewWindow)
         {
+            Map = map;
             Player = new Player();
+
             MapChunkList = new List<MapChunk>();
+            ChunkWidth = chunkWidth;
+            ChunkHeight = chunkHeight;
 
             KeysPressedList = new List<SDL.SDL_Keycode>();
 
@@ -33,6 +42,14 @@ namespace WordAlchemy
             EventSystem eventSystem = EventSystem.Instance;
             eventSystem.Listen((int)GameState.PLAYER, SDL.SDL_EventType.SDL_KEYDOWN, OnKeyDown);
             eventSystem.Listen((int)GameState.PLAYER, SDL.SDL_EventType.SDL_KEYUP, OnKeyUp);
+        }
+
+        public void CreateMapChunkList()
+        {
+            if (Map.CurrentMapNode != null)
+            {
+                SetMapChunkList(Map.MapGen.GenerateMapChunks(Map.CurrentMapNode, 100, 100));
+            }
         }
 
         public void SetMapChunkList(List<MapChunk> mapChunkList)

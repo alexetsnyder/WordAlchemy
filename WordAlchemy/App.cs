@@ -47,7 +47,7 @@ namespace WordAlchemy
 
             DstViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
             SrcViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
-            PlayerViewer = new PlayerViewer(SrcViewWindow, DstViewWindow);
+            PlayerViewer = new PlayerViewer(map, 100, 100, SrcViewWindow, DstViewWindow);
 
             HUD = new UI(MapViewer);
 
@@ -141,9 +141,9 @@ namespace WordAlchemy
             {
                 GameSettings.State = (GameSettings.State == GameState.MAP) ? GameState.PLAYER : GameState.MAP;
 
-                if (GameSettings.State == GameState.PLAYER && MapViewer.SelectRect.HasValue && MapViewer.SelectedMapNode != null)
+                if (GameSettings.State == GameState.PLAYER)
                 {
-                    PlayerViewer.SetMapChunkList(MapViewer.Map.MapGen.GenerateMapChunks(MapViewer.SelectedMapNode, 100, 100));
+                    PlayerViewer.CreateMapChunkList();
                 }
             }
         }

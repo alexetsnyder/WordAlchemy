@@ -12,6 +12,8 @@ namespace WordAlchemy.WorldGen
 
         public MapGen MapGen { get; set; }
 
+        public MapNode? CurrentMapNode { get; set; }
+
         private IntPtr MapTexture { get; set; }
 
         private GraphicSystem GraphicSystem { get; set; }
@@ -22,6 +24,8 @@ namespace WordAlchemy.WorldGen
 
             Graph = null;
             GroupList = new List<Group>();
+
+            CurrentMapNode = null;
 
             MapTexture = IntPtr.Zero;
 
