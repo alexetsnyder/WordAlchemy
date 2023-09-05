@@ -68,28 +68,36 @@ namespace WordAlchemy.WorldGen
         {
             List<MapChunk> chunkList = new List<MapChunk>();
 
-            int i = mapNode.Y / CharHeight;
-            int j = mapNode.X / CharWidth;
-
             int chunkWidth = cols * CharWidth;
             int chunkHeight = rows * CharHeight;
 
-            Graph chunkGraph = GenerateChunkGraph(mapNode.Info, rows, cols);
-            MapChunk mapChunk = new MapChunk(mapNode, chunkGraph, j * chunkWidth, i * chunkHeight, chunkWidth, chunkHeight);
-            mapChunk.GenerateChunkTexture();
-            chunkList.Add(mapChunk);
+            if (mapNode.MapChunk == null)
+            {
+                int i = mapNode.Y / CharHeight;
+                int j = mapNode.X / CharWidth;
+
+                Graph chunkGraph = GenerateChunkGraph(mapNode.Info, rows, cols);
+                MapChunk mapChunk = new MapChunk(mapNode, chunkGraph, j * chunkWidth, i * chunkHeight, chunkWidth, chunkHeight);
+                mapChunk.GenerateChunkTexture();
+                mapNode.MapChunk = mapChunk;
+            }
+            chunkList.Add(mapNode.MapChunk);
 
             List<MapNode> connectedNodeList = mapNode.GetConnectedNodes();
 
             foreach (MapNode connectedNode in connectedNodeList)
             {
-                i = connectedNode.Y / CharHeight;
-                j = connectedNode.X / CharWidth;
+                if (connectedNode.MapChunk == null)
+                {
+                    int i = connectedNode.Y / CharHeight;
+                    int j = connectedNode.X / CharWidth;
 
-                chunkGraph = GenerateChunkGraph(connectedNode.Info, rows, cols);
-                mapChunk = new MapChunk(connectedNode, chunkGraph, j * chunkWidth, i * chunkHeight, chunkWidth, chunkHeight);
-                mapChunk.GenerateChunkTexture();
-                chunkList.Add(mapChunk);
+                    Graph chunkGraph = GenerateChunkGraph(connectedNode.Info, rows, cols);
+                    MapChunk mapChunk = new MapChunk(connectedNode, chunkGraph, j * chunkWidth, i * chunkHeight, chunkWidth, chunkHeight);
+                    mapChunk.GenerateChunkTexture();
+                    connectedNode.MapChunk = mapChunk;
+                }
+                chunkList.Add(connectedNode.MapChunk);
             }
 
             return chunkList;

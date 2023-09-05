@@ -10,6 +10,8 @@ namespace WordAlchemy.WorldGen
 
         public int? GroupID { get; set; }
 
+        public MapChunk? MapChunk { get; set; }
+
         private GraphicSystem GraphicSystem { get; set; }
 
         public MapNode(int id, int x, int y, TerrainInfo terrainInfo)
@@ -21,6 +23,7 @@ namespace WordAlchemy.WorldGen
             Y = y;
 
             GroupID = null;
+            MapChunk = null;
 
             GraphicSystem = GraphicSystem.Instance;
         }
