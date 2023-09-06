@@ -1,7 +1,5 @@
 ﻿using SDL2;
 using System.Diagnostics;
-using static System.Net.Mime.MediaTypeNames;
-using System.Drawing;
 
 namespace WordAlchemy
 {

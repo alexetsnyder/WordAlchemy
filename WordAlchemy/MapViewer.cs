@@ -1,7 +1,6 @@
 ﻿
 using SDL2;
 using System.Diagnostics;
-using System.Security.Cryptography.X509Certificates;
 using WordAlchemy.WorldGen;
 
 namespace WordAlchemy
