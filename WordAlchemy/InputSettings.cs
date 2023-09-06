@@ -11,6 +11,11 @@ namespace WordAlchemy
         public SDL.SDL_Keycode MapLeft { get; set; }
         public SDL.SDL_Keycode MapRight { get; set; }
 
+        public SDL.SDL_Keycode PlayerUp { get; set; }
+        public SDL.SDL_Keycode PlayerDown { get; set; }
+        public SDL.SDL_Keycode PlayerLeft { get; set; }
+        public SDL.SDL_Keycode PlayerRight { get; set; }
+
         public SDL.SDL_Keycode MapButton { get; set; }
 
         public uint MouseButtonSelect { get; set; }
@@ -21,6 +26,11 @@ namespace WordAlchemy
             MapDown = SDL.SDL_Keycode.SDLK_s;
             MapLeft = SDL.SDL_Keycode.SDLK_a;
             MapRight = SDL.SDL_Keycode.SDLK_d;
+
+            PlayerUp = SDL.SDL_Keycode.SDLK_w;
+            PlayerDown = SDL.SDL_Keycode.SDLK_s;
+            PlayerLeft = SDL.SDL_Keycode.SDLK_a;
+            PlayerRight = SDL.SDL_Keycode.SDLK_d;
 
             MapButton = SDL.SDL_Keycode.SDLK_m;
 

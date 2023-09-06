@@ -129,22 +129,22 @@ namespace WordAlchemy
 
             foreach (var key in KeysPressedList)
             {
-                if (key == InputSettings.Instance.MapUp)
+                if (key == InputSettings.Instance.PlayerUp)
                 {
                     TopLeftY -= speed;
                     Player.Y -= speed;
                 }
-                if (key == InputSettings.Instance.MapDown)
+                if (key == InputSettings.Instance.PlayerDown)
                 {
                     TopLeftY += speed;
                     Player.Y += speed;
                 }
-                if (key == InputSettings.Instance.MapLeft)
+                if (key == InputSettings.Instance.PlayerLeft)
                 {
                     TopLeftX -= speed;
                     Player.X -= speed;
                 }
-                if (key == InputSettings.Instance.MapRight)
+                if (key == InputSettings.Instance.PlayerRight)
                 {
                     TopLeftX += speed;
                     Player.X += speed;
