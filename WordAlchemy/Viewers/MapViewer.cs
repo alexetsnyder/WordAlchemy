@@ -3,7 +3,7 @@ using SDL2;
 using System.Diagnostics;
 using WordAlchemy.WorldGen;
 
-namespace WordAlchemy
+namespace WordAlchemy.Viewers
 {
     public class MapViewer : Viewer
     {

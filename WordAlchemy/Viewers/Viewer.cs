@@ -1,7 +1,7 @@
 ﻿
 using SDL2;
 
-namespace WordAlchemy
+namespace WordAlchemy.Viewers
 {
     public class Viewer
     {

@@ -3,7 +3,7 @@ using SDL2;
 using WordAlchemy.Helpers;
 using WordAlchemy.WorldGen;
 
-namespace WordAlchemy
+namespace WordAlchemy.Viewers
 {
     public class PlayerViewer : Viewer
     {
@@ -24,7 +24,7 @@ namespace WordAlchemy
         private GraphicSystem GraphicSystem { get; set; }
 
         public PlayerViewer(Map map, int chunkRows, int chunkCols, ViewWindow? srcViewWindow, ViewWindow? dstViewWindow)
-            : base(srcViewWindow,  dstViewWindow)
+            : base(srcViewWindow, dstViewWindow)
         {
             Map = map;
             Player = new Player();
@@ -64,7 +64,7 @@ namespace WordAlchemy
 
             MapChunkList.AddRange(mapChunkList);
 
-            if (MapChunkList.Count > 0 )
+            if (MapChunkList.Count > 0)
             {
                 int windowWidth = AppSettings.Instance.WindowWidth;
                 int windowHeight = AppSettings.Instance.WindowHeight;
@@ -105,7 +105,7 @@ namespace WordAlchemy
 
                 foreach (MapChunk mapChunk in MapChunkList)
                 {
-                    dst.x = mapChunk.X - TopLeftX; 
+                    dst.x = mapChunk.X - TopLeftX;
                     dst.y = mapChunk.Y - TopLeftY;
 
                     GraphicSystem.SetDrawColor(Colors.Red());
