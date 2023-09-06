@@ -34,10 +34,15 @@ namespace WordAlchemy.Helpers
 
         public static float Distance(float x1, float y1, float x2, float y2)
         {
+            return MathF.Sqrt(DistanceSquared(x1, y1, x2, y2));
+        }
+
+        public static float DistanceSquared(float x1, float y1, float x2, float y2)
+        {
             float xDiff = x2 - x1;
             float yDiff = y2 - y1;
 
-            return MathF.Sqrt((xDiff * xDiff) + (yDiff * yDiff));
+            return ((xDiff * xDiff) + (yDiff * yDiff));
         }
 
         public static int Dot(int Ax, int Ay, int Bx, int By)
@@ -45,6 +50,7 @@ namespace WordAlchemy.Helpers
             return Ax * Bx + Ay * By;
         }
 
+        //AB must be perpendicular to BC
         public static bool IsInRectangle(int Ax, int Ay, int Bx, int By, int Cx, int Cy, int x, int y)
         {
             int ABx = Bx - Ax;

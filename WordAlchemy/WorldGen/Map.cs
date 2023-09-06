@@ -71,7 +71,7 @@ namespace WordAlchemy.WorldGen
                 {
                     int Ax = mapNode.X, Ay = mapNode.Y;
                     int Bx = Ax + MapGen.CharWidth, By = Ay;
-                    int Cx = Ax, Cy = Ay + MapGen.CharHeight;
+                    int Cx = Ax + MapGen.CharWidth, Cy = Ay + MapGen.CharHeight;
 
                     if (MathHelper.IsInRectangle(Ax, Ay, Bx, By, Cx, Cy, worldX, worldY))
                     {

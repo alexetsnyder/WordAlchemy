@@ -171,7 +171,7 @@ namespace WordAlchemy
             {
                 int Ax = chunk.X; int Ay = chunk.Y;
                 int Bx = chunk.X + chunk.Width; int By = chunk.Y;
-                int Cx = chunk.X; int Cy = chunk.Y + chunk.Height;
+                int Cx = chunk.X + chunk.Width; int Cy = chunk.Y + chunk.Height;
 
                 if (MathHelper.IsInRectangle(Ax, Ay, Bx, By, Cx, Cy, worldX, worldY))
                 {
