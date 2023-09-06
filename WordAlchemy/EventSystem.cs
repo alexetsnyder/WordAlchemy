@@ -6,6 +6,8 @@ namespace WordAlchemy
     {
         public static EventSystem Instance { get { return Nested.instance; } }
 
+        public static readonly int GLOBAL = -1;
+
         private Dictionary<SDL.SDL_EventType, List<Action<SDL.SDL_Event>>> GlobalEventDict { get; set; }
 
         private Dictionary<uint, Dictionary<SDL.SDL_EventType, List<Action<SDL.SDL_Event>>>> EventDict { get; set; }

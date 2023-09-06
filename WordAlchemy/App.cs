@@ -60,10 +60,10 @@ namespace WordAlchemy
 
         public void WireEvents()
         {
-            Events.Listen(-1, SDL.SDL_EventType.SDL_QUIT, (e) => this.IsRunning = false);
-            Events.Listen(-1, SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, (e) => Debug.WriteLine($"Mouse Button: {e.button.button}"));
-            Events.Listen(-1, SDL.SDL_EventType.SDL_WINDOWEVENT, OnWindowResizedEvent);
-            Events.Listen(-1, SDL.SDL_EventType.SDL_KEYDOWN, OnKeyDown);
+            Events.Listen(EventSystem.GLOBAL, SDL.SDL_EventType.SDL_QUIT, (e) => this.IsRunning = false);
+            Events.Listen(EventSystem.GLOBAL, SDL.SDL_EventType.SDL_MOUSEBUTTONDOWN, (e) => Debug.WriteLine($"Mouse Button: {e.button.button}"));
+            Events.Listen(EventSystem.GLOBAL, SDL.SDL_EventType.SDL_WINDOWEVENT, OnWindowResizedEvent);
+            Events.Listen(EventSystem.GLOBAL, SDL.SDL_EventType.SDL_KEYDOWN, OnKeyDown);
         }
 
         public void Run()
