@@ -48,7 +48,7 @@ namespace WordAlchemy
 
             DstViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
             SrcViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
-            PlayerViewer = new PlayerViewer(map, 100, 100, SrcViewWindow, DstViewWindow);
+            PlayerViewer = new PlayerViewer(map, 25, 50, SrcViewWindow, DstViewWindow);
 
             HUD = new UI(MapViewer);
 

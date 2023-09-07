@@ -15,7 +15,7 @@ namespace WordAlchemy.WorldGen
 
         public Graph ChunkGraph { get; private set; }
 
-        private IntPtr MapTexture { get; set; }
+        private IntPtr ChunkTexture { get; set; }
 
         private GraphicSystem GraphicSystem { get; set; }
 
@@ -29,24 +29,36 @@ namespace WordAlchemy.WorldGen
 
             MapNode = mapNode;
             ChunkGraph = chunkGraph;
-            MapTexture = IntPtr.Zero;
+
+            ChunkTexture = IntPtr.Zero;
 
             GraphicSystem = GraphicSystem.Instance;  
         }
 
         public void GenerateChunkTexture()
         {
-            MapTexture = GraphicSystem.CreateTexture(Width, Height);
+            IntPtr chunkSurface = GenerateChunkSurface();
 
-            foreach (MapNode mapNode in ChunkGraph.NodeList)
+            ChunkTexture = GraphicSystem.CreateTextureFromSurface(chunkSurface);
+
+            SDL.SDL_FreeSurface(chunkSurface);
+        }
+
+        private IntPtr GenerateChunkSurface()
+        {
+            IntPtr chunkSurface = GraphicSystem.CreateSurface(Width, Height);
+
+            foreach (MapNode mapNode in ChunkGraph.NodeList )
             {
-                mapNode.DrawTo(MapTexture);
+                mapNode.DrawToSurface(chunkSurface);
             }
+
+            return chunkSurface;
         }
 
         public void Draw(ref SDL.SDL_Rect src, ref SDL.SDL_Rect dst)
         {
-            GraphicSystem.DrawTexture(MapTexture, ref src, ref dst);
+            GraphicSystem.DrawTexture(ChunkTexture, ref src, ref dst);
         }
     }
 }

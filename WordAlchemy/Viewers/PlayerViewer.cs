@@ -54,7 +54,7 @@ namespace WordAlchemy.Viewers
         {
             if (Map.CurrentMapNode != null)
             {
-                SetMapChunkList(Map.MapGen.GenerateMapChunks(Map.CurrentMapNode, 100, 100));
+                SetMapChunkList(Map.MapGen.GenerateMapChunks(Map.CurrentMapNode, ChunkRows, ChunkCols));
             }
         }
 
@@ -108,10 +108,10 @@ namespace WordAlchemy.Viewers
                     dst.x = mapChunk.X - TopLeftX;
                     dst.y = mapChunk.Y - TopLeftY;
 
+                    mapChunk.Draw(ref src, ref dst);
+
                     GraphicSystem.SetDrawColor(Colors.Red());
                     GraphicSystem.DrawRect(ref dst);
-
-                    mapChunk.Draw(ref src, ref dst);
                 }
 
                 GraphicSystem.DrawText(Player.Symbol, Player.X - TopLeftX, Player.Y - TopLeftY, Colors.Red(), AppSettings.Instance.MapFontName);

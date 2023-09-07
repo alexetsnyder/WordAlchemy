@@ -52,18 +52,26 @@ namespace WordAlchemy.WorldGen
 
         public void DrawTo(IntPtr texture)
         {
-            int x = X;
-            int y = Y; 
+            int x = X + Info.XMod;
+            int y = Y + Info.YMod; 
 
-            GraphicSystem.DrawTextToTexture(texture, Info.Symbol, x + Info.XMod, y + Info.YMod, Info.Color, AppSettings.Instance.MapFontName);
+            GraphicSystem.DrawTextToTexture(texture, Info.Symbol, x, y, Info.Color, AppSettings.Instance.MapFontName);
+        }
+
+        public void DrawToSurface(IntPtr surface)
+        {
+            int x = X + Info.XMod;
+            int y = Y + Info.YMod;
+
+            GraphicSystem.BlitText(surface, Info.Symbol, x, y, Info.Color, AppSettings.Instance.MapFontName);
         }
 
         public void Draw()
         {
-            int x = X;
-            int y = Y;
+            int x = X + Info.XMod;
+            int y = Y + Info.YMod;
 
-            GraphicSystem.DrawText(Info.Symbol, x + Info.XMod, y + Info.YMod, Info.Color, AppSettings.Instance.MapFontName);
+            GraphicSystem.DrawText(Info.Symbol, x, y, Info.Color, AppSettings.Instance.MapFontName);
         }
     }
 }

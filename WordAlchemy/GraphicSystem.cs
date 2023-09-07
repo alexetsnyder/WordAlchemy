@@ -157,6 +157,11 @@ namespace WordAlchemy
             }
         }
 
+        public IntPtr CreateSurface(int width, int height)
+        {
+            return SDL.SDL_CreateRGBSurface(0, width, height, 32, 0, 0, 0, 0xff);
+        }
+
         public IntPtr CreateTextureFromSurface(IntPtr surface)
         {
             return SDL.SDL_CreateTextureFromSurface(Renderer, surface);
@@ -205,6 +210,32 @@ namespace WordAlchemy
             DrawText(text, x, y, color, fontName);
 
             SDL.SDL_SetRenderTarget(Renderer, IntPtr.Zero);
+        }
+
+        public void BlitText(IntPtr dstSurface, string text, int x, int y, SDL.SDL_Color color, string fontName)
+        {
+            if (Atlas != null)
+            {
+                IntPtr font = Atlas.Fonts[fontName].TTFFont;
+
+                SDL.SDL_SetSurfaceColorMod(dstSurface, color.r, color.g, color.b);
+
+                foreach (char c in text)
+                {
+                    SDL.SDL_Rect glyph = Atlas.Glyphs[font][c];
+
+                    SDL.SDL_Rect dest;
+                    dest.x = x;
+                    dest.y = y;
+                    dest.w = glyph.w;
+                    dest.h = glyph.h;
+
+                    SDL.SDL_BlitSurface(Atlas.FontSurfaces[font], ref glyph, dstSurface, ref dest);
+
+                    x += glyph.w;
+                }
+
+            }
         }
 
         public void DrawText(string text, int x, int y, SDL.SDL_Color color, string fontName)

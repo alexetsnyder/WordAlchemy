@@ -15,11 +15,13 @@ namespace WordAlchemy
 
     internal class GlyphAtlas
     {
-        public Dictionary<string, Font> Fonts { get; set; }
+        public Dictionary<string, Font> Fonts { get; private set; }
 
-        public Dictionary<IntPtr, Dictionary<char, SDL.SDL_Rect>> Glyphs { get; set; }
+        public Dictionary<IntPtr, Dictionary<char, SDL.SDL_Rect>> Glyphs { get; private set; }
 
-        public Dictionary<IntPtr, IntPtr> FontTextures { get; set; }
+        public Dictionary<IntPtr, IntPtr> FontSurfaces { get; private set; }
+
+        public Dictionary<IntPtr, IntPtr> FontTextures { get; private set; }
 
         public readonly int TEXTURE_SIZE = 512;
 
@@ -38,6 +40,7 @@ namespace WordAlchemy
         {
             Fonts = new Dictionary<string, Font>();
             Glyphs = new Dictionary<IntPtr, Dictionary<char, SDL.SDL_Rect>>();
+            FontSurfaces = new Dictionary<IntPtr, IntPtr>();
             FontTextures = new Dictionary<IntPtr, IntPtr>();
 
             GraphicSystem = GraphicSystem.Instance;
@@ -109,6 +112,7 @@ namespace WordAlchemy
                 }
             }
 
+            FontSurfaces.Add(font.TTFFont, finalSurface);
             FontTextures.Add(font.TTFFont, GraphicSystem.CreateTextureFromSurface(finalSurface));
 
             return true;
