@@ -54,6 +54,8 @@ namespace WordAlchemy.WorldGen
             GenerateHeightMap();
 
             Map map = new Map(this);
+            FillGridCells(map.GridCells);
+
             map.Graph = GenerateGraph();
             map.GroupList = GroupTerrain(map);
 
@@ -114,6 +116,20 @@ namespace WordAlchemy.WorldGen
                     float fallOffValue = MathHelper.SigmoidFallOffMapCircular(j, i, Cols, Rows);
 
                     HeightMap[i * Cols + j] = remapNoise * fallOffValue;
+                }
+            }
+        }
+
+        private void FillGridCells(byte[] gridCells)
+        {
+            for (int i = 0; i < Rows; i++)
+            {
+                for (int j = 0; j < Cols; j++)
+                {
+                    int x = j * CharWidth;
+                    int y = i * CharHeight;
+
+                    gridCells[i * Cols + j] = GetTerrainByte(i, j);
                 }
             }
         }
@@ -451,6 +467,35 @@ namespace WordAlchemy.WorldGen
             else //(heightValue < 100.0f)
             {
                 terrain = Terrain.Mountain;
+            }
+
+            return terrain;
+        }
+
+        public byte GetTerrainByte(int i, int j)
+        {
+            float heightValue = HeightMap[i * Cols + j];
+
+            byte terrain;
+            if (heightValue < 20.0f)
+            {
+                terrain = 0;
+            }
+            else if (heightValue < 25.0f)
+            {
+                terrain = 1;
+            }
+            else if (heightValue < 40.0f)
+            {
+                terrain = 2;
+            }
+            else if (heightValue < 60.0f)
+            {
+                terrain = 4;
+            }
+            else //(heightValue < 100.0f)
+            {
+                terrain = 5;
             }
 
             return terrain;

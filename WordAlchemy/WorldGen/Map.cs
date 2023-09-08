@@ -6,6 +6,10 @@ namespace WordAlchemy.WorldGen
 {
     public class Map
     {
+        public Grid Grid { get; set; }
+
+        public byte[] GridCells { get; set; } 
+
         public Graph? Graph { get; set; }
 
         public List<Group> GroupList { get; set; }
@@ -21,6 +25,9 @@ namespace WordAlchemy.WorldGen
         public Map(MapGen mapGen)
         {
             MapGen = mapGen;
+
+            Grid = new Grid(MapGen.CharWidth, MapGen.CharHeight);
+            GridCells = new byte[MapGen.Rows * MapGen.Cols];
 
             Graph = null;
             GroupList = new List<Group>();
@@ -38,11 +45,37 @@ namespace WordAlchemy.WorldGen
 
             if (Graph != null)
             {
-                foreach (MapNode mapNode in Graph.NodeList)
+                //foreach (MapNode mapNode in Graph.NodeList)
+                //{
+                //    mapNode.DrawTo(MapTexture);
+                //}
+
+                foreach (var tuple in GetCells())
                 {
-                    mapNode.DrawTo(MapTexture);
+                    DrawTerrain(GridCells[tuple.Item1], tuple.Item2);
                 }
             } 
+        }
+
+        private IEnumerable<Tuple<int, Cell>> GetCells()
+        {
+            for (int i = 0; i < MapGen.Rows; i++)
+            {
+                for (int j = 0; j < MapGen.Cols; j++)
+                {
+                    yield return new Tuple<int, Cell>(i * MapGen.Cols + j,  Grid.GetCell(i, j));
+                }
+            }
+        }
+
+        private void DrawTerrain(byte terrain, Cell cell)
+        {
+            TerrainInfo terrainInfo = Terrain.TerrainArray[terrain];
+
+            int x = cell.X + terrainInfo.XMod;
+            int y = cell.Y + terrainInfo.YMod;
+
+            GraphicSystem.DrawTextToTexture(MapTexture, terrainInfo.Symbol, x, y, terrainInfo.Color, AppSettings.Instance.MapFontName);
         }
 
         public void Draw(ref SDL.SDL_Rect src,  ref SDL.SDL_Rect dest)
