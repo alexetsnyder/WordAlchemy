@@ -1,5 +1,4 @@
-﻿
-using WordAlchemy.Helpers;
+﻿using WordAlchemy.Helpers;
 
 namespace WordAlchemy.WorldGen
 {
@@ -61,7 +60,7 @@ namespace WordAlchemy.WorldGen
 
             ClassifyWaterGroups(map.GroupList);
 
-            //GenerateRivers(map);
+            GenerateRivers(map);
 
             return map;
         }
@@ -280,6 +279,11 @@ namespace WordAlchemy.WorldGen
             } 
         }
 
+        private List<Cell> GetConnectedCells(Grid grid, Cell cell)
+        {
+            return GetConnectedCells(cell.I, cell.J).Select(t => grid.GetCell(t.Item1, t.Item2)).ToList();
+        }
+
         private List<Tuple<int, int>> GetConnectedCells(int i,  int j)
         {
             List<Tuple<int, int>> connectedCellIndexes = new List<Tuple<int, int>>()
@@ -332,160 +336,176 @@ namespace WordAlchemy.WorldGen
             {
                 if (group.Type == TerrainType.MOUNTAIN)
                 {
-                    MapNode mapNode = GetMaxHeight(group.MapNodeList);
-                    Group riverGroup = new Group(nextGroupId++, TerrainType.RIVER, TerrainType.RIVER.ToString());
+                    List<Cell> cellList = group.CellDict.Keys.Select(t => map.Grid.GetCell(t.Item1, t.Item2)).ToList();
+                    Cell? cell = GetMaxHeight(cellList);
 
-                    Func<MapNode, MapNode, bool> StartNodeCheck = GetStartNodeCheck(mapNode);
-                    Func<MapNode, MapNode, bool> OrMapNodeCheck = GetOrMapNodeCheck(mapNode);
+                    if (cell.HasValue)
+                    {
+                        Func<Cell, Cell, bool> StartCellCheck = GetStartCellCheck(cell.Value);
+                        Func<Cell, Cell, bool> OrCellCheck = GetOrCellCheck(cell.Value);
 
-                    MapNode startMapNode = GetStartMapNode(mapNode, StartNodeCheck);
-                    GenerateRiverRecursive(riverGroup, mapNode, OrMapNodeCheck);
-                    
-                    riverGroupList.Add(riverGroup);
+                        Cell? startCell = GetStartCell(map.Grid, cell.Value, StartCellCheck);
+
+                        if (startCell.HasValue)
+                        {
+                            Group riverGroup = new Group(nextGroupId++, TerrainType.RIVER, TerrainType.RIVER.ToString());
+
+                            GenerateRiverRecursive(riverGroup, startCell.Value, map, OrCellCheck);
+
+                            riverGroupList.Add(riverGroup);
+                        }             
+                    } 
                 }
             }
 
             if (riverGroupList.Count > 0)
             {
+                foreach (Group riverGroup in riverGroupList)
+                {
+                    foreach (Tuple<int, int> key in riverGroup.CellDict.Keys)
+                    {
+                        foreach (Group group in map.GroupList)
+                        {
+                            if (group.IsCellInGroup(key.Item1, key.Item2))
+                            {
+                                group.CellDict.Remove(key);
+                            }
+                        }
+                    }
+                }
+
                 map.GroupList.AddRange(riverGroupList);
             }
         }
 
-        private Func<MapNode, MapNode, bool> GetStartNodeCheck(MapNode mapNode)
+        private Func<Cell, Cell, bool> GetStartCellCheck(Cell cell)
         {
-            Func<MapNode, MapNode, bool> StartNodeCheck;
+            Func<Cell, Cell, bool> StartCellCheck;
 
-            if (mapNode.X <= Width / 2 && mapNode.Y <= Height / 2)
+            if (cell.X <= Width / 2 && cell.Y <= Height / 2)
             {
-                StartNodeCheck = (m1, m2) => m1.Y == m2.Y && m1.X > m2.X;
+                StartCellCheck = (c1, c2) => c1.Y == c2.Y && c1.X > c2.X;
             }
-            else if (mapNode.X > Width / 2 && mapNode.Y <= Height / 2)
+            else if (cell.X > Width / 2 && cell.Y <= Height / 2)
             {
-                StartNodeCheck = (m1, m2) => m1.Y == m2.Y && m1.X < m2.X;
+                StartCellCheck = (c1, c2) => c1.Y == c2.Y && c1.X < c2.X;
             }
-            else if (mapNode.X <= Width / 2 && mapNode.Y > Height / 2)
+            else if (cell.X <= Width / 2 && cell.Y > Height / 2)
             {
-                StartNodeCheck = (m1, m2) => m1.Y == m2.Y && m1.X > m2.X;
+                StartCellCheck = (c1, c2) => c1.Y == c2.Y && c1.X > c2.X;
             }
-            else // mapNode.X > Width / 2 && mapNode.Y > Height / 2
+            else // Cell.X > Width / 2 && Cell.Y > Height / 2
             {
-                StartNodeCheck = (m1, m2) => m1.Y == m2.Y && m1.X < m2.X;
+                StartCellCheck = (c1, c2) => c1.Y == c2.Y && c1.X < c2.X;
             }
 
-            return StartNodeCheck;
+            return StartCellCheck;
         }
 
-        private Func<MapNode, MapNode, bool> GetOrMapNodeCheck(MapNode mapNode)
+        private Func<Cell, Cell, bool> GetOrCellCheck(Cell cell)
         {
-            Func<MapNode, MapNode, bool> OrMapNodeCheck;
+            Func<Cell, Cell, bool> OrCellCheck;
 
-            if (mapNode.X <= Width / 2 && mapNode.Y <= Height / 2)
+            if (cell.X <= Width / 2 && cell.Y <= Height / 2)
             {
-                OrMapNodeCheck = (m1, m2) => m1.Y <= m2.Y && m1.X >= m2.X;
+                OrCellCheck = (c1, c2) => c1.Y <= c2.Y && c1.X >= c2.X;
             }
-            else if (mapNode.X > Width / 2 && mapNode.Y <= Height / 2)
+            else if (cell.X > Width / 2 && cell.Y <= Height / 2)
             {
-                OrMapNodeCheck = (m1, m2) => m1.Y <= m2.Y && m1.X <= m2.X;
+                OrCellCheck = (c1, c2) => c1.Y <= c2.Y && c1.X <= c2.X;
             }
-            else if (mapNode.X <= Width / 2 && mapNode.Y > Height / 2)
+            else if (cell.X <= Width / 2 && cell.Y > Height / 2)
             {
-                OrMapNodeCheck = (m1, m2) => m1.Y >= m2.Y && m1.X >= m2.X;
+                OrCellCheck = (c1, c2) => c1.Y >= c2.Y && c1.X >= c2.X;
             }
-            else // mapNode.X > Width / 2 && mapNode.Y > Height / 2
+            else // Cell.X > Width / 2 && Cell.Y > Height / 2
             {
-                OrMapNodeCheck = (m1, m2) => m1.Y >= m2.Y && m1.X <= m2.X;
+                OrCellCheck = (c1, c2) => c1.Y >= c2.Y && c1.X <= c2.X;
             }
 
-            return OrMapNodeCheck;
+            return OrCellCheck;
         }
 
-        private MapNode GetStartMapNode(MapNode mapNode, Func<MapNode, MapNode, bool> StartNodeCheck)
+        private Cell? GetStartCell(Grid grid, Cell cell, Func<Cell, Cell, bool> StartCellCheck)
         {
-            List<MapNode> connectedNodeList = mapNode.GetConnectedNodes();
+            List<Cell> connectedCellList = GetConnectedCells(grid, cell);
 
-            foreach (MapNode connectedNode in connectedNodeList)
+            foreach (Cell connectedCell in connectedCellList)
             {
-                if (StartNodeCheck(connectedNode, mapNode))
+                if (StartCellCheck(connectedCell, cell))
                 {
-                    return connectedNode;
+                    return connectedCell;
                 }
             }
 
-            return mapNode;
+            return null;
         }
 
-        private void GenerateRiverRecursive(Group group, MapNode mapNode, Func<MapNode, MapNode, bool> OrMapNodeCheck)
+        private void GenerateRiverRecursive(Group group, Cell cell, Map map, Func<Cell, Cell, bool> OrCellCheck)
         {
-            TerrainType type = mapNode.Info.Type;
+            byte terrainByte = map.GridCells[cell.I * Cols + cell.J];
+            TerrainType type = Terrain.TerrainArray[terrainByte].Type;
+
             if (type != TerrainType.WATER)
             {
-                mapNode.Info = Terrain.Water;
-                mapNode.GroupID = group.Id;
-                group.MapNodeList.Add(mapNode);
+                map.GridCells[cell.I * Cols + cell.J] = 0;
+                group.CellDict.Add(Tuple.Create(cell.I, cell.J), 0);
 
-                List<MapNode> connectedNodeList = mapNode.GetConnectedNodes();
+                List<Cell> connectedCellList = GetConnectedCells(map.Grid, cell);
 
-                List<MapNode> possibleNodes = new List<MapNode>();
-                foreach (MapNode connectedNode in connectedNodeList)
+                List<Cell> possibleCells = new List<Cell>();
+                foreach (Cell connectedCell in connectedCellList)
                 {
-                    if (OrMapNodeCheck(connectedNode, mapNode) && connectedNode.GroupID != group.Id)
+                    if (OrCellCheck(connectedCell, cell) && group.IsCellInGroup(cell.I, cell.J))
                     {
-                        possibleNodes.Add(connectedNode);
+                        possibleCells.Add(connectedCell);
                     }
                 }
 
-                MapNode? minMapNode = GetMinHeight(possibleNodes);
-                if (minMapNode != null)
+                Cell? minCell = GetMinHeight(possibleCells);
+                if (minCell.HasValue)
                 {
-                    GenerateRiverRecursive(group, minMapNode, OrMapNodeCheck);
+                    GenerateRiverRecursive(group, minCell.Value, map, OrCellCheck);
                 }
             }
         }
 
-        private MapNode? GetMinHeight(List<MapNode> mapNodeList)
+        private Cell? GetMinHeight(List<Cell> cellList)
         {
             float minHeight = float.MaxValue;
-            MapNode? minMapNode = null;
+            Cell? minCell = null;
 
-            foreach (MapNode mapNode in mapNodeList)
+            foreach (Cell cell in cellList)
             {
-                float height = HeightMap[mapNode.Id];
+                float height = HeightMap[cell.I * Cols + cell.J];
+
                 if (height < minHeight)
                 {
                     minHeight = height;
-                    minMapNode = mapNode;
+                    minCell = cell;
                 }
             }
 
-            return minMapNode;
+            return minCell;
         }
 
-        private MapNode GetMaxHeight(List<MapNode> mapNodeList)
+        private Cell? GetMaxHeight(List<Cell> cellList)
         {
-            return GetMaxHeights(mapNodeList, 1).First();
-        }
+            float maxHeight = float.MinValue;
+            Cell? maxCell = null;
 
-        private MapNode[] GetMaxHeights(List<MapNode> mapNodeList, int n = 1)
-        {
-            float[] maxValues = new float[n];
-            MapNode[] mapNodeArray = new MapNode[n];
-
-            foreach (MapNode mapNode in mapNodeList)
+            foreach (Cell cell in cellList)
             {
-                float heightValue = HeightMap[mapNode.Id];
+                float heightValue = HeightMap[cell.I * Cols + cell.J];
 
-                for (int k = 0; k < n; k++)
+                if (heightValue > maxHeight)
                 {
-                    if (heightValue > maxValues[k])
-                    {
-                        maxValues[k] = heightValue;
-                        mapNodeArray[k] = mapNode;
-                        break;
-                    }
+                    maxHeight = heightValue;
+                    maxCell = cell;
                 }
             }
 
-            return mapNodeArray;
+            return maxCell;
         }
 
         public TerrainInfo GetTerrain(int i, int j)
