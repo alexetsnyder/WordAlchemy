@@ -10,6 +10,8 @@ namespace WordAlchemy.WorldGen
 
         public List<MapNode> MapNodeList { get; set; }
 
+        public Dictionary<Tuple<int, int>, byte> CellDict { get; set; }
+
         public Group(int id, TerrainType type, string name)
         {
             Id = id;
@@ -18,6 +20,12 @@ namespace WordAlchemy.WorldGen
             Description = "";
 
             MapNodeList = new List<MapNode>();
+            CellDict = new Dictionary<Tuple<int, int>, byte>();
+        }
+
+        public bool IsCellInGroup(int i, int j)
+        {
+            return CellDict.ContainsKey(Tuple.Create(i, j));
         }
     }
 }

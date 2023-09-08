@@ -61,7 +61,7 @@ namespace WordAlchemy.WorldGen
 
             ClassifyWaterGroups(map.GroupList);
 
-            GenerateRivers(map);
+            //GenerateRivers(map);
 
             return map;
         }
@@ -216,50 +216,95 @@ namespace WordAlchemy.WorldGen
         {
             List<Group> groupList = new List<Group>();
 
-            if (map.Graph != null)
+            int groupIndex = 0;
+            foreach (var indexCellTuple in map.GetCells())
             {
-                int groupIndex = 0;
-                foreach (MapNode mapNode in map.Graph.NodeList)
+                byte terrainByte = indexCellTuple.Item1;
+                Cell cell = indexCellTuple.Item2;
+
+                if (!IsCellGrouped(groupList, cell.I, cell.J))
                 {
-                    if (!mapNode.GroupID.HasValue)
-                    {
-                        TerrainType type = mapNode.Info.Type;
-                        Group group = new Group(groupIndex, type, type.ToString());
+                    TerrainInfo terrainInfo = Terrain.TerrainArray[terrainByte];
+                    TerrainType type = terrainInfo.Type;
+                    Group group = new Group(groupIndex, type, type.ToString());
 
-                        FillGroup(mapNode, group);
+                    groupList.Add(group);
 
-                        groupList.Add(group);
-                        groupIndex++;
-                    }
+                    FillGroup(terrainByte, cell, group, groupList, map.GridCells);
+
+                    groupIndex++;
                 }
             }
 
             return groupList;
         }
 
-        private void FillGroup(MapNode mapNode, Group group)
+        private bool IsCellGrouped(List<Group> groupList, int i, int j)
         {
-            Stack<MapNode> stack = new Stack<MapNode>(new MapNode[] { mapNode }); 
+            foreach (Group group in groupList)
+            {
+                if (group.IsCellInGroup(i, j))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void FillGroup(byte terrainByte, Cell cell, Group group, List<Group> groupList, byte[] gridCells)
+        {
+            Stack<Tuple<int, int>> stack = new Stack<Tuple<int, int>>(new Tuple<int, int>[] { Tuple.Create(cell.I, cell.J) }); 
             
             while (stack.Count > 0)
             {
-                MapNode currentNode = stack.Pop();
-                if (!currentNode.GroupID.HasValue)
+                Tuple<int, int> currentCell = stack.Pop();
+                if (!IsCellGrouped(groupList, currentCell.Item1, currentCell.Item2))
                 {
-                    group.MapNodeList.Add(currentNode);
-                    currentNode.GroupID = group.Id;
+                    TerrainInfo terrainInfo = Terrain.TerrainArray[terrainByte];
 
-                    List<MapNode> connectedNodeList = currentNode.GetConnectedNodes();
+                    group.CellDict.Add(Tuple.Create(currentCell.Item1, currentCell.Item2), terrainByte);
 
-                    foreach (MapNode connectedNode in connectedNodeList)
+                    List<Tuple<int, int>> connectedCellList = GetConnectedCells(currentCell.Item1, currentCell.Item2);
+
+                    foreach (var connectedCell in connectedCellList)
                     {
-                        if (connectedNode.Info.Equals(currentNode.Info))
+                        int i = connectedCell.Item1;
+                        int j = connectedCell.Item2;
+
+                        if (Terrain.TerrainArray[gridCells[i * Cols + j]].Equals(terrainInfo))
                         {
-                            stack.Push(connectedNode);
+                            stack.Push(connectedCell);
                         }
                     }
                 }
             } 
+        }
+
+        private List<Tuple<int, int>> GetConnectedCells(int i,  int j)
+        {
+            List<Tuple<int, int>> connectedCellIndexes = new List<Tuple<int, int>>()
+            {
+                new Tuple<int, int>(i - 1, j - 1),
+                new Tuple<int, int>(i - 1, j    ),
+                new Tuple<int, int>(i - 1, j + 1),
+                new Tuple<int, int>(i,     j - 1),
+                new Tuple<int, int>(i,     j + 1),
+                new Tuple<int, int>(i + 1, j - 1),
+                new Tuple<int, int>(i + 1, j    ),
+                new Tuple<int, int>(i + 1, j + 1),
+            };
+
+            List<Tuple<int, int>> connectedCells = new List<Tuple<int, int>>();
+            foreach (var tuple in connectedCellIndexes)
+            {
+                if (tuple.Item1 >= 0 && tuple.Item1 < Rows &&
+                    tuple.Item2 >= 0 && tuple.Item2 < Cols)
+                {
+                    connectedCells.Add(tuple);
+                }
+            }
+
+            return connectedCells;
         }
 
         private void ClassifyWaterGroups(List<Group> groupList)

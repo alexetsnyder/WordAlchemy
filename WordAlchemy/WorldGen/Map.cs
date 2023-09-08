@@ -52,20 +52,32 @@ namespace WordAlchemy.WorldGen
 
                 foreach (var tuple in GetCells())
                 {
-                    DrawTerrain(GridCells[tuple.Item1], tuple.Item2);
+                    DrawTerrain(tuple.Item1, tuple.Item2);
                 }
             } 
         }
 
-        private IEnumerable<Tuple<int, Cell>> GetCells()
+        public IEnumerable<Tuple<byte, Cell>> GetCells()
         {
             for (int i = 0; i < MapGen.Rows; i++)
             {
                 for (int j = 0; j < MapGen.Cols; j++)
                 {
-                    yield return new Tuple<int, Cell>(i * MapGen.Cols + j,  Grid.GetCell(i, j));
+                    yield return new Tuple<byte, Cell>(GridCells[i * MapGen.Cols + j],  Grid.GetCell(i, j));
                 }
             }
+        }
+
+        public bool IsCellGrouped(int i, int j)
+        {
+            foreach (Group group in GroupList)
+            {
+                if (group.IsCellInGroup(i, j))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void DrawTerrain(byte terrain, Cell cell)
@@ -88,6 +100,19 @@ namespace WordAlchemy.WorldGen
             foreach (Group group in GroupList)
             {
                 if (group.Id == groupId)
+                {
+                    return group;
+                }
+            }
+
+            return null;
+        }
+
+        public Group? GetGroup(int i, int j)
+        {
+            foreach (Group group in GroupList)
+            {
+                if (group.IsCellInGroup(i, j))
                 {
                     return group;
                 }
