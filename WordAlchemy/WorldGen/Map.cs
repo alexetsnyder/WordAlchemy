@@ -6,13 +6,15 @@ namespace WordAlchemy.WorldGen
 {
     public class Map
     {
-        public Graph? Graph { get; set; }
+        public Grid Grid { get; set; }
+
+        public byte[] GridCells { get; set; } 
 
         public List<Group> GroupList { get; set; }
 
         public MapGen MapGen { get; set; }
 
-        public MapNode? CurrentMapNode { get; set; }
+        public Cell? SelectedCell { get; set; }
 
         private IntPtr MapTexture { get; set; }
 
@@ -22,10 +24,12 @@ namespace WordAlchemy.WorldGen
         {
             MapGen = mapGen;
 
-            Graph = null;
+            Grid = new Grid(MapGen.CharWidth, MapGen.CharHeight);
+            GridCells = new byte[MapGen.Rows * MapGen.Cols];
+
             GroupList = new List<Group>();
 
-            CurrentMapNode = null;
+            SelectedCell = null;
 
             MapTexture = IntPtr.Zero;
 
@@ -36,13 +40,43 @@ namespace WordAlchemy.WorldGen
         {
             MapTexture = GraphicSystem.CreateTexture(MapGen.Width, MapGen.Height);
 
-            if (Graph != null)
+            foreach (var byteCellTuple in GetCells())
             {
-                foreach (MapNode mapNode in Graph.NodeList)
+                DrawTerrain(byteCellTuple.Item1, byteCellTuple.Item2);
+            }
+        }
+
+        public IEnumerable<Tuple<byte, Cell>> GetCells()
+        {
+            for (int i = 0; i < MapGen.Rows; i++)
+            {
+                for (int j = 0; j < MapGen.Cols; j++)
                 {
-                    mapNode.DrawTo(MapTexture);
+                    yield return new Tuple<byte, Cell>(GridCells[i * MapGen.Cols + j],  Grid.GetCell(i, j));
                 }
-            } 
+            }
+        }
+
+        public bool IsCellGrouped(int i, int j)
+        {
+            foreach (Group group in GroupList)
+            {
+                if (group.IsCellInGroup(i, j))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void DrawTerrain(byte terrain, Cell cell)
+        {
+            TerrainInfo terrainInfo = Terrain.TerrainArray[terrain];
+
+            int x = cell.X + terrainInfo.XMod;
+            int y = cell.Y + terrainInfo.YMod;
+
+            GraphicSystem.DrawTextToTexture(MapTexture, terrainInfo.Symbol, x, y, terrainInfo.Color, AppSettings.Instance.MapFontName);
         }
 
         public void Draw(ref SDL.SDL_Rect src,  ref SDL.SDL_Rect dest)
@@ -50,11 +84,11 @@ namespace WordAlchemy.WorldGen
             GraphicSystem.DrawTexture(MapTexture, ref src, ref dest);
         }
 
-        public Group? GetGroup(int groupId)
+        public Group? GetGroup(int i, int j)
         {
             foreach (Group group in GroupList)
             {
-                if (group.Id == groupId)
+                if (group.IsCellInGroup(i, j))
                 {
                     return group;
                 }
@@ -63,21 +97,12 @@ namespace WordAlchemy.WorldGen
             return null;
         }
 
-        public MapNode? GetMapNode(int worldX, int worldY)
+        public Cell? GetCell(int worldX, int worldY)
         {
-            if (Graph != null)
+            if (worldX >= 0 && worldX < MapGen.Width &&
+                worldY >= 0 && worldY < MapGen.Height)
             {
-                foreach (MapNode mapNode in Graph.NodeList)
-                {
-                    int Ax = mapNode.X, Ay = mapNode.Y;
-                    int Bx = Ax + MapGen.CharWidth, By = Ay;
-                    int Cx = Ax + MapGen.CharWidth, Cy = Ay + MapGen.CharHeight;
-
-                    if (MathHelper.IsInRectangle(Ax, Ay, Bx, By, Cx, Cy, worldX, worldY))
-                    {
-                        return mapNode;
-                    }
-                }
+                return Grid.GetCellFromWorld(worldX, worldY);
             }
 
             return null;

@@ -1,5 +1,4 @@
-﻿
-using WordAlchemy.Helpers;
+﻿using WordAlchemy.Helpers;
 
 namespace WordAlchemy.WorldGen
 {
@@ -24,6 +23,12 @@ namespace WordAlchemy.WorldGen
         public int Rows { get; set; }
         public int Cols { get; set; }
 
+        public int ChunkRows { get; set; }
+        public int ChunkCols { get; set; }
+
+        public int ChunkWidth { get; set; }
+        public int ChunkHeight { get; set; }
+
         public int Seed { get; set; }
 
         public int CharWidth { get; private set; }
@@ -32,10 +37,12 @@ namespace WordAlchemy.WorldGen
         private FastNoiseLite Noise { get; set; }
         private float[] HeightMap { get; set; }
 
-        public MapGen(int rows, int cols, int seed)
+        public MapGen(int rows, int cols, int chunkRows, int chunkCols, int seed)
         {
             Rows = rows;
             Cols = cols;
+            ChunkRows = chunkRows;
+            ChunkCols = chunkCols;
 
             Seed = seed;
             Noise = new FastNoiseLite(seed);
@@ -46,6 +53,9 @@ namespace WordAlchemy.WorldGen
             CharWidth = width;
             CharHeight = height;
 
+            ChunkWidth = ChunkCols * CharWidth;
+            ChunkHeight = ChunkRows * CharHeight;
+
             HeightMap = new float[Cols * Rows];
         }
 
@@ -54,7 +64,7 @@ namespace WordAlchemy.WorldGen
             GenerateHeightMap();
 
             Map map = new Map(this);
-            map.Graph = GenerateGraph();
+            FillGridCells(map.GridCells);
             map.GroupList = GroupTerrain(map);
 
             ClassifyWaterGroups(map.GroupList);
@@ -64,43 +74,97 @@ namespace WordAlchemy.WorldGen
             return map;
         }
 
-        public List<MapChunk> GenerateMapChunks(MapNode mapNode, int rows, int cols)
+        public World GenerateWorld(Map map, Cell cell)
         {
-            List<MapChunk> chunkList = new List<MapChunk>();
+            World world = new World(map);
 
-            int chunkWidth = cols * CharWidth;
-            int chunkHeight = rows * CharHeight;
+            int chunkX = cell.J * ChunkWidth;
+            int chunkY = cell.I * ChunkHeight;
 
-            if (mapNode.MapChunk == null)
+            byte terrainByte = map.GridCells[cell.I * Cols + cell.J];
+            MapChunk mapChunk = GenerateMapChunk(chunkX, chunkY, terrainByte);
+            world.AddChunkToView(mapChunk);
+            world.SetCenterChunk(mapChunk);
+            world.SetTopLeft(mapChunk.X, mapChunk.Y);
+
+            List<Cell> cellList = GetConnectedCells(map.Grid, cell);
+
+            foreach (Cell connectedCell in cellList)
             {
-                int i = mapNode.Y / CharHeight;
-                int j = mapNode.X / CharWidth;
+                chunkX = connectedCell.J * ChunkWidth;
+                chunkY = connectedCell.I * ChunkHeight;
 
-                Graph chunkGraph = GenerateChunkGraph(mapNode.Info, rows, cols);
-                MapChunk mapChunk = new MapChunk(mapNode, chunkGraph, j * chunkWidth, i * chunkHeight, chunkWidth, chunkHeight);
-                mapChunk.GenerateChunkTexture();
-                mapNode.MapChunk = mapChunk;
+                terrainByte = map.GridCells[connectedCell.I * Cols + connectedCell.J];
+                mapChunk = GenerateMapChunk(chunkX, chunkY, terrainByte);
+                world.AddChunkToView(mapChunk);
             }
-            chunkList.Add(mapNode.MapChunk);
 
-            List<MapNode> connectedNodeList = mapNode.GetConnectedNodes();
+            return world;
+        }
 
-            foreach (MapNode connectedNode in connectedNodeList)
+        public void RegenerateWorld(World world, Map map, Cell cell, bool isFullRegeneration)
+        {
+            world.ClearChunksInView();
+
+            int chunkX = cell.J * ChunkWidth;
+            int chunkY = cell.I * ChunkHeight;
+
+            if (!world.IsChunkAlreadyGenerated(chunkX, chunkY))
             {
-                if (connectedNode.MapChunk == null)
+                byte terrainByte = map.GridCells[cell.I * Cols + cell.J];
+                MapChunk mapChunk = GenerateMapChunk(chunkX, chunkY, terrainByte);
+                world.AddChunkToView(mapChunk);
+            }
+            else
+            {
+                world.CopyChunkToView(chunkX, chunkY);
+            }
+
+            MapChunk? centerChunk = world.GetMapChunk(chunkX, chunkY);
+            if (centerChunk != null)
+            {
+                world.SetCenterChunk(centerChunk);
+                if (isFullRegeneration)
                 {
-                    int i = connectedNode.Y / CharHeight;
-                    int j = connectedNode.X / CharWidth;
-
-                    Graph chunkGraph = GenerateChunkGraph(connectedNode.Info, rows, cols);
-                    MapChunk mapChunk = new MapChunk(connectedNode, chunkGraph, j * chunkWidth, i * chunkHeight, chunkWidth, chunkHeight);
-                    mapChunk.GenerateChunkTexture();
-                    connectedNode.MapChunk = mapChunk;
-                }
-                chunkList.Add(connectedNode.MapChunk);
+                    world.SetTopLeft(centerChunk.X, centerChunk.Y);
+                } 
             }
 
-            return chunkList;
+            List<Cell> cellList = GetConnectedCells(map.Grid, cell);
+
+            foreach (Cell connectedCell in cellList)
+            {
+                chunkX = connectedCell.J * ChunkWidth;
+                chunkY = connectedCell.I * ChunkHeight;
+
+                if (!world.IsChunkAlreadyGenerated(chunkX, chunkY))
+                {
+                    byte terrainByte = map.GridCells[connectedCell.I * Cols + connectedCell.J];
+                    MapChunk mapChunk = GenerateMapChunk(chunkX, chunkY, terrainByte);
+                    world.AddChunkToView(mapChunk);
+                }
+                else
+                {
+                    world.CopyChunkToView(chunkX, chunkY);
+                }   
+            }
+        }
+
+        public Cell ChunkToMapCell(Grid grid, int chunkX, int chunkY)
+        {
+            int i = chunkY / ChunkHeight;
+            int j = chunkX / ChunkWidth;
+
+            return grid.GetCell(i, j);
+        }
+
+        public MapChunk GenerateMapChunk(int chunkX, int chunkY, byte terrainByte)
+        {
+            MapChunk mapChunk = new MapChunk(chunkX, chunkY, ChunkRows, ChunkCols, ChunkWidth, ChunkHeight);
+            FillChunkGridCells(mapChunk.GridCells, terrainByte);
+            mapChunk.GenerateChunkTexture();
+
+            return mapChunk;
         }
 
         private void GenerateHeightMap()
@@ -118,132 +182,126 @@ namespace WordAlchemy.WorldGen
             }
         }
 
-        private Graph GenerateGraph()
+        private void FillGridCells(byte[] gridCells)
         {
-            Graph graph = new Graph();
             for (int i = 0; i < Rows; i++)
             {
                 for (int j = 0; j < Cols; j++)
                 {
-                    int x = j * CharWidth;
-                    int y = i * CharHeight;
-
-                    TerrainInfo terrain = GetTerrain(i, j);
-
-                    MapNode mapNode = new MapNode(i * Cols + j, x, y, terrain);
-
-                    graph.AddNode(mapNode);
-                    AddEdges(graph, mapNode, i, j);
-                }
-            }
-            return graph;
-        }
-
-        private Graph GenerateChunkGraph(TerrainInfo terrain, int rows, int cols)
-        {
-            Graph graph = new Graph();
-            for (int i = 0; i < rows; i++)
-            {
-                for (int j = 0; j < cols; j++)
-                {
-                    int x = j * CharWidth;
-                    int y = i * CharHeight;
-
-                    MapNode mapNode = new MapNode(i * Cols + j, x, y, terrain);
-
-                    graph.AddNode(mapNode);
-                    AddEdges(graph, mapNode, i, j);
-                }
-            }
-            return graph;
-        }
-
-        private void AddEdges(Graph graph, MapNode mapNode, int i, int j)
-        {
-            List<int[]> neighbors = new List<int[]>()
-                    {
-                        new int[] {i - 1, j - 1},
-                        new int[] {i - 1, j    },
-                        new int[] {i - 1, j + 1},
-                        new int[] {i,     j - 1},
-                        new int[] {i + 1, j - 1},
-                    };
-
-            foreach (int[] pair in neighbors)
-            {
-                MapNode? prevMapNode = GetMapNode(graph, pair[0], pair[1]);
-                if (prevMapNode != null)
-                {
-                    Edge newEdge = new Edge(prevMapNode, mapNode);
-                    graph.AddEdge(newEdge);
+                    gridCells[i * Cols + j] = GetTerrainByte(i, j);
                 }
             }
         }
 
-        private MapNode? GetMapNode(Graph graph, int i, int j)
+        private void FillChunkGridCells(byte[] gridCells, byte terrainByte)
         {
-            MapNode? mapNode = null;
-
-            if (i >= 0 && i < Rows && j >= 0 && j < Cols)
+            for (int i = 0; i < ChunkRows; i++)
             {
-                int index = i * Cols + j;
-                if (index < graph.NodeList.Count)
+                for (int j = 0; j < ChunkCols; j++)
                 {
-                    mapNode = graph.NodeList[index] as MapNode;
-                }    
+                    gridCells[i * ChunkCols + j] = terrainByte;
+                }
             }
-
-            return mapNode;
         }
 
         private List<Group> GroupTerrain(Map map)
         {
             List<Group> groupList = new List<Group>();
 
-            if (map.Graph != null)
+            int groupIndex = 0;
+            foreach (var indexCellTuple in map.GetCells())
             {
-                int groupIndex = 0;
-                foreach (MapNode mapNode in map.Graph.NodeList)
+                byte terrainByte = indexCellTuple.Item1;
+                Cell cell = indexCellTuple.Item2;
+
+                if (!IsCellGrouped(groupList, cell.I, cell.J))
                 {
-                    if (!mapNode.GroupID.HasValue)
-                    {
-                        TerrainType type = mapNode.Info.Type;
-                        Group group = new Group(groupIndex, type, type.ToString());
+                    TerrainInfo terrainInfo = Terrain.TerrainArray[terrainByte];
+                    TerrainType type = terrainInfo.Type;
+                    Group group = new Group(groupIndex, type, type.ToString());
 
-                        FillGroup(mapNode, group);
+                    groupList.Add(group);
 
-                        groupList.Add(group);
-                        groupIndex++;
-                    }
+                    FillGroup(terrainByte, cell, group, groupList, map.GridCells);
+
+                    groupIndex++;
                 }
             }
 
             return groupList;
         }
 
-        private void FillGroup(MapNode mapNode, Group group)
+        private bool IsCellGrouped(List<Group> groupList, int i, int j)
         {
-            Stack<MapNode> stack = new Stack<MapNode>(new MapNode[] { mapNode }); 
+            foreach (Group group in groupList)
+            {
+                if (group.IsCellInGroup(i, j))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void FillGroup(byte terrainByte, Cell cell, Group group, List<Group> groupList, byte[] gridCells)
+        {
+            Stack<Tuple<int, int>> stack = new Stack<Tuple<int, int>>(new Tuple<int, int>[] { Tuple.Create(cell.I, cell.J) }); 
             
             while (stack.Count > 0)
             {
-                MapNode currentNode = stack.Pop();
-                if (!currentNode.GroupID.HasValue)
+                Tuple<int, int> currentCell = stack.Pop();
+                if (!IsCellGrouped(groupList, currentCell.Item1, currentCell.Item2))
                 {
-                    group.MapNodeList.Add(currentNode);
-                    currentNode.GroupID = group.Id;
+                    TerrainInfo terrainInfo = Terrain.TerrainArray[terrainByte];
 
-                    List<MapNode> connectedNodeList = currentNode.GetConnectedNodes();
+                    group.CellDict.Add(Tuple.Create(currentCell.Item1, currentCell.Item2), terrainByte);
 
-                    foreach (MapNode connectedNode in connectedNodeList)
+                    List<Tuple<int, int>> connectedCellList = GetConnectedCells(currentCell.Item1, currentCell.Item2);
+
+                    foreach (var connectedCell in connectedCellList)
                     {
-                        if (connectedNode.Info.Equals(currentNode.Info))
+                        int i = connectedCell.Item1;
+                        int j = connectedCell.Item2;
+
+                        if (Terrain.TerrainArray[gridCells[i * Cols + j]].Equals(terrainInfo))
                         {
-                            stack.Push(connectedNode);
+                            stack.Push(connectedCell);
                         }
                     }
                 }
             } 
+        }
+
+        private List<Cell> GetConnectedCells(Grid grid, Cell cell)
+        {
+            return GetConnectedCells(cell.I, cell.J).Select(t => grid.GetCell(t.Item1, t.Item2)).ToList();
+        }
+
+        private List<Tuple<int, int>> GetConnectedCells(int i,  int j)
+        {
+            List<Tuple<int, int>> connectedCellIndexes = new List<Tuple<int, int>>()
+            {
+                new Tuple<int, int>(i - 1, j - 1),
+                new Tuple<int, int>(i - 1, j    ),
+                new Tuple<int, int>(i - 1, j + 1),
+                new Tuple<int, int>(i,     j - 1),
+                new Tuple<int, int>(i,     j + 1),
+                new Tuple<int, int>(i + 1, j - 1),
+                new Tuple<int, int>(i + 1, j    ),
+                new Tuple<int, int>(i + 1, j + 1),
+            };
+
+            List<Tuple<int, int>> connectedCells = new List<Tuple<int, int>>();
+            foreach (var tuple in connectedCellIndexes)
+            {
+                if (tuple.Item1 >= 0 && tuple.Item1 < Rows &&
+                    tuple.Item2 >= 0 && tuple.Item2 < Cols)
+                {
+                    connectedCells.Add(tuple);
+                }
+            }
+
+            return connectedCells;
         }
 
         private void ClassifyWaterGroups(List<Group> groupList)
@@ -271,186 +329,202 @@ namespace WordAlchemy.WorldGen
             {
                 if (group.Type == TerrainType.MOUNTAIN)
                 {
-                    MapNode mapNode = GetMaxHeight(group.MapNodeList);
-                    Group riverGroup = new Group(nextGroupId++, TerrainType.RIVER, TerrainType.RIVER.ToString());
+                    List<Cell> cellList = group.CellDict.Keys.Select(t => map.Grid.GetCell(t.Item1, t.Item2)).ToList();
+                    Cell? cell = GetMaxHeight(cellList);
 
-                    Func<MapNode, MapNode, bool> StartNodeCheck = GetStartNodeCheck(mapNode);
-                    Func<MapNode, MapNode, bool> OrMapNodeCheck = GetOrMapNodeCheck(mapNode);
+                    if (cell.HasValue)
+                    {
+                        Func<Cell, Cell, bool> StartCellCheck = GetStartCellCheck(cell.Value);
+                        Func<Cell, Cell, bool> OrCellCheck = GetOrCellCheck(cell.Value);
 
-                    MapNode startMapNode = GetStartMapNode(mapNode, StartNodeCheck);
-                    GenerateRiverRecursive(riverGroup, mapNode, OrMapNodeCheck);
-                    
-                    riverGroupList.Add(riverGroup);
+                        Cell? startCell = GetStartCell(map.Grid, cell.Value, StartCellCheck);
+
+                        if (startCell.HasValue)
+                        {
+                            Group riverGroup = new Group(nextGroupId++, TerrainType.RIVER, TerrainType.RIVER.ToString());
+
+                            GenerateRiverRecursive(riverGroup, startCell.Value, map, OrCellCheck);
+
+                            riverGroupList.Add(riverGroup);
+                        }             
+                    } 
                 }
             }
 
             if (riverGroupList.Count > 0)
             {
+                foreach (Group riverGroup in riverGroupList)
+                {
+                    foreach (Tuple<int, int> key in riverGroup.CellDict.Keys)
+                    {
+                        foreach (Group group in map.GroupList)
+                        {
+                            if (group.IsCellInGroup(key.Item1, key.Item2))
+                            {
+                                group.CellDict.Remove(key);
+                            }
+                        }
+                    }
+                }
+
                 map.GroupList.AddRange(riverGroupList);
             }
         }
 
-        private Func<MapNode, MapNode, bool> GetStartNodeCheck(MapNode mapNode)
+        private Func<Cell, Cell, bool> GetStartCellCheck(Cell cell)
         {
-            Func<MapNode, MapNode, bool> StartNodeCheck;
+            Func<Cell, Cell, bool> StartCellCheck;
 
-            if (mapNode.X <= Width / 2 && mapNode.Y <= Height / 2)
+            if (cell.X <= Width / 2 && cell.Y <= Height / 2)
             {
-                StartNodeCheck = (m1, m2) => m1.Y == m2.Y && m1.X > m2.X;
+                StartCellCheck = (c1, c2) => c1.Y == c2.Y && c1.X > c2.X;
             }
-            else if (mapNode.X > Width / 2 && mapNode.Y <= Height / 2)
+            else if (cell.X > Width / 2 && cell.Y <= Height / 2)
             {
-                StartNodeCheck = (m1, m2) => m1.Y == m2.Y && m1.X < m2.X;
+                StartCellCheck = (c1, c2) => c1.Y == c2.Y && c1.X < c2.X;
             }
-            else if (mapNode.X <= Width / 2 && mapNode.Y > Height / 2)
+            else if (cell.X <= Width / 2 && cell.Y > Height / 2)
             {
-                StartNodeCheck = (m1, m2) => m1.Y == m2.Y && m1.X > m2.X;
+                StartCellCheck = (c1, c2) => c1.Y == c2.Y && c1.X > c2.X;
             }
-            else // mapNode.X > Width / 2 && mapNode.Y > Height / 2
+            else // Cell.X > Width / 2 && Cell.Y > Height / 2
             {
-                StartNodeCheck = (m1, m2) => m1.Y == m2.Y && m1.X < m2.X;
+                StartCellCheck = (c1, c2) => c1.Y == c2.Y && c1.X < c2.X;
             }
 
-            return StartNodeCheck;
+            return StartCellCheck;
         }
 
-        private Func<MapNode, MapNode, bool> GetOrMapNodeCheck(MapNode mapNode)
+        private Func<Cell, Cell, bool> GetOrCellCheck(Cell cell)
         {
-            Func<MapNode, MapNode, bool> OrMapNodeCheck;
+            Func<Cell, Cell, bool> OrCellCheck;
 
-            if (mapNode.X <= Width / 2 && mapNode.Y <= Height / 2)
+            if (cell.X <= Width / 2 && cell.Y <= Height / 2)
             {
-                OrMapNodeCheck = (m1, m2) => m1.Y <= m2.Y && m1.X >= m2.X;
+                OrCellCheck = (c1, c2) => c1.Y <= c2.Y && c1.X >= c2.X;
             }
-            else if (mapNode.X > Width / 2 && mapNode.Y <= Height / 2)
+            else if (cell.X > Width / 2 && cell.Y <= Height / 2)
             {
-                OrMapNodeCheck = (m1, m2) => m1.Y <= m2.Y && m1.X <= m2.X;
+                OrCellCheck = (c1, c2) => c1.Y <= c2.Y && c1.X <= c2.X;
             }
-            else if (mapNode.X <= Width / 2 && mapNode.Y > Height / 2)
+            else if (cell.X <= Width / 2 && cell.Y > Height / 2)
             {
-                OrMapNodeCheck = (m1, m2) => m1.Y >= m2.Y && m1.X >= m2.X;
+                OrCellCheck = (c1, c2) => c1.Y >= c2.Y && c1.X >= c2.X;
             }
-            else // mapNode.X > Width / 2 && mapNode.Y > Height / 2
+            else // Cell.X > Width / 2 && Cell.Y > Height / 2
             {
-                OrMapNodeCheck = (m1, m2) => m1.Y >= m2.Y && m1.X <= m2.X;
+                OrCellCheck = (c1, c2) => c1.Y >= c2.Y && c1.X <= c2.X;
             }
 
-            return OrMapNodeCheck;
+            return OrCellCheck;
         }
 
-        private MapNode GetStartMapNode(MapNode mapNode, Func<MapNode, MapNode, bool> StartNodeCheck)
+        private Cell? GetStartCell(Grid grid, Cell cell, Func<Cell, Cell, bool> StartCellCheck)
         {
-            List<MapNode> connectedNodeList = mapNode.GetConnectedNodes();
+            List<Cell> connectedCellList = GetConnectedCells(grid, cell);
 
-            foreach (MapNode connectedNode in connectedNodeList)
+            foreach (Cell connectedCell in connectedCellList)
             {
-                if (StartNodeCheck(connectedNode, mapNode))
+                if (StartCellCheck(connectedCell, cell))
                 {
-                    return connectedNode;
+                    return connectedCell;
                 }
             }
 
-            return mapNode;
+            return null;
         }
 
-        private void GenerateRiverRecursive(Group group, MapNode mapNode, Func<MapNode, MapNode, bool> OrMapNodeCheck)
+        private void GenerateRiverRecursive(Group group, Cell cell, Map map, Func<Cell, Cell, bool> OrCellCheck)
         {
-            TerrainType type = mapNode.Info.Type;
+            byte terrainByte = map.GridCells[cell.I * Cols + cell.J];
+            TerrainType type = Terrain.TerrainArray[terrainByte].Type;
+
             if (type != TerrainType.WATER)
             {
-                mapNode.Info = Terrain.Water;
-                mapNode.GroupID = group.Id;
-                group.MapNodeList.Add(mapNode);
+                map.GridCells[cell.I * Cols + cell.J] = 0;
+                group.CellDict.Add(Tuple.Create(cell.I, cell.J), 0);
 
-                List<MapNode> connectedNodeList = mapNode.GetConnectedNodes();
+                List<Cell> connectedCellList = GetConnectedCells(map.Grid, cell);
 
-                List<MapNode> possibleNodes = new List<MapNode>();
-                foreach (MapNode connectedNode in connectedNodeList)
+                List<Cell> possibleCells = new List<Cell>();
+                foreach (Cell connectedCell in connectedCellList)
                 {
-                    if (OrMapNodeCheck(connectedNode, mapNode) && connectedNode.GroupID != group.Id)
+                    if (OrCellCheck(connectedCell, cell) && group.IsCellInGroup(cell.I, cell.J))
                     {
-                        possibleNodes.Add(connectedNode);
+                        possibleCells.Add(connectedCell);
                     }
                 }
 
-                MapNode? minMapNode = GetMinHeight(possibleNodes);
-                if (minMapNode != null)
+                Cell? minCell = GetMinHeight(possibleCells);
+                if (minCell.HasValue)
                 {
-                    GenerateRiverRecursive(group, minMapNode, OrMapNodeCheck);
+                    GenerateRiverRecursive(group, minCell.Value, map, OrCellCheck);
                 }
             }
         }
 
-        private MapNode? GetMinHeight(List<MapNode> mapNodeList)
+        private Cell? GetMinHeight(List<Cell> cellList)
         {
             float minHeight = float.MaxValue;
-            MapNode? minMapNode = null;
+            Cell? minCell = null;
 
-            foreach (MapNode mapNode in mapNodeList)
+            foreach (Cell cell in cellList)
             {
-                float height = HeightMap[mapNode.Id];
+                float height = HeightMap[cell.I * Cols + cell.J];
+
                 if (height < minHeight)
                 {
                     minHeight = height;
-                    minMapNode = mapNode;
+                    minCell = cell;
                 }
             }
 
-            return minMapNode;
+            return minCell;
         }
 
-        private MapNode GetMaxHeight(List<MapNode> mapNodeList)
+        private Cell? GetMaxHeight(List<Cell> cellList)
         {
-            return GetMaxHeights(mapNodeList, 1).First();
-        }
+            float maxHeight = float.MinValue;
+            Cell? maxCell = null;
 
-        private MapNode[] GetMaxHeights(List<MapNode> mapNodeList, int n = 1)
-        {
-            float[] maxValues = new float[n];
-            MapNode[] mapNodeArray = new MapNode[n];
-
-            foreach (MapNode mapNode in mapNodeList)
+            foreach (Cell cell in cellList)
             {
-                float heightValue = HeightMap[mapNode.Id];
+                float heightValue = HeightMap[cell.I * Cols + cell.J];
 
-                for (int k = 0; k < n; k++)
+                if (heightValue > maxHeight)
                 {
-                    if (heightValue > maxValues[k])
-                    {
-                        maxValues[k] = heightValue;
-                        mapNodeArray[k] = mapNode;
-                        break;
-                    }
+                    maxHeight = heightValue;
+                    maxCell = cell;
                 }
             }
 
-            return mapNodeArray;
+            return maxCell;
         }
 
-        public TerrainInfo GetTerrain(int i, int j)
+        public byte GetTerrainByte(int i, int j)
         {
             float heightValue = HeightMap[i * Cols + j];
 
-            TerrainInfo terrain;
+            byte terrain;
             if (heightValue < 20.0f)
             {
-                terrain = Terrain.Water;
+                terrain = 0;
             }
             else if (heightValue < 25.0f)
             {
-                terrain = Terrain.Sand;
+                terrain = 1;
             }
             else if (heightValue < 40.0f)
             {
-                terrain = Terrain.Grass;
+                terrain = 2;
             }
             else if (heightValue < 60.0f)
             {
-                terrain = Terrain.Hill;
+                terrain = 4;
             }
             else //(heightValue < 100.0f)
             {
-                terrain = Terrain.Mountain;
+                terrain = 5;
             }
 
             return terrain;

@@ -15,6 +15,16 @@ namespace WordAlchemy.WorldGen
         public static TerrainInfo Hill = new TerrainInfo(TerrainType.HILL, "∩", Colors.DarkGreen(), 0, 0);
 
         public static TerrainInfo Mountain = new TerrainInfo(TerrainType.MOUNTAIN, "▲", Colors.Grey(), 0, 0);
+
+        public static TerrainInfo[] TerrainArray = new TerrainInfo[6]
+        {
+            Terrain.Water,    //0
+            Terrain.Sand,     //1
+            Terrain.Grass,    //2
+            Terrain.Dirt,     //3
+            Terrain.Hill,     //4
+            Terrain.Mountain, //5
+        };
     }
 
     public enum TerrainType

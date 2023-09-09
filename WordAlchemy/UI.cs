@@ -40,10 +40,10 @@ namespace WordAlchemy
 
             MapViewer.ScreenToWorld(screenX, screenY, out int worldX, out int worldY);
 
-            MapNode? mapNode = MapViewer.Map.GetMapNode(worldX, worldY);
-            if (mapNode != null && mapNode.GroupID != null)
+            Cell cell = MapViewer.Map.Grid.GetCellFromWorld(worldX, worldY);
+            if (MapViewer.Map.IsCellGrouped(cell.I, cell.J))
             {
-                Group? group = MapViewer.Map.GetGroup((int)mapNode.GroupID);
+                Group? group = MapViewer.Map.GetGroup(cell.I, cell.J);
                 if (group != null)
                 {
                     SetGroupTypeStr($"{group.Name} {group.Id}");

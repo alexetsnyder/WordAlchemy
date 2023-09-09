@@ -37,7 +37,7 @@ namespace WordAlchemy
             WireEvents();
 
             Random random = new Random();
-            MapGen mapGen = new MapGen(240, 240, random.Next(0, 1000000));
+            MapGen mapGen = new MapGen(240, 240, 25, 50, random.Next(0, 1000000));
 
             Map map = mapGen.GenerateMap();
             map.GenerateMapTexture();
@@ -48,7 +48,7 @@ namespace WordAlchemy
 
             DstViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
             SrcViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
-            PlayerViewer = new PlayerViewer(map, 25, 50, SrcViewWindow, DstViewWindow);
+            PlayerViewer = new PlayerViewer(map, SrcViewWindow, DstViewWindow);
 
             HUD = new UI(MapViewer);
 
@@ -142,9 +142,9 @@ namespace WordAlchemy
             {
                 GameSettings.State = (GameSettings.State == GameState.MAP) ? GameState.PLAYER : GameState.MAP;
 
-                if (GameSettings.State == GameState.PLAYER)
+                if (GameSettings.State == GameState.PLAYER && MapViewer.Map.SelectedCell.HasValue)
                 {
-                    PlayerViewer.CreateMapChunkList();
+                    PlayerViewer.GenerateWorld(MapViewer.Map.SelectedCell.Value);
                 }
             }
         }

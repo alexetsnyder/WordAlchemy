@@ -1,40 +1,31 @@
 ﻿
 using SDL2;
-using WordAlchemy.Helpers;
 using WordAlchemy.WorldGen;
 
 namespace WordAlchemy.Viewers
 {
     public class PlayerViewer : Viewer
     {
+        public bool IsWorldGenerated {  get; private set; }
+
         public Player Player { get; set; }
 
         public Map Map { get; set; }
 
-        public List<MapChunk> MapChunkList { get; private set; }
-
-        public int ChunkRows { get; set; }
-        public int ChunkCols { get; set; }
-
-        private int TopLeftX { get; set; }
-        private int TopLeftY { get; set; }
+        public World? World { get; set; }
 
         private List<SDL.SDL_Keycode> KeysPressedList { get; set; }
 
         private GraphicSystem GraphicSystem { get; set; }
 
-        public PlayerViewer(Map map, int chunkRows, int chunkCols, ViewWindow? srcViewWindow, ViewWindow? dstViewWindow)
+        public PlayerViewer(Map map, ViewWindow? srcViewWindow, ViewWindow? dstViewWindow)
             : base(srcViewWindow, dstViewWindow)
         {
+            IsWorldGenerated = false;
+
             Map = map;
+            World = null;
             Player = new Player();
-
-            MapChunkList = new List<MapChunk>();
-            ChunkRows = chunkRows;
-            ChunkCols = chunkCols;
-
-            TopLeftX = 0;
-            TopLeftY = 0;
 
             KeysPressedList = new List<SDL.SDL_Keycode>();
 
@@ -50,77 +41,67 @@ namespace WordAlchemy.Viewers
             eventSystem.Listen((int)GameState.PLAYER, SDL.SDL_EventType.SDL_KEYUP, OnKeyUp);
         }
 
-        public void CreateMapChunkList()
+        public void GenerateWorld(Cell cell)
         {
-            if (Map.CurrentMapNode != null)
+            if (!IsWorldGenerated)
             {
-                SetMapChunkList(Map.MapGen.GenerateMapChunks(Map.CurrentMapNode, ChunkRows, ChunkCols));
-            }
-        }
+                World = Map.MapGen.GenerateWorld(Map, cell);
 
-        public void SetMapChunkList(List<MapChunk> mapChunkList)
-        {
-            MapChunkList.Clear();
-
-            MapChunkList.AddRange(mapChunkList);
-
-            if (MapChunkList.Count > 0)
-            {
-                int windowWidth = AppSettings.Instance.WindowWidth;
-                int windowHeight = AppSettings.Instance.WindowHeight;
-
-                MapChunk mapChunk = MapChunkList.First();
-                TopLeftX = mapChunk.X - windowWidth / 2 + mapChunk.Width / 2;
-                TopLeftY = mapChunk.Y - windowHeight / 2 + mapChunk.Height / 2;
-
-                Player.X = mapChunk.X + mapChunk.Width / 2;
-                Player.Y = mapChunk.Y + mapChunk.Height / 2;
-
-                if (SrcViewWindow != null)
+                if (World.CenterChunk != null)
                 {
-                    SrcViewWindow.Width = mapChunk.Width;
-                    SrcViewWindow.Height = mapChunk.Height;
+                    Player.X = World.CenterChunk.X + World.CenterChunk.Width / 2;
+                    Player.Y = World.CenterChunk.Y + World.CenterChunk.Height / 2;
+
+                    if (SrcViewWindow != null)
+                    {
+                        SrcViewWindow.Width = World.CenterChunk.Width;
+                        SrcViewWindow.Height = World.CenterChunk.Height;
+                    }
+
+                    if (DstViewWindow != null)
+                    {
+                        DstViewWindow.Width = World.CenterChunk.Width;
+                        DstViewWindow.Height = World.CenterChunk.Height;
+                    }
                 }
 
-                if (DstViewWindow != null)
+                IsWorldGenerated = true;
+            }
+            else
+            {
+                if (World != null && World.CenterChunk != null)
                 {
-                    DstViewWindow.Width = mapChunk.Width;
-                    DstViewWindow.Height = mapChunk.Height;
+                    Map.MapGen.RegenerateWorld(World, Map, cell, true);
+
+                    Player.X = World.CenterChunk.X + World.CenterChunk.Width / 2;
+                    Player.Y = World.CenterChunk.Y + World.CenterChunk.Height / 2;
                 }
             }
+            
         }
 
         public void Update()
         {
             HandleKeys();
-            CheckChunks();
+            World?.CalculateChunksInView(Player.X, Player.Y);
         }
 
         public void Draw()
         {
-            if (SrcViewWindow != null && DstViewWindow != null)
+            if (SrcViewWindow != null && DstViewWindow != null && World != null)
             {
                 SDL.SDL_Rect src = SrcViewWindow.GetViewRect();
                 SDL.SDL_Rect dst = DstViewWindow.GetViewRect();
 
-                foreach (MapChunk mapChunk in MapChunkList)
-                {
-                    dst.x = mapChunk.X - TopLeftX;
-                    dst.y = mapChunk.Y - TopLeftY;
+                World.Draw(ref src, ref dst);
 
-                    mapChunk.Draw(ref src, ref dst);
-
-                    GraphicSystem.SetDrawColor(Colors.Red());
-                    GraphicSystem.DrawRect(ref dst);
-                }
-
-                GraphicSystem.DrawText(Player.Symbol, Player.X - TopLeftX, Player.Y - TopLeftY, Colors.Red(), AppSettings.Instance.MapFontName);
+                GraphicSystem.DrawText(Player.Symbol, Player.X - World.TopLeftX, Player.Y - World.TopLeftY, Colors.Red(), AppSettings.Instance.MapFontName);
             }
         }
 
         private void HandleKeys()
         {
-            if (SrcViewWindow == null)
+            if (SrcViewWindow == null || World == null)
             {
                 return;
             }
@@ -131,55 +112,25 @@ namespace WordAlchemy.Viewers
             {
                 if (key == InputSettings.Instance.PlayerUp)
                 {
-                    TopLeftY -= speed;
+                    World.TopLeftY -= speed;
                     Player.Y -= speed;
                 }
                 if (key == InputSettings.Instance.PlayerDown)
                 {
-                    TopLeftY += speed;
+                    World.TopLeftY += speed;
                     Player.Y += speed;
                 }
                 if (key == InputSettings.Instance.PlayerLeft)
                 {
-                    TopLeftX -= speed;
+                    World.TopLeftX -= speed;
                     Player.X -= speed;
                 }
                 if (key == InputSettings.Instance.PlayerRight)
                 {
-                    TopLeftX += speed;
+                    World.TopLeftX += speed;
                     Player.X += speed;
                 }
             }
-        }
-
-        private void CheckChunks()
-        {
-            MapChunk? mapChunk = GetMapChunk(Player.X, Player.Y);
-            if (mapChunk != null && mapChunk.MapNode != Map.CurrentMapNode)
-            {
-                Map.CurrentMapNode = mapChunk.MapNode;
-                List<MapChunk> newChunkList = Map.MapGen.GenerateMapChunks(mapChunk.MapNode, ChunkRows, ChunkCols);
-
-                MapChunkList.Clear();
-                MapChunkList.AddRange(newChunkList);
-            }
-        }
-
-        public MapChunk? GetMapChunk(int worldX, int worldY)
-        {
-            foreach (MapChunk chunk in MapChunkList)
-            {
-                int Ax = chunk.X; int Ay = chunk.Y;
-                int Bx = chunk.X + chunk.Width; int By = chunk.Y;
-                int Cx = chunk.X + chunk.Width; int Cy = chunk.Y + chunk.Height;
-
-                if (MathHelper.IsInRectangle(Ax, Ay, Bx, By, Cx, Cy, worldX, worldY))
-                {
-                    return chunk;
-                }
-            }
-
-            return null;
         }
 
         public void OnKeyDown(SDL.SDL_Event e)
