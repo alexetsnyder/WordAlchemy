@@ -105,14 +105,14 @@ namespace WordAlchemy.Viewers
 
         private void CheckSelection()
         {
-            if (SelectRect.HasValue && Map.CurrentMapNode != null)
+            if (SelectRect.HasValue && Map.SelectedCell.HasValue)
             {
-                if (SelectRect.Value.x != Map.CurrentMapNode.X || SelectRect.Value.y != Map.CurrentMapNode.Y)
+                if (SelectRect.Value.x != Map.SelectedCell.Value.X || SelectRect.Value.y != Map.SelectedCell.Value.Y)
                 {
                     SelectRect = new SDL.SDL_Rect
                     {
-                        x = Map.CurrentMapNode.X,
-                        y = Map.CurrentMapNode.Y,
+                        x = Map.SelectedCell.Value.X,
+                        y = Map.SelectedCell.Value.Y,
                         w = Map.MapGen.CharWidth,
                         h = Map.MapGen.CharHeight,
                     };
@@ -164,16 +164,16 @@ namespace WordAlchemy.Viewers
 
                 ScreenToWorld(screenX, screenY, out int worldX, out int worldY);
 
-                MapNode? mapNode = Map.GetMapNode(worldX, worldY);
+                Cell? cell = Map.GetCell(worldX, worldY);
 
-                if (mapNode != null)
+                if (cell != null)
                 {
-                    Map.CurrentMapNode = mapNode;
+                    Map.SelectedCell = cell;
 
                     SelectRect = new SDL.SDL_Rect
                     {
-                        x = mapNode.X,
-                        y = mapNode.Y,
+                        x = cell.Value.X,
+                        y = cell.Value.Y,
                         w = Map.MapGen.CharWidth,
                         h = Map.MapGen.CharHeight,
                     };

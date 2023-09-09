@@ -8,8 +8,6 @@ namespace WordAlchemy.WorldGen
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public List<MapNode> MapNodeList { get; set; }
-
         public Dictionary<Tuple<int, int>, byte> CellDict { get; set; }
 
         public Group(int id, TerrainType type, string name)
@@ -19,7 +17,6 @@ namespace WordAlchemy.WorldGen
             Name = name;
             Description = "";
 
-            MapNodeList = new List<MapNode>();
             CellDict = new Dictionary<Tuple<int, int>, byte>();
         }
 

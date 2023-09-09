@@ -23,6 +23,12 @@ namespace WordAlchemy.WorldGen
         public int Rows { get; set; }
         public int Cols { get; set; }
 
+        public int ChunkRows { get; set; }
+        public int ChunkCols { get; set; }
+
+        public int ChunkWidth { get; set; }
+        public int ChunkHeight { get; set; }
+
         public int Seed { get; set; }
 
         public int CharWidth { get; private set; }
@@ -31,10 +37,12 @@ namespace WordAlchemy.WorldGen
         private FastNoiseLite Noise { get; set; }
         private float[] HeightMap { get; set; }
 
-        public MapGen(int rows, int cols, int seed)
+        public MapGen(int rows, int cols, int chunkRows, int chunkCols, int seed)
         {
             Rows = rows;
             Cols = cols;
+            ChunkRows = chunkRows;
+            ChunkCols = chunkCols;
 
             Seed = seed;
             Noise = new FastNoiseLite(seed);
@@ -45,6 +53,9 @@ namespace WordAlchemy.WorldGen
             CharWidth = width;
             CharHeight = height;
 
+            ChunkWidth = ChunkCols * CharWidth;
+            ChunkHeight = ChunkRows * CharHeight;
+
             HeightMap = new float[Cols * Rows];
         }
 
@@ -54,8 +65,6 @@ namespace WordAlchemy.WorldGen
 
             Map map = new Map(this);
             FillGridCells(map.GridCells);
-
-            map.Graph = GenerateGraph();
             map.GroupList = GroupTerrain(map);
 
             ClassifyWaterGroups(map.GroupList);
@@ -65,43 +74,97 @@ namespace WordAlchemy.WorldGen
             return map;
         }
 
-        public List<MapChunk> GenerateMapChunks(MapNode mapNode, int rows, int cols)
+        public World GenerateWorld(Map map, Cell cell)
         {
-            List<MapChunk> chunkList = new List<MapChunk>();
+            World world = new World(map);
 
-            int chunkWidth = cols * CharWidth;
-            int chunkHeight = rows * CharHeight;
+            int chunkX = cell.J * ChunkWidth;
+            int chunkY = cell.I * ChunkHeight;
 
-            if (mapNode.MapChunk == null)
+            byte terrainByte = map.GridCells[cell.I * Cols + cell.J];
+            MapChunk mapChunk = GenerateMapChunk(chunkX, chunkY, terrainByte);
+            world.AddChunkToView(mapChunk);
+            world.SetCenterChunk(mapChunk);
+            world.SetTopLeft(mapChunk.X, mapChunk.Y);
+
+            List<Cell> cellList = GetConnectedCells(map.Grid, cell);
+
+            foreach (Cell connectedCell in cellList)
             {
-                int i = mapNode.Y / CharHeight;
-                int j = mapNode.X / CharWidth;
+                chunkX = connectedCell.J * ChunkWidth;
+                chunkY = connectedCell.I * ChunkHeight;
 
-                Graph chunkGraph = GenerateChunkGraph(mapNode.Info, rows, cols);
-                MapChunk mapChunk = new MapChunk(mapNode, chunkGraph, j * chunkWidth, i * chunkHeight, chunkWidth, chunkHeight);
-                mapChunk.GenerateChunkTexture();
-                mapNode.MapChunk = mapChunk;
+                terrainByte = map.GridCells[connectedCell.I * Cols + connectedCell.J];
+                mapChunk = GenerateMapChunk(chunkX, chunkY, terrainByte);
+                world.AddChunkToView(mapChunk);
             }
-            chunkList.Add(mapNode.MapChunk);
 
-            List<MapNode> connectedNodeList = mapNode.GetConnectedNodes();
+            return world;
+        }
 
-            foreach (MapNode connectedNode in connectedNodeList)
+        public void RegenerateWorld(World world, Map map, Cell cell, bool isFullRegeneration)
+        {
+            world.ClearChunksInView();
+
+            int chunkX = cell.J * ChunkWidth;
+            int chunkY = cell.I * ChunkHeight;
+
+            if (!world.IsChunkAlreadyGenerated(chunkX, chunkY))
             {
-                if (connectedNode.MapChunk == null)
+                byte terrainByte = map.GridCells[cell.I * Cols + cell.J];
+                MapChunk mapChunk = GenerateMapChunk(chunkX, chunkY, terrainByte);
+                world.AddChunkToView(mapChunk);
+            }
+            else
+            {
+                world.CopyChunkToView(chunkX, chunkY);
+            }
+
+            MapChunk? centerChunk = world.GetMapChunk(chunkX, chunkY);
+            if (centerChunk != null)
+            {
+                world.SetCenterChunk(centerChunk);
+                if (isFullRegeneration)
                 {
-                    int i = connectedNode.Y / CharHeight;
-                    int j = connectedNode.X / CharWidth;
-
-                    Graph chunkGraph = GenerateChunkGraph(connectedNode.Info, rows, cols);
-                    MapChunk mapChunk = new MapChunk(connectedNode, chunkGraph, j * chunkWidth, i * chunkHeight, chunkWidth, chunkHeight);
-                    mapChunk.GenerateChunkTexture();
-                    connectedNode.MapChunk = mapChunk;
-                }
-                chunkList.Add(connectedNode.MapChunk);
+                    world.SetTopLeft(centerChunk.X, centerChunk.Y);
+                } 
             }
 
-            return chunkList;
+            List<Cell> cellList = GetConnectedCells(map.Grid, cell);
+
+            foreach (Cell connectedCell in cellList)
+            {
+                chunkX = connectedCell.J * ChunkWidth;
+                chunkY = connectedCell.I * ChunkHeight;
+
+                if (!world.IsChunkAlreadyGenerated(chunkX, chunkY))
+                {
+                    byte terrainByte = map.GridCells[connectedCell.I * Cols + connectedCell.J];
+                    MapChunk mapChunk = GenerateMapChunk(chunkX, chunkY, terrainByte);
+                    world.AddChunkToView(mapChunk);
+                }
+                else
+                {
+                    world.CopyChunkToView(chunkX, chunkY);
+                }   
+            }
+        }
+
+        public Cell ChunkToMapCell(Grid grid, int chunkX, int chunkY)
+        {
+            int i = chunkY / ChunkHeight;
+            int j = chunkX / ChunkWidth;
+
+            return grid.GetCell(i, j);
+        }
+
+        public MapChunk GenerateMapChunk(int chunkX, int chunkY, byte terrainByte)
+        {
+            MapChunk mapChunk = new MapChunk(chunkX, chunkY, ChunkRows, ChunkCols, ChunkWidth, ChunkHeight);
+            FillChunkGridCells(mapChunk.GridCells, terrainByte);
+            mapChunk.GenerateChunkTexture();
+
+            return mapChunk;
         }
 
         private void GenerateHeightMap()
@@ -125,90 +188,20 @@ namespace WordAlchemy.WorldGen
             {
                 for (int j = 0; j < Cols; j++)
                 {
-                    int x = j * CharWidth;
-                    int y = i * CharHeight;
-
                     gridCells[i * Cols + j] = GetTerrainByte(i, j);
                 }
             }
         }
 
-        private Graph GenerateGraph()
+        private void FillChunkGridCells(byte[] gridCells, byte terrainByte)
         {
-            Graph graph = new Graph();
-            for (int i = 0; i < Rows; i++)
+            for (int i = 0; i < ChunkRows; i++)
             {
-                for (int j = 0; j < Cols; j++)
+                for (int j = 0; j < ChunkCols; j++)
                 {
-                    int x = j * CharWidth;
-                    int y = i * CharHeight;
-
-                    TerrainInfo terrain = GetTerrain(i, j);
-
-                    MapNode mapNode = new MapNode(i * Cols + j, x, y, terrain);
-
-                    graph.AddNode(mapNode);
-                    AddEdges(graph, mapNode, i, j);
+                    gridCells[i * ChunkCols + j] = terrainByte;
                 }
             }
-            return graph;
-        }
-
-        private Graph GenerateChunkGraph(TerrainInfo terrain, int rows, int cols)
-        {
-            Graph graph = new Graph();
-            for (int i = 0; i < rows; i++)
-            {
-                for (int j = 0; j < cols; j++)
-                {
-                    int x = j * CharWidth;
-                    int y = i * CharHeight;
-
-                    MapNode mapNode = new MapNode(i * Cols + j, x, y, terrain);
-
-                    graph.AddNode(mapNode);
-                    AddEdges(graph, mapNode, i, j);
-                }
-            }
-            return graph;
-        }
-
-        private void AddEdges(Graph graph, MapNode mapNode, int i, int j)
-        {
-            List<int[]> neighbors = new List<int[]>()
-                    {
-                        new int[] {i - 1, j - 1},
-                        new int[] {i - 1, j    },
-                        new int[] {i - 1, j + 1},
-                        new int[] {i,     j - 1},
-                        new int[] {i + 1, j - 1},
-                    };
-
-            foreach (int[] pair in neighbors)
-            {
-                MapNode? prevMapNode = GetMapNode(graph, pair[0], pair[1]);
-                if (prevMapNode != null)
-                {
-                    Edge newEdge = new Edge(prevMapNode, mapNode);
-                    graph.AddEdge(newEdge);
-                }
-            }
-        }
-
-        private MapNode? GetMapNode(Graph graph, int i, int j)
-        {
-            MapNode? mapNode = null;
-
-            if (i >= 0 && i < Rows && j >= 0 && j < Cols)
-            {
-                int index = i * Cols + j;
-                if (index < graph.NodeList.Count)
-                {
-                    mapNode = graph.NodeList[index] as MapNode;
-                }    
-            }
-
-            return mapNode;
         }
 
         private List<Group> GroupTerrain(Map map)
@@ -506,35 +499,6 @@ namespace WordAlchemy.WorldGen
             }
 
             return maxCell;
-        }
-
-        public TerrainInfo GetTerrain(int i, int j)
-        {
-            float heightValue = HeightMap[i * Cols + j];
-
-            TerrainInfo terrain;
-            if (heightValue < 20.0f)
-            {
-                terrain = Terrain.Water;
-            }
-            else if (heightValue < 25.0f)
-            {
-                terrain = Terrain.Sand;
-            }
-            else if (heightValue < 40.0f)
-            {
-                terrain = Terrain.Grass;
-            }
-            else if (heightValue < 60.0f)
-            {
-                terrain = Terrain.Hill;
-            }
-            else //(heightValue < 100.0f)
-            {
-                terrain = Terrain.Mountain;
-            }
-
-            return terrain;
         }
 
         public byte GetTerrainByte(int i, int j)
