@@ -1,14 +1,14 @@
 ﻿using SDL2;
 
-namespace WordAlchemy
+namespace WordAlchemy.TextRendering
 {
     internal class Font
     {
-        public string Name { get; set; }    
+        public string Name { get; set; }
 
         private int _size;
-        public int FontSize 
-        { 
+        public int FontSize
+        {
             get
             {
                 return _size;
@@ -19,7 +19,7 @@ namespace WordAlchemy
                 {
                     _size = value;
                     TTFFont = SDL_ttf.TTF_OpenFont(FilePath, value);
-                } 
+                }
             }
         }
 

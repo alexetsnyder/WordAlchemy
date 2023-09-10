@@ -1,6 +1,6 @@
 ﻿using SDL2;
 
-namespace WordAlchemy
+namespace WordAlchemy.Systems
 {
     public sealed class EventSystem
     {

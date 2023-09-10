@@ -1,9 +1,10 @@
 ﻿using SDL2;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using WordAlchemy.Systems;
 using WordAlchemy.WorldGen;
 
-namespace WordAlchemy
+namespace WordAlchemy.TextRendering
 {
     public static class FontName
     {
@@ -28,13 +29,13 @@ namespace WordAlchemy
         public readonly string ASCII = " \n1234567890-=!@#$%^&*()_+qwertyuiop[]\\asdfghjkl;'zxcvbnm,./QWERTYUIOP{}|ASDFGHJKL:ZXCVBNM<>?`~\"";
         public readonly string[] ExtraChars = new string[]
         {
-            Terrain.Hill.Symbol, 
+            Terrain.Hill.Symbol,
             Terrain.Mountain.Symbol,
             "\u263A",
             "\u263B",
         };
 
-        private GraphicSystem GraphicSystem { get; set; }  
+        private GraphicSystem GraphicSystem { get; set; }
 
         public GlyphAtlas()
         {
@@ -57,7 +58,7 @@ namespace WordAlchemy
             finalSurface = SDL.SDL_CreateRGBSurface(0, TEXTURE_SIZE, TEXTURE_SIZE, 32, 0, 0, 0, 0xff);
 
             SDL.SDL_Surface surface = new SDL.SDL_Surface();
-            
+
             if (finalSurface != IntPtr.Zero)
             {
                 object? surfaceObj = Marshal.PtrToStructure(finalSurface, typeof(SDL.SDL_Surface));
@@ -65,14 +66,14 @@ namespace WordAlchemy
                 {
                     surface = (SDL.SDL_Surface)surfaceObj;
                 }
-                
+
             }
-            
+
             SDL.SDL_SetColorKey(finalSurface, 1, SDL.SDL_MapRGBA(surface.format, 0, 0, 0, 0));
 
-            string allChars = ASCII + ExtraChars.Aggregate((s1, s2) => s1 + s2); 
+            string allChars = ASCII + ExtraChars.Aggregate((s1, s2) => s1 + s2);
 
-            foreach (char c in  allChars)
+            foreach (char c in allChars)
             {
                 string cStr = $"{c}";
 

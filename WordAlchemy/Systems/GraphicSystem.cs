@@ -1,7 +1,9 @@
 ﻿using SDL2;
 using System.Diagnostics;
+using WordAlchemy.Settings;
+using WordAlchemy.TextRendering;
 
-namespace WordAlchemy
+namespace WordAlchemy.Systems
 {
     internal class GraphicSystem
     {
@@ -14,7 +16,7 @@ namespace WordAlchemy
         private IntPtr Window { get; set; }
         private IntPtr Renderer { get; set; }
 
-        private GraphicSystem() 
+        private GraphicSystem()
         {
             Atlas = null;
             SetClearColor(Colors.Black());
@@ -111,7 +113,7 @@ namespace WordAlchemy
             SetDrawColor(color.r, color.g, color.b, color.a);
         }
 
-        public void SetDrawColor(byte r, byte g,byte b,byte a)
+        public void SetDrawColor(byte r, byte g, byte b, byte a)
         {
             SDL.SDL_SetRenderDrawColor(Renderer, r, g, b, a);
         }
@@ -177,7 +179,7 @@ namespace WordAlchemy
             SDL.SDL_RenderDrawPoint(Renderer, x, y);
         }
 
-        public void DrawLine(int x1, int y1, int x2, int y2) 
+        public void DrawLine(int x1, int y1, int x2, int y2)
         {
             SDL.SDL_RenderDrawLine(Renderer, x1, y1, x2, y2);
         }
@@ -260,7 +262,7 @@ namespace WordAlchemy
 
                     x += glyph.w;
                 }
-            }    
+            }
         }
 
         public void DrawTexture(IntPtr texture, int x, int y)

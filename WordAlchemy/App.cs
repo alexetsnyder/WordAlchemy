@@ -1,5 +1,8 @@
 ﻿using SDL2;
 using System.Diagnostics;
+using WordAlchemy.Settings;
+using WordAlchemy.Systems;
+using WordAlchemy.Tools;
 using WordAlchemy.Viewers;
 using WordAlchemy.WorldGen;
 
@@ -17,7 +20,7 @@ namespace WordAlchemy
 
         private PlayerViewer PlayerViewer { get; set; }
 
-        private Tools.FontViewer Viewer { get; set; }
+        private FontViewer Viewer { get; set; }
 
         private GameSettings GameSettings { get; set; }
 

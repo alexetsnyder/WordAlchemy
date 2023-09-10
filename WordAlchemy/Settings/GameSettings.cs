@@ -1,5 +1,4 @@
-﻿
-namespace WordAlchemy
+﻿namespace WordAlchemy.Settings
 {
     public class GameSettings
     {

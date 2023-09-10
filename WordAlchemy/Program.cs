@@ -1,4 +1,6 @@
 ﻿using WordAlchemy;
+using WordAlchemy.Settings;
+using WordAlchemy.TextRendering;
 
 AppSettings.Instance.Init(1920, 1017);
 AppSettings.Instance.MapFontName = FontName.IBM_VGA_8X14;

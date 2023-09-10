@@ -1,6 +1,8 @@
 ﻿
 using SDL2;
 using WordAlchemy.Helpers;
+using WordAlchemy.Settings;
+using WordAlchemy.Systems;
 
 namespace WordAlchemy.WorldGen
 {

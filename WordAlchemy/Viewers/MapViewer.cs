@@ -1,6 +1,8 @@
 ﻿
 using SDL2;
 using System.Diagnostics;
+using WordAlchemy.Settings;
+using WordAlchemy.Systems;
 using WordAlchemy.WorldGen;
 
 namespace WordAlchemy.Viewers

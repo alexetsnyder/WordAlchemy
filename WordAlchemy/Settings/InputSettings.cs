@@ -1,6 +1,6 @@
 ﻿using SDL2;
 
-namespace WordAlchemy
+namespace WordAlchemy.Settings
 {
     public class InputSettings
     {
