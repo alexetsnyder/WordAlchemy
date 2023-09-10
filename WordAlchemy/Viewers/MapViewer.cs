@@ -9,6 +9,8 @@ namespace WordAlchemy.Viewers
     {
         public Map Map { get; set; }
 
+        private UI HUD { get; set; }
+
         public SDL.SDL_Rect? SelectRect { get; private set; }
 
         private List<SDL.SDL_Keycode> KeysPressedList { get; set; }
@@ -19,6 +21,7 @@ namespace WordAlchemy.Viewers
             : base(srcViewWindow, dstViewWindow)
         {
             Map = map;
+            HUD = new UI();
 
             SelectRect = null;
             KeysPressedList = new List<SDL.SDL_Keycode>();
@@ -40,6 +43,7 @@ namespace WordAlchemy.Viewers
         {
             HandleKeys();
             CheckSelection();
+            UpdateUI();
         }
 
         public void Draw()
@@ -67,6 +71,8 @@ namespace WordAlchemy.Viewers
 
                 Map.Draw(ref src, ref dest);
             }
+
+            HUD.Draw();
         }
 
         private void HandleKeys()
@@ -116,6 +122,23 @@ namespace WordAlchemy.Viewers
                         w = Map.MapGen.CharWidth,
                         h = Map.MapGen.CharHeight,
                     };
+                }
+            }
+        }
+
+        private void UpdateUI()
+        {
+            SDL.SDL_GetMouseState(out int screenX, out int screenY);
+
+            ScreenToWorld(screenX, screenY, out int worldX, out int worldY);
+
+            Cell? cell = Map.GetCell(worldX, worldY);
+            if (cell.HasValue && Map.IsCellGrouped(cell.Value.I, cell.Value.J))
+            {
+                Group? group = Map.GetGroup(cell.Value.I, cell.Value.J);
+                if (group != null)
+                {
+                    HUD.SetGroupTypeStr($"{group.Name} {group.Id}");
                 }
             }
         }

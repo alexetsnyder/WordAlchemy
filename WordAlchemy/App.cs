@@ -17,8 +17,6 @@ namespace WordAlchemy
 
         private PlayerViewer PlayerViewer { get; set; }
 
-        private UI HUD { get; set; }
-
         private Tools.FontViewer Viewer { get; set; }
 
         private GameSettings GameSettings { get; set; }
@@ -49,8 +47,6 @@ namespace WordAlchemy
             DstViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
             SrcViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
             PlayerViewer = new PlayerViewer(map, SrcViewWindow, DstViewWindow);
-
-            HUD = new UI(MapViewer);
 
             Viewer = new Tools.FontViewer();
 
@@ -107,8 +103,6 @@ namespace WordAlchemy
             {
                 PlayerViewer.Update();
             }
-
-            HUD.Update();
         }
 
         private void Draw()
@@ -121,8 +115,6 @@ namespace WordAlchemy
             {
                 PlayerViewer.Draw();
             }
-
-            HUD.Draw();
             //Viewer.Draw(Graphics);
             //Graphics.Atlas?.Draw();
         }

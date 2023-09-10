@@ -107,5 +107,10 @@ namespace WordAlchemy.WorldGen
 
             return null;
         }
+
+        public byte GetCellByte(int i, int j)
+        {
+            return GridCells[i * MapGen.Cols + j];
+        }
     }
 }
