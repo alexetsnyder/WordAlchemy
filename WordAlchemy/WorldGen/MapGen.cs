@@ -76,79 +76,53 @@ namespace WordAlchemy.WorldGen
             return map;
         }
 
-        public World GenerateWorld(Map map, Cell cell)
-        {
-            World world = new World(map);
-
-            int chunkX = cell.J * ChunkWidth;
-            int chunkY = cell.I * ChunkHeight;
-
-            byte terrainByte = map.GridCells[cell.I * Cols + cell.J];
-            MapChunk mapChunk = GenerateMapChunk(chunkX, chunkY, terrainByte);
-            world.AddChunkToView(mapChunk);
-            world.SetCenterChunk(mapChunk);
-            world.SetTopLeft(mapChunk.X, mapChunk.Y);
-
-            List<Cell> cellList = GetConnectedCells(map.Grid, cell);
-
-            foreach (Cell connectedCell in cellList)
-            {
-                chunkX = connectedCell.J * ChunkWidth;
-                chunkY = connectedCell.I * ChunkHeight;
-
-                terrainByte = map.GridCells[connectedCell.I * Cols + connectedCell.J];
-                mapChunk = GenerateMapChunk(chunkX, chunkY, terrainByte);
-                world.AddChunkToView(mapChunk);
-            }
-
-            return world;
-        }
-
-        public void RegenerateWorld(World world, Map map, Cell cell, bool isFullRegeneration)
+        public void GenerateWorld(World world, Cell cell, bool isFullGeneration)
         {
             world.ClearChunksInView();
 
+            GenerateWorldRecursive(world, cell, world.ViewDistance);
+
             int chunkX = cell.J * ChunkWidth;
             int chunkY = cell.I * ChunkHeight;
-
-            if (!world.IsChunkAlreadyGenerated(chunkX, chunkY))
-            {
-                byte terrainByte = map.GridCells[cell.I * Cols + cell.J];
-                MapChunk mapChunk = GenerateMapChunk(chunkX, chunkY, terrainByte);
-                world.AddChunkToView(mapChunk);
-            }
-            else
-            {
-                world.CopyChunkToView(chunkX, chunkY);
-            }
 
             MapChunk? centerChunk = world.GetMapChunk(chunkX, chunkY);
             if (centerChunk != null)
             {
                 world.SetCenterChunk(centerChunk);
-                if (isFullRegeneration)
+                if (isFullGeneration)
                 {
                     world.SetTopLeft(centerChunk.X, centerChunk.Y);
-                } 
+                }
             }
+        }
 
-            List<Cell> cellList = GetConnectedCells(map.Grid, cell);
+        public void GenerateWorldRecursive(World world, Cell cell, int viewDistance)
+        {
+            int chunkX = cell.J * ChunkWidth;
+            int chunkY = cell.I * ChunkHeight;
 
-            foreach (Cell connectedCell in cellList)
+            if (!world.IsChunkInView(chunkX, chunkY))
             {
-                chunkX = connectedCell.J * ChunkWidth;
-                chunkY = connectedCell.I * ChunkHeight;
-
                 if (!world.IsChunkAlreadyGenerated(chunkX, chunkY))
                 {
-                    byte terrainByte = map.GridCells[connectedCell.I * Cols + connectedCell.J];
+                    byte terrainByte = world.Map.GridCells[cell.I * Cols + cell.J];
                     MapChunk mapChunk = GenerateMapChunk(chunkX, chunkY, terrainByte);
                     world.AddChunkToView(mapChunk);
                 }
                 else
                 {
                     world.CopyChunkToView(chunkX, chunkY);
-                }   
+                }
+
+                if (viewDistance > 0)
+                {
+                    List<Cell> cellList = GetConnectedCells(world.Map.Grid, cell);
+
+                    foreach (Cell connectedCell in cellList)
+                    {
+                        GenerateWorldRecursive(world, connectedCell, viewDistance - 1);
+                    }
+                } 
             }
         }
 

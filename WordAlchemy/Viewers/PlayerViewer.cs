@@ -50,13 +50,12 @@ namespace WordAlchemy.Viewers
         {
             if (!IsWorldGenerated)
             {
-                World = Map.MapGen.GenerateWorld(Map, cell);
+                World = new World(Map, viewDistance: 2);
+
+                Map.MapGen.GenerateWorld(World, cell, true);
 
                 if (World.CenterChunk != null)
                 {
-                    Player.X = World.CenterChunk.X + World.CenterChunk.Width / 2;
-                    Player.Y = World.CenterChunk.Y + World.CenterChunk.Height / 2;
-
                     if (SrcViewWindow != null)
                     {
                         SrcViewWindow.Width = World.CenterChunk.Width;
@@ -76,13 +75,15 @@ namespace WordAlchemy.Viewers
             {
                 if (World != null && World.CenterChunk != null)
                 {
-                    Map.MapGen.RegenerateWorld(World, Map, cell, true);
-
-                    Player.X = World.CenterChunk.X + World.CenterChunk.Width / 2;
-                    Player.Y = World.CenterChunk.Y + World.CenterChunk.Height / 2;
+                    Map.MapGen.GenerateWorld(World, cell, true); 
                 }
             }
-            
+
+            if (World != null && World.CenterChunk != null)
+            {
+                Player.X = World.CenterChunk.X + World.CenterChunk.Width / 2;
+                Player.Y = World.CenterChunk.Y + World.CenterChunk.Height / 2;
+            }
         }
 
         public void Update()

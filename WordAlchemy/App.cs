@@ -38,7 +38,7 @@ namespace WordAlchemy
             WireEvents();
 
             Random random = new Random();
-            MapGen mapGen = new MapGen(240, 240, 25, 50, random.Next(0, 1000000));
+            MapGen mapGen = new MapGen(240, 240, 10, 25, random.Next(0, 1000000)); // 25, 50
 
             Map map = mapGen.GenerateMap();
             map.GenerateMapTexture();

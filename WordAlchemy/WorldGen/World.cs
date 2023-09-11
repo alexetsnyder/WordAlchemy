@@ -8,6 +8,8 @@ namespace WordAlchemy.WorldGen
 {
     public class World
     {
+        public int ViewDistance { get; set; }
+
         public int TopLeftX { get; set; }
         public int TopLeftY { get; set; }
 
@@ -19,8 +21,9 @@ namespace WordAlchemy.WorldGen
 
         private Dictionary<Tuple<int, int>, MapChunk> AllGeneratedChunks { get; set; }
 
-        public World(Map map)
+        public World(Map map, int viewDistance)
         {
+            ViewDistance = viewDistance;
             Map = map;
 
             TopLeftX = 0;
@@ -28,7 +31,12 @@ namespace WordAlchemy.WorldGen
 
             CenterChunk = null;
             ChunksInView = new List<MapChunk>();
-            AllGeneratedChunks = new Dictionary<Tuple<int, int>, MapChunk>();
+            AllGeneratedChunks = new Dictionary<Tuple<int, int>, MapChunk>();   
+        }
+
+        public bool IsChunkInView(int chunkX, int chunkY)
+        {
+            return ChunksInView.Any(chunk => chunk.X == chunkX && chunk.Y == chunkY);
         }
 
         public bool IsChunkAlreadyGenerated(int chunkX, int chunkY)
@@ -86,10 +94,9 @@ namespace WordAlchemy.WorldGen
             MapChunk? mapChunk = GetMapChunkFromWorld(worldX, worldY);
             if (mapChunk != null && mapChunk != CenterChunk)
             {
-                Cell oldCell = Map.MapGen.ChunkToMapCell(Map.Grid, CenterChunk.X, CenterChunk.Y);
                 SetCenterChunk(mapChunk);
                 Cell newCell = Map.MapGen.ChunkToMapCell(Map.Grid, mapChunk.X, mapChunk.Y);
-                Map.MapGen.RegenerateWorld(this, Map, newCell, false);
+                Map.MapGen.GenerateWorld(this, newCell, false);
                 Map.SelectedCell = newCell;
             }
         }
