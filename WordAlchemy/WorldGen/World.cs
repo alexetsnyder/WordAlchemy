@@ -95,9 +95,8 @@ namespace WordAlchemy.WorldGen
             if (mapChunk != null && mapChunk != CenterChunk)
             {
                 SetCenterChunk(mapChunk);
-                Cell newCell = Map.MapGen.ChunkToMapCell(Map.Grid, mapChunk.X, mapChunk.Y);
-                Map.MapGen.GenerateWorld(this, newCell, false);
-                Map.SelectedCell = newCell;
+                Map.MapGen.GenerateWorld(this, mapChunk.MapCell, false);
+                Map.SelectedCell = mapChunk.MapCell;
             }
         }
 

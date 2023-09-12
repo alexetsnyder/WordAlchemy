@@ -106,7 +106,7 @@ namespace WordAlchemy.WorldGen
                 if (!world.IsChunkAlreadyGenerated(chunkX, chunkY))
                 {
                     byte terrainByte = world.Map.GridCells[cell.I * Cols + cell.J];
-                    MapChunk mapChunk = GenerateMapChunk(chunkX, chunkY, terrainByte);
+                    MapChunk mapChunk = GenerateMapChunk(cell, chunkX, chunkY, terrainByte);
                     world.AddChunkToView(mapChunk);
                 }
                 else
@@ -134,9 +134,9 @@ namespace WordAlchemy.WorldGen
             return grid.GetCell(i, j);
         }
 
-        public MapChunk GenerateMapChunk(int chunkX, int chunkY, byte terrainByte)
+        public MapChunk GenerateMapChunk(Cell cell, int chunkX, int chunkY, byte terrainByte)
         {
-            MapChunk mapChunk = new MapChunk(chunkX, chunkY, ChunkRows, ChunkCols, ChunkWidth, ChunkHeight);
+            MapChunk mapChunk = new MapChunk(cell, chunkX, chunkY, ChunkRows, ChunkCols, ChunkWidth, ChunkHeight);
             FillChunkGridCells(mapChunk.GridCells, terrainByte);
             mapChunk.GenerateChunkTexture();
 

@@ -16,6 +16,8 @@ namespace WordAlchemy.WorldGen
         public int Rows { get; set; }
         public int Cols { get; set; }
 
+        public Cell MapCell { get; set; }
+
         public Grid Grid { get; set; }
 
         public byte[] GridCells { get; set; }
@@ -24,7 +26,7 @@ namespace WordAlchemy.WorldGen
 
         private GraphicSystem GraphicSystem { get; set; }
 
-        public MapChunk(int x, int y, int rows, int cols, int width, int height)
+        public MapChunk(Cell cell, int x, int y, int rows, int cols, int width, int height)
         {
             X = x;
             Y = y;
@@ -35,6 +37,7 @@ namespace WordAlchemy.WorldGen
             Rows = rows;
             Cols = cols;
 
+            MapCell = cell;
             Grid = new Grid(width / cols, height / rows);
             GridCells = new byte[rows * cols];
 
