@@ -1,4 +1,5 @@
-﻿using WordAlchemy.Helpers;
+﻿using System.Diagnostics;
+using WordAlchemy.Helpers;
 using WordAlchemy.Settings;
 using WordAlchemy.Systems;
 
@@ -106,7 +107,7 @@ namespace WordAlchemy.WorldGen
                 if (!world.IsChunkAlreadyGenerated(chunkX, chunkY))
                 {
                     byte terrainByte = world.Map.GridCells[cell.I * Cols + cell.J];
-                    MapChunk mapChunk = GenerateMapChunk(cell, chunkX, chunkY, terrainByte);
+                    MapChunk mapChunk = GenerateMapChunk(world, cell, chunkX, chunkY, terrainByte);
                     world.AddChunkToView(mapChunk);
                 }
                 else
@@ -134,10 +135,10 @@ namespace WordAlchemy.WorldGen
             return grid.GetCell(i, j);
         }
 
-        public MapChunk GenerateMapChunk(Cell cell, int chunkX, int chunkY, byte terrainByte)
+        public MapChunk GenerateMapChunk(World world, Cell cell, int chunkX, int chunkY, byte terrainByte)
         {
             MapChunk mapChunk = new MapChunk(cell, chunkX, chunkY, ChunkRows, ChunkCols, ChunkWidth, ChunkHeight);
-            FillChunkGridCells(mapChunk.GridCells, terrainByte);
+            FillChunkGridCells(world, cell, mapChunk.GridCells, terrainByte);
             mapChunk.GenerateChunkTexture();
 
             return mapChunk;
@@ -169,7 +170,7 @@ namespace WordAlchemy.WorldGen
             }
         }
 
-        private void FillChunkGridCells(byte[] gridCells, byte terrainByte)
+        private void FillChunkGridCells(World world, Cell cell, byte[] gridCells, byte terrainByte)
         {
             for (int i = 0; i < ChunkRows; i++)
             {
@@ -177,6 +178,12 @@ namespace WordAlchemy.WorldGen
                 {
                     gridCells[i * ChunkCols + j] = terrainByte;
                 }
+            }
+
+            TerrainInfo currentTerrain = Terrain.TerrainArray[terrainByte];
+            if (currentTerrain.Equals(Terrain.Water) && world.Map.GetGroup(cell.I, cell.J)?.Type == TerrainType.RIVER)
+            {
+                Debug.WriteLine("River!");
             }
         }
 
