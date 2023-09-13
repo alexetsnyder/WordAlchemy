@@ -1,4 +1,6 @@
 ﻿
+using WordAlchemy.Grids;
+
 namespace WordAlchemy.WorldGen
 {
     public class Group
@@ -8,7 +10,7 @@ namespace WordAlchemy.WorldGen
         public string Name { get; set; }
         public string Description { get; set; }
 
-        public Dictionary<Tuple<int, int>, byte> CellDict { get; set; }
+        private Dictionary<Tuple<int, int>, byte> CellDict { get; set; }
 
         public Group(int id, TerrainType type, string name)
         {
@@ -20,9 +22,36 @@ namespace WordAlchemy.WorldGen
             CellDict = new Dictionary<Tuple<int, int>, byte>();
         }
 
-        public bool IsCellInGroup(int i, int j)
+        public bool IsCellInGroup(Cell cell)
         {
-            return CellDict.ContainsKey(Tuple.Create(i, j));
+            return CellDict.ContainsKey(cell.GridPos.PointTuple);
+        }
+
+        public void AddCell(Cell cell, byte value)
+        {
+            CellDict.Add(cell.GridPos.PointTuple, value);
+        }
+
+        public void RemoveCell(Cell cell)
+        {
+            CellDict.Remove(cell.GridPos.PointTuple);
+        }
+
+        public List<Cell> GetGroupCells(BoundedGrid grid)
+        {
+            List<Cell> cellList = new List<Cell>();
+
+            foreach (var cellTuple in CellDict.Keys)
+            {
+                Point gridPos = new Point(cellTuple);
+                Cell? cell = grid.GetCell(gridPos);
+                if (cell.HasValue)
+                {
+                    cellList.Add(cell.Value);
+                }
+            }
+
+            return cellList;
         }
     }
 }

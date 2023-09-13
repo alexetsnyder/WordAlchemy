@@ -5,6 +5,7 @@ using WordAlchemy.Systems;
 using WordAlchemy.Tools;
 using WordAlchemy.Viewers;
 using WordAlchemy.WorldGen;
+using WordAlchemy.Grids;
 
 namespace WordAlchemy
 {
@@ -43,12 +44,14 @@ namespace WordAlchemy
             Map map = mapGen.GenerateMap();
             map.GenerateMapTexture();
 
-            ViewWindow DstViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
-            ViewWindow SrcViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
+            Point windowSize = new Point(AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
+
+            ViewWindow DstViewWindow = new ViewWindow(new Point(0, 0), windowSize);
+            ViewWindow SrcViewWindow = new ViewWindow(new Point(0, 0), windowSize);
             MapViewer = new MapViewer(map, SrcViewWindow, DstViewWindow);
 
-            DstViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
-            SrcViewWindow = new ViewWindow(0, 0, AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
+            DstViewWindow = new ViewWindow(new Point(0, 0), windowSize);
+            SrcViewWindow = new ViewWindow(new Point(0, 0), windowSize);
             PlayerViewer = new PlayerViewer(map, SrcViewWindow, DstViewWindow);
 
             Viewer = new Tools.FontViewer();

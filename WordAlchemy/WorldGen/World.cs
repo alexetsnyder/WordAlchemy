@@ -3,6 +3,7 @@ using SDL2;
 using WordAlchemy.Helpers;
 using WordAlchemy.Settings;
 using WordAlchemy.Systems;
+using WordAlchemy.Grids;
 
 namespace WordAlchemy.WorldGen
 {
@@ -10,8 +11,7 @@ namespace WordAlchemy.WorldGen
     {
         public int ViewDistance { get; set; }
 
-        public int TopLeftX { get; set; }
-        public int TopLeftY { get; set; }
+        public Point TopLeft { get; set; }
 
         public Map Map { get; set; }
 
@@ -26,22 +26,21 @@ namespace WordAlchemy.WorldGen
             ViewDistance = viewDistance;
             Map = map;
 
-            TopLeftX = 0;
-            TopLeftY = 0;
+            TopLeft = new Point(0, 0);
 
             CenterChunk = null;
             ChunksInView = new List<MapChunk>();
             AllGeneratedChunks = new Dictionary<Tuple<int, int>, MapChunk>();   
         }
 
-        public bool IsChunkInView(int chunkX, int chunkY)
+        public bool IsChunkInView(Point chunkPos)
         {
-            return ChunksInView.Any(chunk => chunk.X == chunkX && chunk.Y == chunkY);
+            return ChunksInView.Any(chunk => chunk.ChunkPos.X == chunkPos.X && chunk.ChunkPos.Y == chunkPos.Y);
         }
 
-        public bool IsChunkAlreadyGenerated(int chunkX, int chunkY)
+        public bool IsChunkAlreadyGenerated(Point chunkPos)
         {
-            if (AllGeneratedChunks.ContainsKey(Tuple.Create(chunkX, chunkY)))
+            if (AllGeneratedChunks.ContainsKey(chunkPos.PointTuple))
             {
                 return true;
             }
@@ -53,29 +52,33 @@ namespace WordAlchemy.WorldGen
             CenterChunk = mapChunk;
         }
 
-        public void SetTopLeft(int x, int y)
+        public void SetTopLeft(Point topLeft)
         {
             int windowWidth = AppSettings.Instance.WindowWidth;
             int windowHeight = AppSettings.Instance.WindowHeight;
 
-            TopLeftX = x - windowWidth / 2 + Map.MapGen.ChunkWidth / 2;
-            TopLeftY = y - windowHeight / 2 + Map.MapGen.ChunkHeight / 2;
+            Point topLeftMod = new Point(windowWidth / 2 + Map.MapGen.ChunkSize.W / 2, windowHeight / 2 + Map.MapGen.ChunkSize.H / 2);
+
+            int x = topLeft.X - windowWidth / 2 + Map.MapGen.ChunkSize.W / 2;
+            int y = topLeft.Y - windowHeight / 2 + Map.MapGen.ChunkSize.H / 2;
+
+            TopLeft = new Point(x, y);
         }
 
-        public void CopyChunkToView(int chunkX, int chunkY)
+        public void CopyChunkToView(Point chunkPos)
         {
-            if (IsChunkAlreadyGenerated(chunkX, chunkY))
+            if (IsChunkAlreadyGenerated(chunkPos))
             {
-                ChunksInView.Add(AllGeneratedChunks[Tuple.Create(chunkX, chunkY)]);
+                ChunksInView.Add(AllGeneratedChunks[chunkPos.PointTuple]);
             }
         }
 
         public void AddChunkToView(MapChunk chunk)
         {
-            if (!AllGeneratedChunks.ContainsKey(Tuple.Create(chunk.X, chunk.Y)))
+            if (!AllGeneratedChunks.ContainsKey(chunk.ChunkPos.PointTuple))
             {
                 ChunksInView.Add(chunk);
-                AllGeneratedChunks.Add(Tuple.Create(chunk.X, chunk.Y), chunk);
+                AllGeneratedChunks.Add(chunk.ChunkPos.PointTuple, chunk);
             }   
         }
 
@@ -89,9 +92,9 @@ namespace WordAlchemy.WorldGen
             ChunksInView.Remove(chunk);
         }
 
-        public void CalculateChunksInView(int worldX, int worldY)
+        public void CalculateChunksInView(Point worldPos)
         {
-            MapChunk? mapChunk = GetMapChunkFromWorld(worldX, worldY);
+            MapChunk? mapChunk = GetMapChunkFromWorld(worldPos);
             if (mapChunk != null && mapChunk != CenterChunk)
             {
                 SetCenterChunk(mapChunk);
@@ -104,8 +107,9 @@ namespace WordAlchemy.WorldGen
         {
             foreach (MapChunk mapChunk in ChunksInView)
             {
-                dst.x = mapChunk.X - TopLeftX;
-                dst.y = mapChunk.Y - TopLeftY;
+                Point dstPos = mapChunk.ChunkPos - TopLeft;
+                dst.x = dstPos.X;
+                dst.y = dstPos.Y;
 
                 mapChunk.Draw(ref src, ref dst);
 
@@ -114,9 +118,9 @@ namespace WordAlchemy.WorldGen
             }
         }
 
-        public MapChunk? GetMapChunk(int chunkX, int chunkY)
+        public MapChunk? GetMapChunk(Point chunkPos)
         {
-            Tuple<int, int> chunkCoord = Tuple.Create(chunkX, chunkY);
+            Tuple<int, int> chunkCoord = chunkPos.PointTuple;
             
             if (AllGeneratedChunks.ContainsKey(chunkCoord))
             {
@@ -126,15 +130,15 @@ namespace WordAlchemy.WorldGen
             return null;
         }
 
-        public MapChunk? GetMapChunkFromWorld(int worldX, int worldY)
+        public MapChunk? GetMapChunkFromWorld(Point worldPos)
         {
             foreach (MapChunk chunk in ChunksInView)
             {
-                int Ax = chunk.X; int Ay = chunk.Y;
-                int Bx = chunk.X + chunk.Width; int By = chunk.Y;
-                int Cx = chunk.X + chunk.Width; int Cy = chunk.Y + chunk.Height;
+                int Ax = chunk.ChunkPos.X; int Ay = chunk.ChunkPos.Y;
+                int Bx = chunk.ChunkPos.X + chunk.ChunkSize.W; int By = chunk.ChunkPos.Y;
+                int Cx = chunk.ChunkPos.X + chunk.ChunkSize.W; int Cy = chunk.ChunkPos.Y + chunk.ChunkSize.H;
 
-                if (MathHelper.IsInRectangle(Ax, Ay, Bx, By, Cx, Cy, worldX, worldY))
+                if (MathHelper.IsInRectangle(Ax, Ay, Bx, By, Cx, Cy, worldPos.X, worldPos.Y))
                 {
                     return chunk;
                 }

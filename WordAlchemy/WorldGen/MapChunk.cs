@@ -1,5 +1,6 @@
 ﻿
 using SDL2;
+using WordAlchemy.Grids;
 using WordAlchemy.Settings;
 using WordAlchemy.Systems;
 
@@ -7,39 +8,25 @@ namespace WordAlchemy.WorldGen
 {
     public class MapChunk
     {
-        public int X {  get; set; }
-        public int Y { get; set; }
+        public Point ChunkPos { get; set; }
 
-        public int Width { get; set; }
-        public int Height { get; set; }
-
-        public int Rows { get; set; }
-        public int Cols { get; set; }
+        public Point ChunkSize { get; set; }
 
         public Cell MapCell { get; set; }
 
-        public Grid Grid { get; set; }
-
-        public byte[] GridCells { get; set; }
+        public BoundedGrid Grid { get; set; }
 
         private IntPtr ChunkTexture { get; set; }
 
         private GraphicSystem GraphicSystem { get; set; }
 
-        public MapChunk(Cell cell, int x, int y, int rows, int cols, int width, int height)
+        public MapChunk(Cell cell, Point chunkPos, int rows, int cols, Point chunkSize)
         {
-            X = x;
-            Y = y;
-
-            Width = width;
-            Height = height;
-
-            Rows = rows;
-            Cols = cols;
+            ChunkPos = chunkPos;
+            ChunkSize = chunkSize;
 
             MapCell = cell;
-            Grid = new Grid(width / cols, height / rows);
-            GridCells = new byte[rows * cols];
+            Grid = new BoundedGrid(new Point(0, 0), new Point(rows, cols), new Point(chunkSize.W / cols, chunkSize.H / rows));
 
             ChunkTexture = IntPtr.Zero;
 
@@ -55,35 +42,24 @@ namespace WordAlchemy.WorldGen
             SDL.SDL_FreeSurface(chunkSurface);
         }
 
-        public IEnumerable<Tuple<byte, Cell>> GetCells()
-        {
-            for (int i = 0; i < Rows; i++)
-            {
-                for (int j = 0; j < Cols; j++)
-                {
-                    yield return new Tuple<byte, Cell>(GridCells[i * Cols + j], Grid.GetCell(i, j));
-                }
-            }
-        }
-
         private IntPtr GenerateChunkSurface()
         {
-            IntPtr chunkSurface = GraphicSystem.CreateSurface(Width, Height);
+            IntPtr chunkSurface = GraphicSystem.CreateSurface(ChunkSize.W, ChunkSize.H);
 
-            foreach (var byteCellTuple in GetCells())
+            foreach (Cell cell in Grid.GetCells())
             {
-                DrawTerrain(chunkSurface, byteCellTuple.Item1, byteCellTuple.Item2);
+                DrawTerrain(chunkSurface, cell, Grid.GetCellValue(cell));
             }
 
             return chunkSurface;
         }
 
-        private void DrawTerrain(IntPtr chunkSurface, byte terrainByte, Cell cell)
+        private void DrawTerrain(IntPtr chunkSurface, Cell cell, byte terrainByte)
         {
             TerrainInfo terrainInfo = Terrain.TerrainArray[terrainByte];
 
-            int x = cell.X + terrainInfo.XMod;
-            int y = cell.Y + terrainInfo.YMod;
+            int x = cell.WorldPos.X + terrainInfo.XMod;
+            int y = cell.WorldPos.Y + terrainInfo.YMod;
 
             GraphicSystem.BlitText(chunkSurface, terrainInfo.Symbol, x, y, terrainInfo.Color, AppSettings.Instance.MapFontName);
         }

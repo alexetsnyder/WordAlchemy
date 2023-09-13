@@ -1,5 +1,6 @@
 ﻿
 using SDL2;
+using WordAlchemy.Grids;
 using WordAlchemy.Settings;
 using WordAlchemy.Systems;
 using WordAlchemy.WorldGen;
@@ -58,14 +59,12 @@ namespace WordAlchemy.Viewers
                 {
                     if (SrcViewWindow != null)
                     {
-                        SrcViewWindow.Width = World.CenterChunk.Width;
-                        SrcViewWindow.Height = World.CenterChunk.Height;
+                        SrcViewWindow.Size = World.CenterChunk.ChunkSize;
                     }
 
                     if (DstViewWindow != null)
                     {
-                        DstViewWindow.Width = World.CenterChunk.Width;
-                        DstViewWindow.Height = World.CenterChunk.Height;
+                        DstViewWindow.Size = World.CenterChunk.ChunkSize;
                     }
                 }
 
@@ -81,15 +80,17 @@ namespace WordAlchemy.Viewers
 
             if (World != null && World.CenterChunk != null)
             {
-                Player.X = World.CenterChunk.X + World.CenterChunk.Width / 2;
-                Player.Y = World.CenterChunk.Y + World.CenterChunk.Height / 2;
+                int x = World.CenterChunk.ChunkPos.X + World.CenterChunk.ChunkSize.W / 2;
+                int y = World.CenterChunk.ChunkPos.Y + World.CenterChunk.ChunkSize.H / 2;
+                Player.WorldPos = new Point(x, y);
+                
             }
         }
 
         public void Update()
         {
             HandleKeys();
-            World?.CalculateChunksInView(Player.X, Player.Y);
+            World?.CalculateChunksInView(Player.WorldPos);
             UpdateUI();
         }
 
@@ -102,7 +103,8 @@ namespace WordAlchemy.Viewers
 
                 World.Draw(ref src, ref dst);
 
-                GraphicSystem.DrawText(Player.Symbol, Player.X - World.TopLeftX, Player.Y - World.TopLeftY, Colors.Red(), AppSettings.Instance.MapFontName);
+                Point playerPos = Player.WorldPos - World.TopLeft;
+                GraphicSystem.DrawText(Player.Symbol, playerPos.X, playerPos.Y, Colors.Red(), AppSettings.Instance.MapFontName);
             }
 
             HUD.Draw();
@@ -121,23 +123,23 @@ namespace WordAlchemy.Viewers
             {
                 if (key == InputSettings.Instance.PlayerUp)
                 {
-                    World.TopLeftY -= speed;
-                    Player.Y -= speed;
+                    World.TopLeft = new Point(World.TopLeft.X, World.TopLeft.Y - speed);
+                    Player.WorldPos = new Point(Player.WorldPos.X, Player.WorldPos.Y - speed);
                 }
                 if (key == InputSettings.Instance.PlayerDown)
                 {
-                    World.TopLeftY += speed;
-                    Player.Y += speed;
+                    World.TopLeft = new Point(World.TopLeft.X, World.TopLeft.Y + speed);
+                    Player.WorldPos = new Point(Player.WorldPos.X, Player.WorldPos.Y + speed);
                 }
                 if (key == InputSettings.Instance.PlayerLeft)
                 {
-                    World.TopLeftX -= speed;
-                    Player.X -= speed;
+                    World.TopLeft = new Point(World.TopLeft.X - speed, World.TopLeft.Y);
+                    Player.WorldPos = new Point(Player.WorldPos.X - speed, Player.WorldPos.Y);
                 }
                 if (key == InputSettings.Instance.PlayerRight)
                 {
-                    World.TopLeftX += speed;
-                    Player.X += speed;
+                    World.TopLeft = new Point(World.TopLeft.X + speed, World.TopLeft.Y);
+                    Player.WorldPos = new Point(Player.WorldPos.X + speed, Player.WorldPos.Y);
                 }
             }
         }
@@ -147,7 +149,7 @@ namespace WordAlchemy.Viewers
             Cell? cell = Map.SelectedCell;
             if (cell.HasValue)
             {
-                Group? group = Map.GetGroup(cell.Value.I, cell.Value.J);
+                Group? group = Map.GetGroup(cell.Value);
                 if (group != null)
                 {
                     HUD.SetGroupTypeStr($"{group.Name} {group.Id}");

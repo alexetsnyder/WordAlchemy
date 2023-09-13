@@ -1,6 +1,7 @@
 ﻿
 using SDL2;
 using System.Diagnostics;
+using WordAlchemy.Grids;
 using WordAlchemy.Settings;
 using WordAlchemy.Systems;
 using WordAlchemy.WorldGen;
@@ -52,12 +53,12 @@ namespace WordAlchemy.Viewers
         {
             if (SelectRect.HasValue)
             {
-                WorldToScreen(SelectRect.Value.x, SelectRect.Value.y, out int x, out int y);
+                WorldToScreen(new Point(SelectRect.Value.x, SelectRect.Value.y), out Point screenPos);
 
                 SDL.SDL_Rect rect = new SDL.SDL_Rect
                 {
-                    x = x,
-                    y = y,
+                    x = screenPos.X,
+                    y = screenPos.Y,
                     w = SelectRect.Value.w,
                     h = SelectRect.Value.h,
                 };
@@ -90,23 +91,23 @@ namespace WordAlchemy.Viewers
             {
                 if (key == InputSettings.Instance.MapUp)
                 {
-                    SrcViewWindow.OffsetY -= speed;
-                    SrcViewWindow.OffsetY = Math.Clamp(SrcViewWindow.OffsetY, 0, GetYMax());
+                    int y = Math.Clamp(SrcViewWindow.Offset.Y - speed, 0, GetYMax());
+                    SrcViewWindow.Offset = new Point(SrcViewWindow.Offset.X, y);
                 }
                 if (key == InputSettings.Instance.MapDown)
                 {
-                    SrcViewWindow.OffsetY += speed;
-                    SrcViewWindow.OffsetY = Math.Clamp(SrcViewWindow.OffsetY, 0, GetYMax());
+                    int y = Math.Clamp(SrcViewWindow.Offset.Y + speed, 0, GetYMax());
+                    SrcViewWindow.Offset = new Point(SrcViewWindow.Offset.X, y);
                 }
                 if (key == InputSettings.Instance.MapLeft)
                 {
-                    SrcViewWindow.OffsetX -= speed;
-                    SrcViewWindow.OffsetX = Math.Clamp(SrcViewWindow.OffsetX, 0, GetXMax());
+                    int x = Math.Clamp(SrcViewWindow.Offset.X - speed, 0, GetXMax());
+                    SrcViewWindow.Offset = new Point(x, SrcViewWindow.Offset.Y);
                 }
                 if (key == InputSettings.Instance.MapRight)
                 {
-                    SrcViewWindow.OffsetX += speed;
-                    SrcViewWindow.OffsetX = Math.Clamp(SrcViewWindow.OffsetX, 0, GetXMax());
+                    int x = Math.Clamp(SrcViewWindow.Offset.X + speed, 0, GetXMax());
+                    SrcViewWindow.Offset = new Point(x, SrcViewWindow.Offset.Y);
                 }
             }
         }
@@ -115,14 +116,14 @@ namespace WordAlchemy.Viewers
         {
             if (SelectRect.HasValue && Map.SelectedCell.HasValue)
             {
-                if (SelectRect.Value.x != Map.SelectedCell.Value.X || SelectRect.Value.y != Map.SelectedCell.Value.Y)
+                if (SelectRect.Value.x != Map.SelectedCell.Value.WorldPos.X || SelectRect.Value.y != Map.SelectedCell.Value.WorldPos.Y)
                 {
                     SelectRect = new SDL.SDL_Rect
                     {
-                        x = Map.SelectedCell.Value.X,
-                        y = Map.SelectedCell.Value.Y,
-                        w = Map.MapGen.CharWidth,
-                        h = Map.MapGen.CharHeight,
+                        x = Map.SelectedCell.Value.WorldPos.X,
+                        y = Map.SelectedCell.Value.WorldPos.Y,
+                        w = Map.MapGen.CharSize.W,
+                        h = Map.MapGen.CharSize.H,
                     };
                 }
             }
@@ -132,12 +133,12 @@ namespace WordAlchemy.Viewers
         {
             SDL.SDL_GetMouseState(out int screenX, out int screenY);
 
-            ScreenToWorld(screenX, screenY, out int worldX, out int worldY);
+            ScreenToWorld(new Point(screenX, screenY), out Point worldPos);
 
-            Cell? cell = Map.GetCell(worldX, worldY);
-            if (cell.HasValue && Map.IsCellGrouped(cell.Value.I, cell.Value.J))
+            Cell? cell = Map.GetCell(worldPos);
+            if (cell.HasValue && Map.IsCellGrouped(cell.Value))
             {
-                Group? group = Map.GetGroup(cell.Value.I, cell.Value.J);
+                Group? group = Map.GetGroup(cell.Value);
                 if (group != null)
                 {
                     HUD.SetGroupTypeStr($"{group.Name} {group.Id}");
@@ -149,22 +150,22 @@ namespace WordAlchemy.Viewers
         {
             int textureWidth = Map.MapGen.Width;
 
-            if (SrcViewWindow == null || textureWidth <= SrcViewWindow.Width)
+            if (SrcViewWindow == null || textureWidth <= SrcViewWindow.Size.W)
             {
                 return 0;
             }
-            return textureWidth - SrcViewWindow.Width;
+            return textureWidth - SrcViewWindow.Size.W;
         }
 
         private int GetYMax()
         {
             int textureHeight = Map.MapGen.Height;
 
-            if (SrcViewWindow == null || textureHeight <= SrcViewWindow.Height)
+            if (SrcViewWindow == null || textureHeight <= SrcViewWindow.Size.H)
             {
                 return 0;
             }
-            return textureHeight - SrcViewWindow.Height;
+            return textureHeight - SrcViewWindow.Size.H;
         }
 
         public void OnKeyDown(SDL.SDL_Event e)
@@ -187,9 +188,9 @@ namespace WordAlchemy.Viewers
                 SDL.SDL_GetMouseState(out int screenX, out int screenY);
                 Debug.WriteLine($"Mouse X: {screenX}, Mouse Y: {screenY}");
 
-                ScreenToWorld(screenX, screenY, out int worldX, out int worldY);
+                ScreenToWorld(new Point(screenX, screenY), out Point worldPos);
 
-                Cell? cell = Map.GetCell(worldX, worldY);
+                Cell? cell = Map.GetCell(worldPos);
 
                 if (cell != null)
                 {
@@ -197,10 +198,10 @@ namespace WordAlchemy.Viewers
 
                     SelectRect = new SDL.SDL_Rect
                     {
-                        x = cell.Value.X,
-                        y = cell.Value.Y,
-                        w = Map.MapGen.CharWidth,
-                        h = Map.MapGen.CharHeight,
+                        x = cell.Value.WorldPos.X,
+                        y = cell.Value.WorldPos.Y,
+                        w = Map.MapGen.CharSize.W,
+                        h = Map.MapGen.CharSize.H,
                     };
                 }
             }

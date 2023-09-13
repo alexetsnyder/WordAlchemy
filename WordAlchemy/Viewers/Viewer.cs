@@ -1,5 +1,6 @@
 ﻿
 using SDL2;
+using WordAlchemy.Grids;
 
 namespace WordAlchemy.Viewers
 {
@@ -15,57 +16,49 @@ namespace WordAlchemy.Viewers
             DstViewWindow = dstViewWindow;
         }
 
-        public void ScreenToWorld(int screenX, int screenY, out int worldX, out int worldY)
+        public void ScreenToWorld(Point screenPos, out Point worldPos)
         {
             if (DstViewWindow == null || SrcViewWindow == null)
             {
-                worldX = screenX;
-                worldY = screenY;
+                worldPos = screenPos;
                 return;
             }
 
-            worldX = screenX - DstViewWindow.OffsetX + SrcViewWindow.OffsetX;
-            worldY = screenY - DstViewWindow.OffsetY + SrcViewWindow.OffsetY;
+            worldPos = screenPos - DstViewWindow.Offset + SrcViewWindow.Offset;  
         }
 
-        public void WorldToScreen(int worldX, int worldY, out int screenX, out int screenY)
+        public void WorldToScreen(Point worldPos, out Point screenPos)
         {
             if (DstViewWindow == null || SrcViewWindow == null)
             {
-                screenX = worldX;
-                screenY = worldY;
+                screenPos = worldPos;
                 return;
             }
 
-            screenX = worldX + DstViewWindow.OffsetX - SrcViewWindow.OffsetX;
-            screenY = worldY + DstViewWindow.OffsetY - SrcViewWindow.OffsetY;
+            screenPos = worldPos + DstViewWindow.Offset - SrcViewWindow.Offset;
         }
     }
 
     public class ViewWindow
     {
-        public int OffsetX { get; set; }
-        public int OffsetY { get; set; }
+        public Point Offset { get; set; }
 
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public Point Size { get; set; }
 
-        public ViewWindow(int offsetX, int offsetY, int width, int height)
+        public ViewWindow(Point offset, Point size)
         {
-            OffsetX = offsetX;
-            OffsetY = offsetY;
-            Width = width;
-            Height = height;
+            Offset = offset;
+            Size = size;
         }
 
         public SDL.SDL_Rect GetViewRect()
         {
             return new SDL.SDL_Rect
             {
-                x = OffsetX,
-                y = OffsetY,
-                w = Width,
-                h = Height,
+                x = Offset.X,
+                y = Offset.Y,
+                w = Size.W,
+                h = Size.H,
             };
         }
     }

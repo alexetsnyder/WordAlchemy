@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using WordAlchemy.Grids;
 using WordAlchemy.Helpers;
 using WordAlchemy.Settings;
 using WordAlchemy.Systems;
@@ -11,7 +12,7 @@ namespace WordAlchemy.WorldGen
         {
             get
             {
-                return Cols * CharWidth;
+                return Cols * CharSize.W;
             }
         }
 
@@ -19,7 +20,7 @@ namespace WordAlchemy.WorldGen
         {
             get
             {
-                return Rows * CharHeight;
+                return Rows * CharSize.H;
             }
         }
 
@@ -29,13 +30,11 @@ namespace WordAlchemy.WorldGen
         public int ChunkRows { get; set; }
         public int ChunkCols { get; set; }
 
-        public int ChunkWidth { get; set; }
-        public int ChunkHeight { get; set; }
+        public Point ChunkSize { get; set; }
 
         public int Seed { get; set; }
 
-        public int CharWidth { get; private set; }
-        public int CharHeight { get; private set; }
+        public Point CharSize { get; set; }
 
         private FastNoiseLite Noise { get; set; }
         private float[] HeightMap { get; set; }
@@ -53,11 +52,9 @@ namespace WordAlchemy.WorldGen
             Noise.SetFractalType(FastNoiseLite.FractalType.FBm);
 
             GraphicSystem.Instance.SizeText(Terrain.Water.Symbol, AppSettings.Instance.MapFontName, out int width, out int height);
-            CharWidth = width;
-            CharHeight = height;
+            CharSize = new Point(width, height);
 
-            ChunkWidth = ChunkCols * CharWidth;
-            ChunkHeight = ChunkRows * CharHeight;
+            ChunkSize = new Point(ChunkCols * CharSize.W, ChunkRows * CharSize.H);
 
             HeightMap = new float[Cols * Rows];
         }
@@ -67,7 +64,7 @@ namespace WordAlchemy.WorldGen
             GenerateHeightMap();
 
             Map map = new Map(this);
-            FillGridCells(map.GridCells);
+            FillGridCells(map.Grid);
             map.GroupList = GroupTerrain(map);
 
             ClassifyWaterGroups(map.GroupList);
@@ -83,41 +80,39 @@ namespace WordAlchemy.WorldGen
 
             GenerateWorldRecursive(world, cell, world.ViewDistance);
 
-            int chunkX = cell.J * ChunkWidth;
-            int chunkY = cell.I * ChunkHeight;
+            Point chunkPos = new Point(cell.GridPos.J * ChunkSize.W, cell.GridPos.I * ChunkSize.H);
 
-            MapChunk? centerChunk = world.GetMapChunk(chunkX, chunkY);
+            MapChunk? centerChunk = world.GetMapChunk(chunkPos);
             if (centerChunk != null)
             {
                 world.SetCenterChunk(centerChunk);
                 if (isFullGeneration)
                 {
-                    world.SetTopLeft(centerChunk.X, centerChunk.Y);
+                    world.SetTopLeft(centerChunk.ChunkPos);
                 }
             }
         }
 
         public void GenerateWorldRecursive(World world, Cell cell, int viewDistance)
         {
-            int chunkX = cell.J * ChunkWidth;
-            int chunkY = cell.I * ChunkHeight;
+            Point chunkPos = new Point(cell.GridPos.J * ChunkSize.W, cell.GridPos.I * ChunkSize.H);
 
-            if (!world.IsChunkInView(chunkX, chunkY))
+            if (!world.IsChunkInView(chunkPos))
             {
-                if (!world.IsChunkAlreadyGenerated(chunkX, chunkY))
+                if (!world.IsChunkAlreadyGenerated(chunkPos))
                 {
-                    byte terrainByte = world.Map.GridCells[cell.I * Cols + cell.J];
-                    MapChunk mapChunk = GenerateMapChunk(world, cell, chunkX, chunkY, terrainByte);
+                    byte terrainByte = world.Map.Grid.GetCellValue(cell);
+                    MapChunk mapChunk = GenerateMapChunk(world, cell, chunkPos, terrainByte);
                     world.AddChunkToView(mapChunk);
                 }
                 else
                 {
-                    world.CopyChunkToView(chunkX, chunkY);
+                    world.CopyChunkToView(chunkPos);
                 }
 
                 if (viewDistance > 0)
                 {
-                    List<Cell> cellList = GetConnectedCells(world.Map.Grid, cell);
+                    List<Cell> cellList = world.Map.Grid.GetConnectedCells(cell);
 
                     foreach (Cell connectedCell in cellList)
                     {
@@ -127,18 +122,10 @@ namespace WordAlchemy.WorldGen
             }
         }
 
-        public Cell ChunkToMapCell(Grid grid, int chunkX, int chunkY)
+        public MapChunk GenerateMapChunk(World world, Cell cell, Point chunkPos, byte terrainByte)
         {
-            int i = chunkY / ChunkHeight;
-            int j = chunkX / ChunkWidth;
-
-            return grid.GetCell(i, j);
-        }
-
-        public MapChunk GenerateMapChunk(World world, Cell cell, int chunkX, int chunkY, byte terrainByte)
-        {
-            MapChunk mapChunk = new MapChunk(cell, chunkX, chunkY, ChunkRows, ChunkCols, ChunkWidth, ChunkHeight);
-            FillChunkGridCells(world, cell, mapChunk.GridCells, terrainByte);
+            MapChunk mapChunk = new MapChunk(cell, chunkPos, ChunkRows, ChunkCols, ChunkSize);
+            FillChunkGridCells(mapChunk.Grid, terrainByte);
             mapChunk.GenerateChunkTexture();
 
             return mapChunk;
@@ -159,31 +146,35 @@ namespace WordAlchemy.WorldGen
             }
         }
 
-        private void FillGridCells(byte[] gridCells)
+        private void FillGridCells(BoundedGrid grid)
         {
             for (int i = 0; i < Rows; i++)
             {
                 for (int j = 0; j < Cols; j++)
                 {
-                    gridCells[i * Cols + j] = GetTerrainByte(i, j);
+                    Point gridPos = new Point(i, j);
+                    Cell? cell = grid.GetCell(gridPos);
+                    if (cell.HasValue)
+                    {
+                        grid.SetCellValue(cell.Value, GetTerrainByte(i, j));
+                    }
                 }
             }
         }
 
-        private void FillChunkGridCells(World world, Cell cell, byte[] gridCells, byte terrainByte)
+        private void FillChunkGridCells(BoundedGrid grid, byte terrainByte)
         {
             for (int i = 0; i < ChunkRows; i++)
             {
                 for (int j = 0; j < ChunkCols; j++)
                 {
-                    gridCells[i * ChunkCols + j] = terrainByte;
+                    Point gridPos = new Point(i, j);
+                    Cell? cell = grid.GetCell(gridPos);
+                    if (cell.HasValue)
+                    {
+                        grid.SetCellValue(cell.Value, terrainByte);
+                    }
                 }
-            }
-
-            TerrainInfo currentTerrain = Terrain.TerrainArray[terrainByte];
-            if (currentTerrain.Equals(Terrain.Water) && world.Map.GetGroup(cell.I, cell.J)?.Type == TerrainType.RIVER)
-            {
-                Debug.WriteLine("River!");
             }
         }
 
@@ -192,12 +183,11 @@ namespace WordAlchemy.WorldGen
             List<Group> groupList = new List<Group>();
 
             int groupIndex = 0;
-            foreach (var indexCellTuple in map.GetCells())
+            foreach (Cell cell in map.Grid.GetCells())
             {
-                byte terrainByte = indexCellTuple.Item1;
-                Cell cell = indexCellTuple.Item2;
+                byte terrainByte = map.Grid.GetCellValue(cell);
 
-                if (!IsCellGrouped(groupList, cell.I, cell.J))
+                if (!IsCellGrouped(groupList, cell))
                 {
                     TerrainInfo terrainInfo = Terrain.TerrainArray[terrainByte];
                     TerrainType type = terrainInfo.Type;
@@ -205,7 +195,7 @@ namespace WordAlchemy.WorldGen
 
                     groupList.Add(group);
 
-                    FillGroup(terrainByte, cell, group, groupList, map.GridCells);
+                    FillGroup(group, cell, terrainByte, map.Grid, groupList);
 
                     groupIndex++;
                 }
@@ -214,11 +204,11 @@ namespace WordAlchemy.WorldGen
             return groupList;
         }
 
-        private bool IsCellGrouped(List<Group> groupList, int i, int j)
+        private bool IsCellGrouped(List<Group> groupList, Cell cell)
         {
             foreach (Group group in groupList)
             {
-                if (group.IsCellInGroup(i, j))
+                if (group.IsCellInGroup(cell))
                 {
                     return true;
                 }
@@ -226,65 +216,30 @@ namespace WordAlchemy.WorldGen
             return false;
         }
 
-        private void FillGroup(byte terrainByte, Cell cell, Group group, List<Group> groupList, byte[] gridCells)
+        private void FillGroup(Group group, Cell cell, byte terrainByte, BoundedGrid grid, List<Group> groupList)
         {
-            Stack<Tuple<int, int>> stack = new Stack<Tuple<int, int>>(new Tuple<int, int>[] { Tuple.Create(cell.I, cell.J) }); 
+            Stack<Cell> stack = new Stack<Cell>(new Cell[] { cell }); 
             
             while (stack.Count > 0)
             {
-                Tuple<int, int> currentCell = stack.Pop();
-                if (!IsCellGrouped(groupList, currentCell.Item1, currentCell.Item2))
+                Cell currentCell = stack.Pop();
+                if (!IsCellGrouped(groupList, currentCell))
                 {
                     TerrainInfo terrainInfo = Terrain.TerrainArray[terrainByte];
 
-                    group.CellDict.Add(Tuple.Create(currentCell.Item1, currentCell.Item2), terrainByte);
+                    group.AddCell(currentCell, terrainByte);
 
-                    List<Tuple<int, int>> connectedCellList = GetConnectedCells(currentCell.Item1, currentCell.Item2);
+                    List<Cell> connectedCellList = grid.GetConnectedCells(currentCell);
 
-                    foreach (var connectedCell in connectedCellList)
+                    foreach (Cell connectedCell in connectedCellList)
                     {
-                        int i = connectedCell.Item1;
-                        int j = connectedCell.Item2;
-
-                        if (Terrain.TerrainArray[gridCells[i * Cols + j]].Equals(terrainInfo))
+                        if (Terrain.TerrainArray[grid.GetCellValue(connectedCell)].Equals(terrainInfo))
                         {
                             stack.Push(connectedCell);
                         }
                     }
                 }
             } 
-        }
-
-        private List<Cell> GetConnectedCells(Grid grid, Cell cell)
-        {
-            return GetConnectedCells(cell.I, cell.J).Select(t => grid.GetCell(t.Item1, t.Item2)).ToList();
-        }
-
-        private List<Tuple<int, int>> GetConnectedCells(int i,  int j)
-        {
-            List<Tuple<int, int>> connectedCellIndexes = new List<Tuple<int, int>>()
-            {
-                new Tuple<int, int>(i - 1, j - 1),
-                new Tuple<int, int>(i - 1, j    ),
-                new Tuple<int, int>(i - 1, j + 1),
-                new Tuple<int, int>(i,     j - 1),
-                new Tuple<int, int>(i,     j + 1),
-                new Tuple<int, int>(i + 1, j - 1),
-                new Tuple<int, int>(i + 1, j    ),
-                new Tuple<int, int>(i + 1, j + 1),
-            };
-
-            List<Tuple<int, int>> connectedCells = new List<Tuple<int, int>>();
-            foreach (var tuple in connectedCellIndexes)
-            {
-                if (tuple.Item1 >= 0 && tuple.Item1 < Rows &&
-                    tuple.Item2 >= 0 && tuple.Item2 < Cols)
-                {
-                    connectedCells.Add(tuple);
-                }
-            }
-
-            return connectedCells;
         }
 
         private void ClassifyWaterGroups(List<Group> groupList)
@@ -312,7 +267,7 @@ namespace WordAlchemy.WorldGen
             {
                 if (group.Type == TerrainType.MOUNTAIN)
                 {
-                    List<Cell> cellList = group.CellDict.Keys.Select(t => map.Grid.GetCell(t.Item1, t.Item2)).ToList();
+                    List<Cell> cellList = group.GetGroupCells(map.Grid);
                     Cell? cell = GetMaxHeight(cellList);
 
                     if (cell.HasValue)
@@ -338,13 +293,13 @@ namespace WordAlchemy.WorldGen
             {
                 foreach (Group riverGroup in riverGroupList)
                 {
-                    foreach (Tuple<int, int> key in riverGroup.CellDict.Keys)
+                    foreach (Cell cell in riverGroup.GetGroupCells(map.Grid))
                     {
                         foreach (Group group in map.GroupList)
                         {
-                            if (group.IsCellInGroup(key.Item1, key.Item2))
+                            if (group.IsCellInGroup(cell))
                             {
-                                group.CellDict.Remove(key);
+                                group.RemoveCell(cell);
                             }
                         }
                     }
@@ -358,21 +313,21 @@ namespace WordAlchemy.WorldGen
         {
             Func<Cell, Cell, bool> StartCellCheck;
 
-            if (cell.X <= Width / 2 && cell.Y <= Height / 2)
+            if (cell.WorldPos.X <= Width / 2 && cell.WorldPos.Y <= Height / 2)
             {
-                StartCellCheck = (c1, c2) => c1.Y == c2.Y && c1.X > c2.X;
+                StartCellCheck = (c1, c2) => c1.WorldPos.Y == c2.WorldPos.Y && c1.WorldPos.X > c2.WorldPos.X;
             }
-            else if (cell.X > Width / 2 && cell.Y <= Height / 2)
+            else if (cell.WorldPos.X > Width / 2 && cell.WorldPos.Y <= Height / 2)
             {
-                StartCellCheck = (c1, c2) => c1.Y == c2.Y && c1.X < c2.X;
+                StartCellCheck = (c1, c2) => c1.WorldPos.Y == c2.WorldPos.Y && c1.WorldPos.X < c2.WorldPos.X;
             }
-            else if (cell.X <= Width / 2 && cell.Y > Height / 2)
+            else if (cell.WorldPos.X <= Width / 2 && cell.WorldPos.Y > Height / 2)
             {
-                StartCellCheck = (c1, c2) => c1.Y == c2.Y && c1.X > c2.X;
+                StartCellCheck = (c1, c2) => c1.WorldPos.Y == c2.WorldPos.Y && c1.WorldPos.X > c2.WorldPos.X;
             }
             else // Cell.X > Width / 2 && Cell.Y > Height / 2
             {
-                StartCellCheck = (c1, c2) => c1.Y == c2.Y && c1.X < c2.X;
+                StartCellCheck = (c1, c2) => c1.WorldPos.Y == c2.WorldPos.Y && c1.WorldPos.X < c2.WorldPos.X;
             }
 
             return StartCellCheck;
@@ -382,29 +337,29 @@ namespace WordAlchemy.WorldGen
         {
             Func<Cell, Cell, bool> OrCellCheck;
 
-            if (cell.X <= Width / 2 && cell.Y <= Height / 2)
+            if (cell.WorldPos.X <= Width / 2 && cell.WorldPos.Y <= Height / 2)
             {
-                OrCellCheck = (c1, c2) => c1.Y <= c2.Y && c1.X >= c2.X;
+                OrCellCheck = (c1, c2) => c1.WorldPos.Y <= c2.WorldPos.Y && c1.WorldPos.X >= c2.WorldPos.X;
             }
-            else if (cell.X > Width / 2 && cell.Y <= Height / 2)
+            else if (cell.WorldPos.X > Width / 2 && cell.WorldPos.Y <= Height / 2)
             {
-                OrCellCheck = (c1, c2) => c1.Y <= c2.Y && c1.X <= c2.X;
+                OrCellCheck = (c1, c2) => c1.WorldPos.Y <= c2.WorldPos.Y && c1.WorldPos.X <= c2.WorldPos.X;
             }
-            else if (cell.X <= Width / 2 && cell.Y > Height / 2)
+            else if (cell.WorldPos.X <= Width / 2 && cell.WorldPos.Y > Height / 2)
             {
-                OrCellCheck = (c1, c2) => c1.Y >= c2.Y && c1.X >= c2.X;
+                OrCellCheck = (c1, c2) => c1.WorldPos.Y >= c2.WorldPos.Y && c1.WorldPos.X >= c2.WorldPos.X;
             }
             else // Cell.X > Width / 2 && Cell.Y > Height / 2
             {
-                OrCellCheck = (c1, c2) => c1.Y >= c2.Y && c1.X <= c2.X;
+                OrCellCheck = (c1, c2) => c1.WorldPos.Y >= c2.WorldPos.Y && c1.WorldPos.X <= c2.WorldPos.X;
             }
 
             return OrCellCheck;
         }
 
-        private Cell? GetStartCell(Grid grid, Cell cell, Func<Cell, Cell, bool> StartCellCheck)
+        private Cell? GetStartCell(BoundedGrid grid, Cell cell, Func<Cell, Cell, bool> StartCellCheck)
         {
-            List<Cell> connectedCellList = GetConnectedCells(grid, cell);
+            List<Cell> connectedCellList = grid.GetConnectedCells(cell);
 
             foreach (Cell connectedCell in connectedCellList)
             {
@@ -419,20 +374,20 @@ namespace WordAlchemy.WorldGen
 
         private void GenerateRiverRecursive(Group group, Cell cell, Map map, Func<Cell, Cell, bool> OrCellCheck)
         {
-            byte terrainByte = map.GridCells[cell.I * Cols + cell.J];
+            byte terrainByte = map.Grid.GetCellValue(cell);
             TerrainType type = Terrain.TerrainArray[terrainByte].Type;
 
             if (type != TerrainType.WATER)
             {
-                map.GridCells[cell.I * Cols + cell.J] = 0;
-                group.CellDict.Add(Tuple.Create(cell.I, cell.J), 0);
+                map.Grid.SetCellValue(cell, 0);
+                group.AddCell(cell, 0);
 
-                List<Cell> connectedCellList = GetConnectedCells(map.Grid, cell);
+                List<Cell> connectedCellList = map.Grid.GetConnectedCells(cell);
 
                 List<Cell> possibleCells = new List<Cell>();
                 foreach (Cell connectedCell in connectedCellList)
                 {
-                    if (OrCellCheck(connectedCell, cell) && group.IsCellInGroup(cell.I, cell.J))
+                    if (OrCellCheck(connectedCell, cell) && !group.IsCellInGroup(connectedCell))
                     {
                         possibleCells.Add(connectedCell);
                     }
@@ -453,7 +408,7 @@ namespace WordAlchemy.WorldGen
 
             foreach (Cell cell in cellList)
             {
-                float height = HeightMap[cell.I * Cols + cell.J];
+                float height = HeightMap[cell.GridPos.I * Cols + cell.GridPos.J];
 
                 if (height < minHeight)
                 {
@@ -472,7 +427,7 @@ namespace WordAlchemy.WorldGen
 
             foreach (Cell cell in cellList)
             {
-                float heightValue = HeightMap[cell.I * Cols + cell.J];
+                float heightValue = HeightMap[cell.GridPos.I * Cols + cell.GridPos.J];
 
                 if (heightValue > maxHeight)
                 {
