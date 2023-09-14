@@ -12,11 +12,7 @@ namespace WordAlchemy.Viewers
 
         public Player Player { get; set; }
 
-        public Map Map { get; set; }
-
-        public ChunkGen ChunkGen { get; set; }
-
-        public World? World { get; set; }
+        public World World { get; set; }
 
         private UI HUD { get; set; }
 
@@ -24,14 +20,12 @@ namespace WordAlchemy.Viewers
 
         private GraphicSystem GraphicSystem { get; set; }
 
-        public PlayerViewer(Map map, ChunkGen chunkGen, ViewWindow? srcViewWindow, ViewWindow? dstViewWindow)
+        public PlayerViewer(World world, ViewWindow? srcViewWindow, ViewWindow? dstViewWindow)
             : base(srcViewWindow, dstViewWindow)
         {
             IsWorldGenerated = false;
 
-            Map = map;
-            ChunkGen = chunkGen;
-            World = null;
+            World = world;
             Player = new Player();
             HUD = new UI();
 
@@ -49,13 +43,11 @@ namespace WordAlchemy.Viewers
             eventSystem.Listen((int)GameState.PLAYER, SDL.SDL_EventType.SDL_KEYUP, OnKeyUp);
         }
 
-        public void GenerateWorld(Map map, Cell cell)
+        public void GenerateWorld(Cell cell)
         {
             if (!IsWorldGenerated)
             {
-                World = new World(map, ChunkGen, viewDistance: 2);
-
-                ChunkGen.GenerateWorld(map, World, cell, true);
+                World.ChunkGen.GenerateWorld(World, cell, true);
 
                 if (World.CenterChunk != null)
                 {
@@ -76,7 +68,7 @@ namespace WordAlchemy.Viewers
             {
                 if (World != null && World.CenterChunk != null)
                 {
-                    ChunkGen.GenerateWorld(map, World, cell, true); 
+                    World.ChunkGen.GenerateWorld(World, cell, true); 
                 }
             }
 
@@ -151,7 +143,7 @@ namespace WordAlchemy.Viewers
             Cell? cell = World?.CenterChunk?.MapCell;
             if (cell.HasValue)
             {
-                Group? group = Map.GetGroup(cell.Value);
+                Group? group = World?.Map.GetGroup(cell.Value);
                 if (group != null)
                 {
                     HUD.SetGroupTypeStr($"{group.Name} {group.Id}");

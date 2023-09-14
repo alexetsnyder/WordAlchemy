@@ -49,17 +49,20 @@ namespace WordAlchemy
             Map map = mapGen.GenerateMap();
             map.GenerateMapTexture();
 
+            int viewDistance = 2;
+            World world = new World(map, chunkGen, viewDistance);
+
             Point windowSize = new Point(AppSettings.Instance.WindowWidth, AppSettings.Instance.WindowHeight);
 
             ViewWindow DstViewWindow = new ViewWindow(new Point(0, 0), windowSize);
             ViewWindow SrcViewWindow = new ViewWindow(new Point(0, 0), windowSize);
-            MapViewer = new MapViewer(map, SrcViewWindow, DstViewWindow);
+            MapViewer = new MapViewer(world, SrcViewWindow, DstViewWindow);
 
             DstViewWindow = new ViewWindow(new Point(0, 0), windowSize);
             SrcViewWindow = new ViewWindow(new Point(0, 0), windowSize);
-            PlayerViewer = new PlayerViewer(map, chunkGen, SrcViewWindow, DstViewWindow);
+            PlayerViewer = new PlayerViewer(world, SrcViewWindow, DstViewWindow);
 
-            Viewer = new Tools.FontViewer();
+            Viewer = new FontViewer();
 
             GameSettings = GameSettings.Instance;
             GameSettings.State = GameState.MAP;
@@ -145,9 +148,9 @@ namespace WordAlchemy
             {
                 GameSettings.State = (GameSettings.State == GameState.MAP) ? GameState.PLAYER : GameState.MAP;
 
-                if (GameSettings.State == GameState.PLAYER && MapViewer.Map.SelectedCell.HasValue)
+                if (GameSettings.State == GameState.PLAYER && MapViewer.World.Map.SelectedCell.HasValue)
                 {
-                    PlayerViewer.GenerateWorld(MapViewer.Map, MapViewer.Map.SelectedCell.Value);
+                    PlayerViewer.GenerateWorld(MapViewer.World.Map.SelectedCell.Value);
                 }
             }
         }

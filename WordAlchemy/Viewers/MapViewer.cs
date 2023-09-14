@@ -10,7 +10,7 @@ namespace WordAlchemy.Viewers
 {
     public class MapViewer : Viewer
     {
-        public Map Map { get; set; }
+        public World World { get; set; }
 
         private UI HUD { get; set; }
 
@@ -20,10 +20,10 @@ namespace WordAlchemy.Viewers
 
         private GraphicSystem GraphicSystem { get; set; }
 
-        public MapViewer(Map map, ViewWindow? srcViewWindow = null, ViewWindow? dstViewWindow = null)
+        public MapViewer(World world, ViewWindow? srcViewWindow = null, ViewWindow? dstViewWindow = null)
             : base(srcViewWindow, dstViewWindow)
         {
-            Map = map;
+            World = world;  
             HUD = new UI();
 
             SelectRect = null;
@@ -72,7 +72,7 @@ namespace WordAlchemy.Viewers
                 SDL.SDL_Rect src = SrcViewWindow.GetViewRect();
                 SDL.SDL_Rect dest = DstViewWindow.GetViewRect();
 
-                Map.Draw(ref src, ref dest);
+                World.Map.Draw(ref src, ref dest);
             }
 
             HUD.Draw();
@@ -114,16 +114,16 @@ namespace WordAlchemy.Viewers
 
         private void CheckSelection()
         {
-            if (SelectRect.HasValue && Map.SelectedCell.HasValue)
+            if (SelectRect.HasValue && World.Map.SelectedCell.HasValue)
             {
-                if (SelectRect.Value.x != Map.SelectedCell.Value.WorldPos.X || SelectRect.Value.y != Map.SelectedCell.Value.WorldPos.Y)
+                if (SelectRect.Value.x != World.Map.SelectedCell.Value.WorldPos.X || SelectRect.Value.y != World.Map.SelectedCell.Value.WorldPos.Y)
                 {
                     SelectRect = new SDL.SDL_Rect
                     {
-                        x = Map.SelectedCell.Value.WorldPos.X,
-                        y = Map.SelectedCell.Value.WorldPos.Y,
-                        w = Map.Grid.CellSize.W,
-                        h = Map.Grid.CellSize.H,
+                        x = World.Map.SelectedCell.Value.WorldPos.X,
+                        y = World.Map.SelectedCell.Value.WorldPos.Y,
+                        w = World.Map.Grid.CellSize.W,
+                        h = World.Map.Grid.CellSize.H,
                     };
                 }
             }
@@ -135,10 +135,10 @@ namespace WordAlchemy.Viewers
 
             ScreenToWorld(new Point(screenX, screenY), out Point worldPos);
 
-            Cell? cell = Map.GetCell(worldPos);
-            if (cell.HasValue && Map.IsCellGrouped(cell.Value))
+            Cell? cell = World.Map.GetCell(worldPos);
+            if (cell.HasValue && World.Map.IsCellGrouped(cell.Value))
             {
-                Group? group = Map.GetGroup(cell.Value);
+                Group? group = World.Map.GetGroup(cell.Value);
                 if (group != null)
                 {
                     HUD.SetGroupTypeStr($"{group.Name} {group.Id}");
@@ -148,7 +148,7 @@ namespace WordAlchemy.Viewers
 
         private int GetXMax()
         {
-            int textureWidth = Map.Grid.Size.W;
+            int textureWidth = World.Map.Grid.Size.W;
 
             if (SrcViewWindow == null || textureWidth <= SrcViewWindow.Size.W)
             {
@@ -159,7 +159,7 @@ namespace WordAlchemy.Viewers
 
         private int GetYMax()
         {
-            int textureHeight = Map.Grid.Size.H;
+            int textureHeight = World.Map.Grid.Size.H;
 
             if (SrcViewWindow == null || textureHeight <= SrcViewWindow.Size.H)
             {
@@ -190,18 +190,18 @@ namespace WordAlchemy.Viewers
 
                 ScreenToWorld(new Point(screenX, screenY), out Point worldPos);
 
-                Cell? cell = Map.GetCell(worldPos);
+                Cell? cell = World.Map.GetCell(worldPos);
 
                 if (cell != null)
                 {
-                    Map.SelectedCell = cell;
+                    World.Map.SelectedCell = cell;
 
                     SelectRect = new SDL.SDL_Rect
                     {
                         x = cell.Value.WorldPos.X,
                         y = cell.Value.WorldPos.Y,
-                        w = Map.Grid.CellSize.W,
-                        h = Map.Grid.CellSize.H,
+                        w = World.Map.Grid.CellSize.W,
+                        h = World.Map.Grid.CellSize.H,
                     };
                 }
             }
