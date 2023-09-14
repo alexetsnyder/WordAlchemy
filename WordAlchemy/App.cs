@@ -21,8 +21,6 @@ namespace WordAlchemy
 
         private PlayerViewer PlayerViewer { get; set; }
 
-        private FontViewer Viewer { get; set; }
-
         private GameSettings GameSettings { get; set; }
 
         public App()
@@ -41,8 +39,8 @@ namespace WordAlchemy
             Random random = new Random();
             MapGen mapGen = new MapGen(240, 240, random.Next(0, 1000000));
 
-            int chunkRows = 10; // 25
-            int chunkCols = 25; // 50
+            int chunkRows = 10;
+            int chunkCols = 25;
             Point chunkSize = new Point(chunkCols * mapGen.CharSize.W, chunkRows * mapGen.CharSize.H);
             ChunkGen chunkGen = new ChunkGen(chunkRows, chunkCols, chunkSize);
 
@@ -61,8 +59,6 @@ namespace WordAlchemy
             DstViewWindow = new ViewWindow(new Point(0, 0), windowSize);
             SrcViewWindow = new ViewWindow(new Point(0, 0), windowSize);
             PlayerViewer = new PlayerViewer(world, SrcViewWindow, DstViewWindow);
-
-            Viewer = new FontViewer();
 
             GameSettings = GameSettings.Instance;
             GameSettings.State = GameState.MAP;
@@ -129,8 +125,6 @@ namespace WordAlchemy
             {
                 PlayerViewer.Draw();
             }
-            //Viewer.Draw(Graphics);
-            //Graphics.Atlas?.Draw();
         }
 
         private void OnWindowResizedEvent(SDL.SDL_Event e)
@@ -150,7 +144,7 @@ namespace WordAlchemy
 
                 if (GameSettings.State == GameState.PLAYER && MapViewer.World.Map.SelectedCell.HasValue)
                 {
-                    PlayerViewer.GenerateWorld(MapViewer.World.Map.SelectedCell.Value);
+                    PlayerViewer.GenerateWorld();
                 }
             }
         }

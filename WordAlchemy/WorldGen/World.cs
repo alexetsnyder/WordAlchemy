@@ -36,9 +36,14 @@ namespace WordAlchemy.WorldGen
             AllGeneratedChunks = new Dictionary<Tuple<int, int>, MapChunk>();   
         }
 
-        public void GenerateWorld(Cell cell, bool isFullGeneration)
+        public void GenerateWorld(bool isFullGeneration)
         {
-            ChunkGen.GenerateWorld(this, cell, isFullGeneration);
+            Cell? cell = Map.SelectedCell;
+
+            if (cell.HasValue)
+            {
+                ChunkGen.GenerateWorld(this, cell.Value, isFullGeneration);
+            }  
         }
 
         public bool IsChunkInView(Point chunkPos)

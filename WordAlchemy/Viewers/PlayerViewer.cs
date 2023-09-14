@@ -48,9 +48,9 @@ namespace WordAlchemy.Viewers
             eventSystem.Listen((int)GameState.PLAYER, SDL.SDL_EventType.SDL_KEYUP, OnKeyUp);
         }
 
-        public void GenerateWorld(Cell cell)
+        public void GenerateWorld()
         {
-            World.GenerateWorld(cell, true);
+            World.GenerateWorld(true);
 
             if (World.CenterChunk != null)
             {
