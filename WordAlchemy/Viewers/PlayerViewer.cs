@@ -8,8 +8,6 @@ namespace WordAlchemy.Viewers
 {
     public class PlayerViewer : Viewer
     {
-        public bool IsWorldGenerated {  get; private set; }
-
         public Player Player { get; set; }
 
         public World World { get; set; }
@@ -23,7 +21,14 @@ namespace WordAlchemy.Viewers
         public PlayerViewer(World world, ViewWindow? srcViewWindow, ViewWindow? dstViewWindow)
             : base(srcViewWindow, dstViewWindow)
         {
-            IsWorldGenerated = false;
+            if (SrcViewWindow != null)
+            {
+                SrcViewWindow.Size = world.ChunkGen.ChunkSize;
+            }
+            if (DstViewWindow != null)
+            {
+                DstViewWindow.Size = world.ChunkGen.ChunkSize;
+            }
 
             World = world;
             Player = new Player();
@@ -45,39 +50,13 @@ namespace WordAlchemy.Viewers
 
         public void GenerateWorld(Cell cell)
         {
-            if (!IsWorldGenerated)
-            {
-                World.ChunkGen.GenerateWorld(World, cell, true);
+            World.GenerateWorld(cell, true);
 
-                if (World.CenterChunk != null)
-                {
-                    if (SrcViewWindow != null)
-                    {
-                        SrcViewWindow.Size = World.CenterChunk.ChunkSize;
-                    }
-
-                    if (DstViewWindow != null)
-                    {
-                        DstViewWindow.Size = World.CenterChunk.ChunkSize;
-                    }
-                }
-
-                IsWorldGenerated = true;
-            }
-            else
-            {
-                if (World != null && World.CenterChunk != null)
-                {
-                    World.ChunkGen.GenerateWorld(World, cell, true); 
-                }
-            }
-
-            if (World != null && World.CenterChunk != null)
+            if (World.CenterChunk != null)
             {
                 int x = World.CenterChunk.ChunkPos.X + World.CenterChunk.ChunkSize.W / 2;
                 int y = World.CenterChunk.ChunkPos.Y + World.CenterChunk.ChunkSize.H / 2;
-                Player.WorldPos = new Point(x, y);
-                
+                Player.WorldPos = new Point(x, y);    
             }
         }
 

@@ -36,7 +36,7 @@ namespace WordAlchemy.WorldGen
             }
         }
 
-        public void GenerateWorldRecursive(World world, Cell cell, int viewDistance)
+        private void GenerateWorldRecursive(World world, Cell cell, int viewDistance)
         {
             Point chunkPos = new Point(cell.GridPos.J * ChunkSize.W, cell.GridPos.I * ChunkSize.H);
 
@@ -65,7 +65,7 @@ namespace WordAlchemy.WorldGen
             }
         }
 
-        public MapChunk GenerateMapChunk(World world, Cell cell, Point chunkPos, byte terrainByte)
+        private MapChunk GenerateMapChunk(World world, Cell cell, Point chunkPos, byte terrainByte)
         {
             MapChunk mapChunk = new MapChunk(cell, chunkPos, ChunkRows, ChunkCols, ChunkSize);
             FillChunkGrid(mapChunk.Grid, terrainByte);
