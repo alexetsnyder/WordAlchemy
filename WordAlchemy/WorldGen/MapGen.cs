@@ -46,8 +46,6 @@ namespace WordAlchemy.WorldGen
             GraphicSystem.Instance.SizeText(Terrain.Water.Symbol, AppSettings.Instance.MapFontName, out int width, out int height);
             CharSize = new Point(width, height);
 
-            //ChunkSize = new Point(ChunkCols * CharSize.W, ChunkRows * CharSize.H);
-
             HeightMap = new float[Cols * Rows];
         }
 
@@ -55,7 +53,7 @@ namespace WordAlchemy.WorldGen
         {
             GenerateHeightMap();
 
-            Map map = new Map(this);
+            Map map = new Map(Rows, Cols, CharSize);
             FillGrid(map.Grid);
             map.GroupList = GroupTerrain(map);
 

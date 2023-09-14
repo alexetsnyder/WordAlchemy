@@ -122,8 +122,8 @@ namespace WordAlchemy.Viewers
                     {
                         x = Map.SelectedCell.Value.WorldPos.X,
                         y = Map.SelectedCell.Value.WorldPos.Y,
-                        w = Map.MapGen.CharSize.W,
-                        h = Map.MapGen.CharSize.H,
+                        w = Map.Grid.CellSize.W,
+                        h = Map.Grid.CellSize.H,
                     };
                 }
             }
@@ -148,7 +148,7 @@ namespace WordAlchemy.Viewers
 
         private int GetXMax()
         {
-            int textureWidth = Map.MapGen.Width;
+            int textureWidth = Map.Grid.Size.W;
 
             if (SrcViewWindow == null || textureWidth <= SrcViewWindow.Size.W)
             {
@@ -159,7 +159,7 @@ namespace WordAlchemy.Viewers
 
         private int GetYMax()
         {
-            int textureHeight = Map.MapGen.Height;
+            int textureHeight = Map.Grid.Size.H;
 
             if (SrcViewWindow == null || textureHeight <= SrcViewWindow.Size.H)
             {
@@ -200,8 +200,8 @@ namespace WordAlchemy.Viewers
                     {
                         x = cell.Value.WorldPos.X,
                         y = cell.Value.WorldPos.Y,
-                        w = Map.MapGen.CharSize.W,
-                        h = Map.MapGen.CharSize.H,
+                        w = Map.Grid.CellSize.W,
+                        h = Map.Grid.CellSize.H,
                     };
                 }
             }

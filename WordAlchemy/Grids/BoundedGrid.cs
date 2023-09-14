@@ -8,7 +8,7 @@ namespace WordAlchemy.Grids
         public int Rows { get; set; }
         public int Cols { get; set; }
 
-        public Point GridSize { get; set; }
+        public Point Size { get; set; }
 
         private byte[] GridCellValues { get; set; }
 
@@ -17,7 +17,7 @@ namespace WordAlchemy.Grids
             Rows = gridRowsCols.X;
             Cols = gridRowsCols.Y;
 
-            GridSize = new Point(Cols * cellSize.W, Rows * cellSize.H);
+            Size = new Point(Cols * cellSize.W, Rows * cellSize.H);
             GridCellValues = new byte[Rows * Cols];
         }
 
@@ -59,8 +59,8 @@ namespace WordAlchemy.Grids
 
         public override Cell? GetCellFromWorld(Point worldPos)
         {
-            if (worldPos.X >= 0 && worldPos.X < GridSize.W &&
-                worldPos.Y >= 0 && worldPos.Y < GridSize.H)
+            if (worldPos.X >= 0 && worldPos.X < Size.W &&
+                worldPos.Y >= 0 && worldPos.Y < Size.H)
             {
                 return base.GetCellFromWorld(worldPos);
             }

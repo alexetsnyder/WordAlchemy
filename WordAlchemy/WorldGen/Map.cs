@@ -12,32 +12,25 @@ namespace WordAlchemy.WorldGen
 
         public List<Group> GroupList { get; set; }
 
-        public MapGen MapGen { get; set; }
-
         public Cell? SelectedCell { get; set; }
 
         private IntPtr MapTexture { get; set; }
 
         private GraphicSystem GraphicSystem { get; set; }
 
-        public Map(MapGen mapGen)
+        public Map(int rows, int cols, Point charSize)
         {
-            MapGen = mapGen;
-
-            Grid = new BoundedGrid(new Point(0, 0), new Point(MapGen.Rows, MapGen.Cols), MapGen.CharSize);
-
+            Grid = new BoundedGrid(new Point(0, 0), new Point(rows, cols), charSize);
             GroupList = new List<Group>();
-
             SelectedCell = null;
 
             MapTexture = IntPtr.Zero;
-
             GraphicSystem = GraphicSystem.Instance;
         }
 
         public void GenerateMapTexture()
         {
-            MapTexture = GraphicSystem.CreateTexture(MapGen.Width, MapGen.Height);
+            MapTexture = GraphicSystem.CreateTexture(Grid.Size.W, Grid.Size.H);
 
             foreach (Cell cell in Grid.GetCells())
             {
