@@ -1,5 +1,4 @@
-﻿
-using SDL2;
+﻿using SDL2;
 using WordAlchemy.Grids;
 using WordAlchemy.Settings;
 using WordAlchemy.Systems;
@@ -50,13 +49,13 @@ namespace WordAlchemy.Viewers
             eventSystem.Listen((int)GameState.PLAYER, SDL.SDL_EventType.SDL_KEYUP, OnKeyUp);
         }
 
-        public void GenerateWorld(Cell cell)
+        public void GenerateWorld(Map map, Cell cell)
         {
             if (!IsWorldGenerated)
             {
-                World = new World(Map, ChunkGen, viewDistance: 2);
+                World = new World(map, ChunkGen, viewDistance: 2);
 
-                ChunkGen.GenerateWorld(World, cell, true);
+                ChunkGen.GenerateWorld(map, World, cell, true);
 
                 if (World.CenterChunk != null)
                 {
@@ -77,7 +76,7 @@ namespace WordAlchemy.Viewers
             {
                 if (World != null && World.CenterChunk != null)
                 {
-                    ChunkGen.GenerateWorld(World, cell, true); 
+                    ChunkGen.GenerateWorld(map, World, cell, true); 
                 }
             }
 
@@ -149,7 +148,7 @@ namespace WordAlchemy.Viewers
 
         public void UpdateUI()
         {
-            Cell? cell = Map.SelectedCell;
+            Cell? cell = World?.CenterChunk?.MapCell;
             if (cell.HasValue)
             {
                 Group? group = Map.GetGroup(cell.Value);

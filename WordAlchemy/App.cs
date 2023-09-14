@@ -147,7 +147,7 @@ namespace WordAlchemy
 
                 if (GameSettings.State == GameState.PLAYER && MapViewer.Map.SelectedCell.HasValue)
                 {
-                    PlayerViewer.GenerateWorld(MapViewer.Map.SelectedCell.Value);
+                    PlayerViewer.GenerateWorld(MapViewer.Map, MapViewer.Map.SelectedCell.Value);
                 }
             }
         }

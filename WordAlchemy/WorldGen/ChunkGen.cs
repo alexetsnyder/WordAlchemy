@@ -17,11 +17,11 @@ namespace WordAlchemy.WorldGen
             ChunkSize = chunkSize;
         }
 
-        public void GenerateWorld(World world, Cell cell, bool isFullGeneration)
+        public void GenerateWorld(Map map, World world, Cell cell, bool isFullGeneration)
         {
             world.ClearChunksInView();
 
-            GenerateWorldRecursive(world, cell, world.ViewDistance);
+            GenerateWorldRecursive(map, world, cell, world.ViewDistance);
 
             Point chunkPos = new Point(cell.GridPos.J * ChunkSize.W, cell.GridPos.I * ChunkSize.H);
 
@@ -36,7 +36,7 @@ namespace WordAlchemy.WorldGen
             }
         }
 
-        public void GenerateWorldRecursive(World world, Cell cell, int viewDistance)
+        public void GenerateWorldRecursive(Map map, World world, Cell cell, int viewDistance)
         {
             Point chunkPos = new Point(cell.GridPos.J * ChunkSize.W, cell.GridPos.I * ChunkSize.H);
 
@@ -44,7 +44,7 @@ namespace WordAlchemy.WorldGen
             {
                 if (!world.IsChunkAlreadyGenerated(chunkPos))
                 {
-                    byte terrainByte = world.Map.Grid.GetCellValue(cell);
+                    byte terrainByte = map.Grid.GetCellValue(cell);
                     MapChunk mapChunk = GenerateMapChunk(world, cell, chunkPos, terrainByte);
                     world.AddChunkToView(mapChunk);
                 }
@@ -55,11 +55,11 @@ namespace WordAlchemy.WorldGen
 
                 if (viewDistance > 0)
                 {
-                    List<Cell> cellList = world.Map.Grid.GetConnectedCells(cell);
+                    List<Cell> cellList = map.Grid.GetConnectedCells(cell);
 
                     foreach (Cell connectedCell in cellList)
                     {
-                        GenerateWorldRecursive(world, connectedCell, viewDistance - 1);
+                        GenerateWorldRecursive(map, world, connectedCell, viewDistance - 1);
                     }
                 }
             }
