@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using WordAlchemy.Grids;
+﻿using WordAlchemy.Grids;
 using WordAlchemy.Helpers;
 using WordAlchemy.Settings;
 using WordAlchemy.Systems;
@@ -27,11 +26,6 @@ namespace WordAlchemy.WorldGen
         public int Rows { get; set; }
         public int Cols { get; set; }
 
-        public int ChunkRows { get; set; }
-        public int ChunkCols { get; set; }
-
-        public Point ChunkSize { get; set; }
-
         public int Seed { get; set; }
 
         public Point CharSize { get; set; }
@@ -39,12 +33,10 @@ namespace WordAlchemy.WorldGen
         private FastNoiseLite Noise { get; set; }
         private float[] HeightMap { get; set; }
 
-        public MapGen(int rows, int cols, int chunkRows, int chunkCols, int seed)
+        public MapGen(int rows, int cols, int seed)
         {
             Rows = rows;
             Cols = cols;
-            ChunkRows = chunkRows;
-            ChunkCols = chunkCols;
 
             Seed = seed;
             Noise = new FastNoiseLite(seed);
@@ -54,7 +46,7 @@ namespace WordAlchemy.WorldGen
             GraphicSystem.Instance.SizeText(Terrain.Water.Symbol, AppSettings.Instance.MapFontName, out int width, out int height);
             CharSize = new Point(width, height);
 
-            ChunkSize = new Point(ChunkCols * CharSize.W, ChunkRows * CharSize.H);
+            //ChunkSize = new Point(ChunkCols * CharSize.W, ChunkRows * CharSize.H);
 
             HeightMap = new float[Cols * Rows];
         }
@@ -64,7 +56,7 @@ namespace WordAlchemy.WorldGen
             GenerateHeightMap();
 
             Map map = new Map(this);
-            FillGridCells(map.Grid);
+            FillGrid(map.Grid);
             map.GroupList = GroupTerrain(map);
 
             ClassifyWaterGroups(map.GroupList);
@@ -72,63 +64,6 @@ namespace WordAlchemy.WorldGen
             GenerateRivers(map);
 
             return map;
-        }
-
-        public void GenerateWorld(World world, Cell cell, bool isFullGeneration)
-        {
-            world.ClearChunksInView();
-
-            GenerateWorldRecursive(world, cell, world.ViewDistance);
-
-            Point chunkPos = new Point(cell.GridPos.J * ChunkSize.W, cell.GridPos.I * ChunkSize.H);
-
-            MapChunk? centerChunk = world.GetMapChunk(chunkPos);
-            if (centerChunk != null)
-            {
-                world.SetCenterChunk(centerChunk);
-                if (isFullGeneration)
-                {
-                    world.SetTopLeft(centerChunk.ChunkPos);
-                }
-            }
-        }
-
-        public void GenerateWorldRecursive(World world, Cell cell, int viewDistance)
-        {
-            Point chunkPos = new Point(cell.GridPos.J * ChunkSize.W, cell.GridPos.I * ChunkSize.H);
-
-            if (!world.IsChunkInView(chunkPos))
-            {
-                if (!world.IsChunkAlreadyGenerated(chunkPos))
-                {
-                    byte terrainByte = world.Map.Grid.GetCellValue(cell);
-                    MapChunk mapChunk = GenerateMapChunk(world, cell, chunkPos, terrainByte);
-                    world.AddChunkToView(mapChunk);
-                }
-                else
-                {
-                    world.CopyChunkToView(chunkPos);
-                }
-
-                if (viewDistance > 0)
-                {
-                    List<Cell> cellList = world.Map.Grid.GetConnectedCells(cell);
-
-                    foreach (Cell connectedCell in cellList)
-                    {
-                        GenerateWorldRecursive(world, connectedCell, viewDistance - 1);
-                    }
-                } 
-            }
-        }
-
-        public MapChunk GenerateMapChunk(World world, Cell cell, Point chunkPos, byte terrainByte)
-        {
-            MapChunk mapChunk = new MapChunk(cell, chunkPos, ChunkRows, ChunkCols, ChunkSize);
-            FillChunkGridCells(mapChunk.Grid, terrainByte);
-            mapChunk.GenerateChunkTexture();
-
-            return mapChunk;
         }
 
         private void GenerateHeightMap()
@@ -146,7 +81,7 @@ namespace WordAlchemy.WorldGen
             }
         }
 
-        private void FillGridCells(BoundedGrid grid)
+        private void FillGrid(BoundedGrid grid)
         {
             for (int i = 0; i < Rows; i++)
             {
@@ -157,22 +92,6 @@ namespace WordAlchemy.WorldGen
                     if (cell.HasValue)
                     {
                         grid.SetCellValue(cell.Value, GetTerrainByte(i, j));
-                    }
-                }
-            }
-        }
-
-        private void FillChunkGridCells(BoundedGrid grid, byte terrainByte)
-        {
-            for (int i = 0; i < ChunkRows; i++)
-            {
-                for (int j = 0; j < ChunkCols; j++)
-                {
-                    Point gridPos = new Point(i, j);
-                    Cell? cell = grid.GetCell(gridPos);
-                    if (cell.HasValue)
-                    {
-                        grid.SetCellValue(cell.Value, terrainByte);
                     }
                 }
             }

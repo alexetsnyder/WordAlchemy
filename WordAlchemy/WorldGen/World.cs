@@ -15,16 +15,19 @@ namespace WordAlchemy.WorldGen
 
         public Map Map { get; set; }
 
+        public ChunkGen ChunkGen { get; set; }
+
         public MapChunk? CenterChunk { get; private set; }
 
         private List<MapChunk> ChunksInView { get; set; }
 
         private Dictionary<Tuple<int, int>, MapChunk> AllGeneratedChunks { get; set; }
 
-        public World(Map map, int viewDistance)
+        public World(Map map, ChunkGen chunkGen, int viewDistance)
         {
             ViewDistance = viewDistance;
             Map = map;
+            ChunkGen = chunkGen;
 
             TopLeft = new Point(0, 0);
 
@@ -57,10 +60,10 @@ namespace WordAlchemy.WorldGen
             int windowWidth = AppSettings.Instance.WindowWidth;
             int windowHeight = AppSettings.Instance.WindowHeight;
 
-            Point topLeftMod = new Point(windowWidth / 2 + Map.MapGen.ChunkSize.W / 2, windowHeight / 2 + Map.MapGen.ChunkSize.H / 2);
+            Point topLeftMod = new Point(windowWidth / 2 + ChunkGen.ChunkSize.W / 2, windowHeight / 2 + ChunkGen.ChunkSize.H / 2);
 
-            int x = topLeft.X - windowWidth / 2 + Map.MapGen.ChunkSize.W / 2;
-            int y = topLeft.Y - windowHeight / 2 + Map.MapGen.ChunkSize.H / 2;
+            int x = topLeft.X - windowWidth / 2 + ChunkGen.ChunkSize.W / 2;
+            int y = topLeft.Y - windowHeight / 2 + ChunkGen.ChunkSize.H / 2;
 
             TopLeft = new Point(x, y);
         }
@@ -98,7 +101,7 @@ namespace WordAlchemy.WorldGen
             if (mapChunk != null && mapChunk != CenterChunk)
             {
                 SetCenterChunk(mapChunk);
-                Map.MapGen.GenerateWorld(this, mapChunk.MapCell, false);
+                ChunkGen.GenerateWorld(this, mapChunk.MapCell, false);
                 Map.SelectedCell = mapChunk.MapCell;
             }
         }

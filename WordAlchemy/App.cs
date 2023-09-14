@@ -39,7 +39,12 @@ namespace WordAlchemy
             WireEvents();
 
             Random random = new Random();
-            MapGen mapGen = new MapGen(240, 240, 10, 25, random.Next(0, 1000000)); // 25, 50
+            MapGen mapGen = new MapGen(240, 240, random.Next(0, 1000000));
+
+            int chunkRows = 10; // 25
+            int chunkCols = 25; // 50
+            Point chunkSize = new Point(chunkCols * mapGen.CharSize.W, chunkRows * mapGen.CharSize.H);
+            ChunkGen chunkGen = new ChunkGen(chunkRows, chunkCols, chunkSize);
 
             Map map = mapGen.GenerateMap();
             map.GenerateMapTexture();
@@ -52,7 +57,7 @@ namespace WordAlchemy
 
             DstViewWindow = new ViewWindow(new Point(0, 0), windowSize);
             SrcViewWindow = new ViewWindow(new Point(0, 0), windowSize);
-            PlayerViewer = new PlayerViewer(map, SrcViewWindow, DstViewWindow);
+            PlayerViewer = new PlayerViewer(map, chunkGen, SrcViewWindow, DstViewWindow);
 
             Viewer = new Tools.FontViewer();
 

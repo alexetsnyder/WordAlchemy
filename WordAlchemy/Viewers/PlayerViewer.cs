@@ -15,6 +15,8 @@ namespace WordAlchemy.Viewers
 
         public Map Map { get; set; }
 
+        public ChunkGen ChunkGen { get; set; }
+
         public World? World { get; set; }
 
         private UI HUD { get; set; }
@@ -23,12 +25,13 @@ namespace WordAlchemy.Viewers
 
         private GraphicSystem GraphicSystem { get; set; }
 
-        public PlayerViewer(Map map, ViewWindow? srcViewWindow, ViewWindow? dstViewWindow)
+        public PlayerViewer(Map map, ChunkGen chunkGen, ViewWindow? srcViewWindow, ViewWindow? dstViewWindow)
             : base(srcViewWindow, dstViewWindow)
         {
             IsWorldGenerated = false;
 
             Map = map;
+            ChunkGen = chunkGen;
             World = null;
             Player = new Player();
             HUD = new UI();
@@ -51,9 +54,9 @@ namespace WordAlchemy.Viewers
         {
             if (!IsWorldGenerated)
             {
-                World = new World(Map, viewDistance: 2);
+                World = new World(Map, ChunkGen, viewDistance: 2);
 
-                Map.MapGen.GenerateWorld(World, cell, true);
+                ChunkGen.GenerateWorld(World, cell, true);
 
                 if (World.CenterChunk != null)
                 {
@@ -74,7 +77,7 @@ namespace WordAlchemy.Viewers
             {
                 if (World != null && World.CenterChunk != null)
                 {
-                    Map.MapGen.GenerateWorld(World, cell, true); 
+                    ChunkGen.GenerateWorld(World, cell, true); 
                 }
             }
 
