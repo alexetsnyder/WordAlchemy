@@ -73,8 +73,12 @@ namespace WordAlchemy
 
         public void Run()
         {
+            Time.Instance.Init();
+
             while (IsRunning)
             {
+                Time.Instance.Update();
+
                 PollEvents();
 
                 Update();
