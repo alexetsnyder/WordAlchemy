@@ -12,8 +12,6 @@ namespace WordAlchemy.Viewers
 
         public World World { get; set; }
 
-        private UI HUD { get; set; }
-
         private List<SDL.SDL_Keycode> KeysPressedList { get; set; }
 
         private GraphicSystem GraphicSystem { get; set; }
@@ -32,7 +30,6 @@ namespace WordAlchemy.Viewers
 
             World = world;
             Player = new Player();
-            HUD = new UI();
 
             KeysPressedList = new List<SDL.SDL_Keycode>();
 
@@ -64,7 +61,6 @@ namespace WordAlchemy.Viewers
         {
             HandleKeys();
             World?.CalculateChunksInView(Player.WorldPos);
-            UpdateUI();
         }
 
         public void Draw()
@@ -79,8 +75,6 @@ namespace WordAlchemy.Viewers
                 Point playerPos = Player.WorldPos - World.TopLeft;
                 GraphicSystem.DrawText(Player.Symbol, playerPos.X, playerPos.Y, Colors.Red(), AppSettings.Instance.MapFontName);
             }
-
-            HUD.Draw();
         }
 
         private void HandleKeys()
@@ -117,18 +111,21 @@ namespace WordAlchemy.Viewers
             }
         }
 
-        public void UpdateUI()
+        public string GetGroupTypeStr()
         {
+            string groupTypeStr = "";
+
             Cell? cell = World?.CenterChunk?.MapCell;
             if (cell.HasValue)
             {
                 Group? group = World?.Map.GetGroup(cell.Value);
                 if (group != null)
                 {
-                    HUD.SetGroupTypeStr($"{group.Name} {group.Id}");
+                    groupTypeStr = $"{group.Name} {group.Id}";
                 }
-
             }
+
+            return groupTypeStr;
         }
 
         public void OnKeyDown(SDL.SDL_Event e)

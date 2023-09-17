@@ -5,6 +5,7 @@ using WordAlchemy.Systems;
 using WordAlchemy.Viewers;
 using WordAlchemy.WorldGen;
 using WordAlchemy.Grids;
+using WordAlchemy.GUI;
 
 namespace WordAlchemy
 {
@@ -19,6 +20,10 @@ namespace WordAlchemy
         private MapViewer MapViewer { get; set; }
 
         private PlayerViewer PlayerViewer { get; set; }
+
+        private UserInterface MapHUD { get; set; }
+
+        private UserInterface PlayerHUD { get; set; }
 
         private GameSettings GameSettings { get; set; }
 
@@ -55,9 +60,17 @@ namespace WordAlchemy
             ViewWindow SrcViewWindow = new ViewWindow(new Point(0, 0), windowSize);
             MapViewer = new MapViewer(world, SrcViewWindow, DstViewWindow);
 
+            MapHUD = new UserInterface();
+            TextElement groupType = new TextElement(MapViewer.GetGroupTypeStr);
+            MapHUD.AddUIElement(groupType);
+
             DstViewWindow = new ViewWindow(new Point(0, 0), windowSize);
             SrcViewWindow = new ViewWindow(new Point(0, 0), windowSize);
             PlayerViewer = new PlayerViewer(world, SrcViewWindow, DstViewWindow);
+
+            PlayerHUD = new UserInterface();
+            groupType = new TextElement(PlayerViewer.GetGroupTypeStr);
+            PlayerHUD.AddUIElement(groupType);
 
             GameSettings = GameSettings.Instance;
             GameSettings.State = GameState.MAP;
@@ -111,10 +124,12 @@ namespace WordAlchemy
             if (GameSettings.State == GameState.MAP)
             {
                 MapViewer.Update();
+                MapHUD.Update();
             }
             else
             {
                 PlayerViewer.Update();
+                PlayerHUD.Update();
             }
         }
 
@@ -123,10 +138,12 @@ namespace WordAlchemy
             if (GameSettings.State == GameState.MAP)
             {
                 MapViewer.Draw();
+                MapHUD.Draw();
             }
             else
             {
                 PlayerViewer.Draw();
+                PlayerHUD.Draw();
             }
         }
 

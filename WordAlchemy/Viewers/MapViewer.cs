@@ -12,8 +12,6 @@ namespace WordAlchemy.Viewers
     {
         public World World { get; set; }
 
-        private UI HUD { get; set; }
-
         public SDL.SDL_Rect? SelectRect { get; private set; }
 
         private List<SDL.SDL_Keycode> KeysPressedList { get; set; }
@@ -24,7 +22,6 @@ namespace WordAlchemy.Viewers
             : base(srcViewWindow, dstViewWindow)
         {
             World = world;  
-            HUD = new UI();
 
             SelectRect = null;
             KeysPressedList = new List<SDL.SDL_Keycode>();
@@ -46,7 +43,6 @@ namespace WordAlchemy.Viewers
         {
             HandleKeys();
             CheckSelection();
-            UpdateUI();
         }
 
         public void Draw()
@@ -74,8 +70,6 @@ namespace WordAlchemy.Viewers
 
                 World.Map.Draw(ref src, ref dest);
             }
-
-            HUD.Draw();
         }
 
         private void HandleKeys()
@@ -129,8 +123,10 @@ namespace WordAlchemy.Viewers
             }
         }
 
-        private void UpdateUI()
+        public string GetGroupTypeStr()
         {
+            string groupTypeStr = "";
+
             SDL.SDL_GetMouseState(out int screenX, out int screenY);
 
             ScreenToWorld(new Point(screenX, screenY), out Point worldPos);
@@ -141,9 +137,11 @@ namespace WordAlchemy.Viewers
                 Group? group = World.Map.GetGroup(cell.Value);
                 if (group != null)
                 {
-                    HUD.SetGroupTypeStr($"{group.Name} {group.Id}");
+                    groupTypeStr = $"{group.Name} {group.Id}";
                 }
             }
+
+            return groupTypeStr;
         }
 
         private int GetXMax()
